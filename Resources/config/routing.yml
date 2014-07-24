@@ -1,0 +1,12 @@
+manage_gallery_get_images:
+    pattern:  /manage/gallery/get/images/{galleryId}/{mode}
+    defaults: { _controller: BiberLtdCoreBundlesGalleryBundle:Ajax:listGalleryImages, mode:remove }
+manage_gallery_delete:
+    pattern:  /manage/gallery/delete/file/{fileId}/{galleryId}/{mode}
+    defaults: { _controller: BiberLtdCoreBundlesGalleryBundle:Ajax:deleteFiles, mode:remove, galleryId:-1 }
+manage_gallery_sort:
+    pattern:  /manage/gallery/sort/{galleryId}
+    defaults: { _controller: BiberLtdCoreBundlesGalleryBundle:Ajax:sortFiles }
+manage_gallery_upload_images:
+    pattern:  /manage/gallery/upload/images/{galleryId}/{mode}
+    defaults: { _controller: BiberLtdCoreBundlesGalleryBundle:Ajax:uploadImages, mode:remove }
