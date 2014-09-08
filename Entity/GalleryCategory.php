@@ -1,5 +1,5 @@
 <?php
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use BiberLtd\Core\CoreLocalizableEntity;
 use Doctrine\ORM\Mapping AS ORM;
 
@@ -41,20 +41,20 @@ class GalleryCategory extends CoreLocalizableEntity
     public $date_removed;
 
     /**
-     * @ORM\OneToMany(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory", mappedBy="parent")
      */
     private $children;
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategoryLocalization",
+     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization",
      *     mappedBy="category"
      * )
      */
     protected $localizations;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory", inversedBy="children")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory", inversedBy="children")
      * @ORM\JoinColumn(name="parent", referencedColumnName="id")
      */
     private $parent;

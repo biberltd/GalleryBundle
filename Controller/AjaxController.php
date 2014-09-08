@@ -17,10 +17,10 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\GalleryBundle\Controller;
+namespace BiberLtd\Bundle\GalleryBundle\Controller;
 
 use Assetic\Filter\JSMinFilter;
-use BiberLtd\Core\Bundles\FileManagementBundle\BiberLtdCoreBundlesFileManagementBundle;
+use BiberLtd\Bundle\FileManagementBundle\BiberLtdBundleFileManagementBundle;
 use BiberLtd\Core\CoreController;
 use Symfony\Component\HttpKernel\Exception,
     Symfony\Component\HttpFoundation\Response;

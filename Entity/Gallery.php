@@ -15,7 +15,7 @@
  * @description Model / Entity class.
  *
  */
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Core\CoreLocalizableEntity;
 
@@ -89,7 +89,7 @@ class Gallery extends CoreLocalizableEntity
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryLocalization",
+     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization",
      *     mappedBy="gallery"
      * )
      */
@@ -97,19 +97,19 @@ class Gallery extends CoreLocalizableEntity
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     private $site;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\FileManagementBundle\Entity\File")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File")
      * @ORM\JoinColumn(name="preview_file", referencedColumnName="id")
      */
     private $preview_file;
 
     /** 
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\FileManagementBundle\Entity\FileUploadFolder")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder")
      * @ORM\JoinColumn(name="folder", referencedColumnName="id")
      */
     private $folder;

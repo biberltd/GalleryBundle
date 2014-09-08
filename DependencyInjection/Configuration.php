@@ -1,6 +1,6 @@
 <?php
 
-namespace BiberLtd\Core\Bundles\GalleryBundle\DependencyInjection;
+namespace BiberLtd\Bundle\GalleryBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

@@ -13,7 +13,7 @@
  * @description Model / Entity class.
  *
  */
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Core\CoreEntity;
 
@@ -45,14 +45,14 @@ class GalleryLocalization extends CoreEntity
 
     /** 
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery", inversedBy="localizations")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery", inversedBy="localizations")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      */
     private $gallery;
 
     /** 
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      */
     private $language;
