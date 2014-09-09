@@ -1,7 +1,7 @@
 <?php
 /**
  * @name        GalleryMedia
- * @package		BiberLtd\Core\GalleryBundle
+ * @package		BiberLtd\Bundle\CoreBundle\GalleryBundle
  *
  * @author		Murat Ünal
  * @version     1.0.1
@@ -13,9 +13,9 @@
  * @description Model / Entity class.
  *
  */
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
-use BiberLtd\Core\CoreEntity;
+use BiberLtd\Bundle\CoreBundle\CoreEntity;
 
 /** 
  * @ORM\Entity
@@ -50,14 +50,14 @@ class GalleryMedia extends CoreEntity
 
     /** 
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\FileManagementBundle\Entity\File")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File")
      * @ORM\JoinColumn(name="file", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      */
     private $file;
 
     /** 
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", nullable=false)
      */
     private $gallery;

@@ -1,6 +1,6 @@
 <?php
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
-use BiberLtd\Core\CoreEntity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
+use BiberLtd\Bundle\CoreBundle\CoreEntity;
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
@@ -33,14 +33,14 @@ class CategoriesOfGallery extends CoreEntity
     public $date_removed;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
      */
     private $gallery;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory")
      * @ORM\JoinColumn(name="category", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
      */

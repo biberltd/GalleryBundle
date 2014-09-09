@@ -219,7 +219,7 @@
       </orm-attributes>
     </association>
     <orm-attributes>
-      <attribute name="namespace">BiberLtd\Core\Bundles\GalleryBundle\Entity</attribute>
+      <attribute name="namespace">BiberLtd\Bundle\GalleryBundle\Entity</attribute>
       <attribute name="file-suffix">without-suffix</attribute>
       <attribute name="filename-format">entity-name-only</attribute>
     </orm-attributes>

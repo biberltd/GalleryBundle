@@ -38,19 +38,19 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\GalleryBundle\Services;
+namespace BiberLtd\Bundle\GalleryBundle\Services;
 
 /** Extends CoreModel */
-use BiberLtd\Core\CoreModel;
+use BiberLtd\Bundle\CoreBundle\CoreModel;
 /** Entities to be used */
-use BiberLtd\Core\Bundles\GalleryBundle\Entity as BundleEntity;
-use BiberLtd\Core\Bundles\FileManagementBundle\Entity as FileBundleEntity;
+use BiberLtd\Bundle\GalleryBundle\Entity as BundleEntity;
+use BiberLtd\Bundle\FileManagementBundle\Entity as FileBundleEntity;
 /** Helper Models */
-use BiberLtd\Core\Bundles\GalleryBundle\Services as SMMService;
-use BiberLtd\Core\Bundles\FileManagementBundle\Services as FMMService;
+use BiberLtd\Bundle\GalleryBundle\Services as SMMService;
+use BiberLtd\Bundle\FileManagementBundle\Services as FMMService;
 /** Core Service */
-use BiberLtd\Core\Services as CoreServices;
-use BiberLtd\Core\Exceptions as CoreExceptions;
+use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
+use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 
 class GalleryModel extends CoreModel {
     /**
@@ -4077,7 +4077,7 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name            validateAndGetGallery()
-     *                  Validates $gallery parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery if found in database.
+     *                  Validates $gallery parameter and returns BiberLtd\Bundle\GalleryBundle\Entity\Gallery if found in database.
      *
      * @since           1.0.9
      * @version         1.0.9
@@ -4088,7 +4088,7 @@ class GalleryModel extends CoreModel {
      *
      * @param           mixed           $gallery
      *
-     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery
+     * @return          object          BiberLtd\Bundle\GalleryBundle\Entity\Gallery
      */
     private function validateAndGetGallery($gallery){
         if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
@@ -4116,7 +4116,7 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name            validateAndGetGalleryCategory()
-     *                  Validates $category parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory if found in database.
+     *                  Validates $category parameter and returns BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory if found in database.
      *
      * @since           1.0.9
      * @version         1.0.9
@@ -4127,7 +4127,7 @@ class GalleryModel extends CoreModel {
      *
      * @param           mixed           $category
      *
-     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory
+     * @return          object          BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
      */
     private function validateAndGetGalleryCategory($category){
         if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {

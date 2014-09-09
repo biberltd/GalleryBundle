@@ -1,6 +1,6 @@
 <?php
-namespace BiberLtd\Core\Bundles\GalleryBundle\Entity;
-use BiberLtd\Core\CoreEntity;
+namespace BiberLtd\Bundle\GalleryBundle\Entity;
+use BiberLtd\Bundle\CoreBundle\CoreEntity;
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
@@ -24,7 +24,7 @@ class GalleryCategoryLocalization extends CoreEntity
     private $url_key;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
      */
@@ -32,7 +32,7 @@ class GalleryCategoryLocalization extends CoreEntity
 
     /**
      * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory",
+     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory",
      *     inversedBy="localizations"
      * )
      * @ORM\JoinColumn(name="category", referencedColumnName="id")
