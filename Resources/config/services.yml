@@ -1,7 +1,4 @@
-parameters:
-#    biber_ltd_gallery.example.class: BiberLtd\Bundle\GalleryBundle\Example
-
 services:
-#    biber_ltd_gallery.example:
-#        class: %biber_ltd_gallery.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    gallery.model:
+        class:        BiberLtd\Bundle\GalleryBundle\Services\GalleryModel
+        arguments:    [@kernel, "default", "doctrine"]
