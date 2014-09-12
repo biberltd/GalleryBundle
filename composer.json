@@ -17,10 +17,10 @@
         }
     ],
     "require": {
-        "biberltd/core-bundle" : "self.version",
-	"biberltd/file-management-bundle" : "self.version",
-	"biberltd/site-management-bundle" : "self.version",
-	"biberltd/multilanguage-support-bundle" : "self.version"
+        "biberltd/core-bundle" : "~3.1",
+	"biberltd/file-management-bundle" : "~3.1",
+	"biberltd/site-management-bundle" : "~3.1",
+	"biberltd/multilanguage-support-bundle" : "~3.1"
     },
     "autoload": {
         "psr-0": { "BiberLtd\\Bundle\\GalleryBundle": "" }
