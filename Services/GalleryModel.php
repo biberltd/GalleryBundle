@@ -14,8 +14,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.1
- * @date        16.07.2014
+ * @version     1.1.3
+ * @date        21.08.2014
  *
  * =============================================================================================================
  * !! INSTRUCTIONS ON IMPORTANT ASPECTS OF MODEL METHODS !!!
@@ -45,6 +45,7 @@ use BiberLtd\Bundle\CoreBundle\CoreModel;
 /** Entities to be used */
 use BiberLtd\Bundle\GalleryBundle\Entity as BundleEntity;
 use BiberLtd\Bundle\FileManagementBundle\Entity as FileBundleEntity;
+use BiberLtd\Bundle\MultiLanguageSupportBundle\Entity as MLSEntity;
 /** Helper Models */
 use BiberLtd\Bundle\GalleryBundle\Services as SMMService;
 use BiberLtd\Bundle\FileManagementBundle\Services as FMMService;
@@ -53,6 +54,13 @@ use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
 use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 
 class GalleryModel extends CoreModel {
+    /** @var $by_opitons handles by options */
+    public $by_opts = array('entity', 'id', 'code', 'url_key', 'post');
+
+    /* @var $type must be [i=>image,s=>software,v=>video,f=>flash,d=>document,p=>package] */
+    public $type_opts = array('m' => 'media', 'i' => 'image', 'a' => 'audio', 'v' => 'video', 'f' => 'flash', 'd' => 'document', 'p' => 'package', 's' => 'software');
+    public $eq_opts = array('after', 'before', 'between', 'on', 'more', 'less', 'eq');
+
     /**
      * @name            __construct()
      *                  Constructor.
@@ -66,14 +74,6 @@ class GalleryModel extends CoreModel {
      * @param           string          $db_connection  Database connection key as set in app/config.yml
      * @param           string          $orm            ORM that is used.
      */
-
-    /** @var $by_opitons handles by options */
-    public $by_opts = array('entity', 'id', 'code', 'url_key', 'post');
-
-    /* @var $type must be [i=>image,s=>software,v=>video,f=>flash,d=>document,p=>package] */
-    public $type_opts = array('m' => 'media', 'i' => 'image', 'a' => 'audio', 'v' => 'video', 'f' => 'flash', 'd' => 'document', 'p' => 'package', 's' => 'software');
-    public $eq_opts = array('after', 'before', 'between', 'on', 'more', 'less', 'eq');
-
     public function __construct($kernel, $db_connection = 'default', $orm = 'doctrine') {
         parent::__construct($kernel, $db_connection, $orm);
 
@@ -81,6 +81,8 @@ class GalleryModel extends CoreModel {
          * Register entity names for easy reference.
          */
         $this->entity = array(
+            'active_gallery_locale' => array('name' => 'GalleryBundle:ActiveGalleryLocale', 'alias' => 'agl'),
+            'active_gallery_category_locale' => array('name' => 'GalleryBundle:ActiveGalleryCategoryLocale', 'alias' => 'agcl'),
             'categories_of_gallery' => array('name' => 'GalleryBundle:CategoriesOfGallery', 'alias' => 'cog'),
             'file' => array('name' => 'FileManagementBundle:File', 'alias' => 'f'),
             'gallery' => array('name' => 'GalleryBundle:Gallery', 'alias' => 'g'),
@@ -226,6 +228,154 @@ class GalleryModel extends CoreModel {
             'code' => 'scc.db.insert.done',
         );
         unset($count, $gm_collection);
+        return $this->response;
+    }
+    /**
+     * @name            addLocalesToGallery()
+     *                  Associates locales with a given gallery by creating new row in files_of_product_table.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->isLocaleAssociatedWithGallery()
+     * @use             $this->validateAndGetGallery()
+     * @use             $this->validateAndGetLocale()
+     *
+     * @param           array       $locales    Language entities, ids or iso_codes
+     * @param           mixed       $gallery    entity, id
+     *
+     * @return          array       $response
+     */
+    public function addLocalesToGallery($locales, $gallery){
+        $this->resetResponse();
+        /** issue an error only if there is no valid file entries */
+        if (count($locales) < 1) {
+            return $this->createException('InvalidCollection', 'The $locales parameter must be an array collection.', 'msg.error.invalid.parameter.locales');
+        }
+        $gallery = $this->validateAndGetGallery($gallery);
+
+        $aglCollection = array();
+        $count = 0;
+        /** Start persisting locales */
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        foreach ($locales as $locale) {
+            $locale = $this->validateAndGetLocale($locale);
+            /** If no entity s provided as file we need to check if it does exist */
+            /** Check if association exists */
+            if ($this->isLocaleAssociatedWithGallery($locale, $gallery, true)) {
+                $this->response = array(
+                    'rowCount' => $this->response['rowCount'],
+                    'result' => array(
+                        'set' => null,
+                        'total_rows' => 0,
+                        'last_insert_id' => -1,
+                    ),
+                    'error' => true,
+                    'code' => 'msg.db.error.association.exist',
+                );
+                return $this->response();
+            }
+            $agl = new BundleEntity\ActiveGalleryLocale();
+            $agl->setLanguage($locale)->setGallery($gallery);
+
+            /** persist entry */
+            $this->em->persist($agl);
+            $aglCollection[] = $agl;
+            $count++;
+        }
+        /** flush all into database */
+        if ($count > 0) {
+            $this->em->flush();
+        } else {
+            $this->response['code'] = 'msg.error.db.insert.failed';
+        }
+
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $aglCollection,
+                'total_rows' => $count,
+                'last_insert_id' => -1,
+            ),
+            'error' => false,
+            'code' => 'msg.success.db.insert',
+        );
+        unset($count, $fop_collection);
+        return $this->response;
+    }
+    /**
+     * @name            addLocalesToGalleryCategory ()
+     *                  Associates locales with a given gallery category by creating new row in files_of_product_table.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     * @use             $this->createException()
+     * @use             $this->validateAndGetLocale()
+     * @use             $this->validateAndGetGalleryCategory()
+     * @use             $this->isLocaleAssociatedWithGalleryCategory()
+     *
+     * @param           array           $locales        Language entities, ids or iso_codes
+     * @param           mixed           $category       entity, id
+     *
+     * @return          array           $response
+     */
+    public function addLocalesToGalleryCategory($locales, $category){
+        $this->resetResponse();
+        /** issue an error only if there is no valid file entries */
+        if (count($locales) < 1) {
+            return $this->createException('InvalidCollection', 'The $locales parameter must be an array collection.', 'msg.error.invalid.parameter.locales');
+        }
+        $category = $this->validateAndGetGalleryCategory($category);
+
+        $aglCollection = array();
+        $count = 0;
+        /** Start persisting locales */
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        foreach ($locales as $locale) {
+            $locale = $this->validateAndGetLocale($locale);
+            /** If no entity s provided as file we need to check if it does exist */
+            /** Check if association exists */
+            if ($this->isLocaleAssociatedWithGalleryCategory($locale, $category, true)) {
+                $this->response = array(
+                    'rowCount' => $this->response['rowCount'],
+                    'result' => array(
+                        'set' => null,
+                        'total_rows' => 0,
+                        'last_insert_id' => -1,
+                    ),
+                    'error' => true,
+                    'code' => 'msg.error.db.association.exist',
+                );
+                return $this->response;
+            }
+            $agl = new BundleEntity\ActiveGalleryCategoryLocale();
+            $agl->setLanguage($locale)->setGalleryCategory($category);
+
+            /** persist entry */
+            $this->em->persist($agl);
+            $aglCollection[] = $agl;
+            $count++;
+        }
+        /** flush all into database */
+        if ($count > 0) {
+            $this->em->flush();
+        } else {
+            $this->response['code'] = 'msg.error.db.insert.failed';
+        }
+
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $aglCollection,
+                'total_rows' => $count,
+                'last_insert_id' => -1,
+            ),
+            'error' => false,
+            'code' => 'msg.success.db.insert',
+        );
+        unset($count, $fop_collection);
         return $this->response;
     }
     /**
@@ -515,7 +665,7 @@ class GalleryModel extends CoreModel {
          * Prepare & Return Response
          */
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $exist,
                 'total_rows' => 1,
@@ -603,7 +753,7 @@ class GalleryModel extends CoreModel {
              * Prepare & Return Response
              */
             $this->response = array(
-	            'rowCount' => $this->response['rowCount'],
+                'rowCount' => $this->response['rowCount'],
                 'result' => array(
                     'set' => $gallery,
                     'total_rows' => 1,
@@ -641,7 +791,7 @@ class GalleryModel extends CoreModel {
          * Prepare & Return Response
          */
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $collection[0],
                 'total_rows' => 1,
@@ -679,7 +829,7 @@ class GalleryModel extends CoreModel {
             if($response['error']){
                 return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.gallery');
             }
-            $gallery = $resposne['result']['set'];
+            $gallery = $response['result']['set'];
         }
         /** Parameter must be an array */
         if (!$language instanceof MLSEntity\Language && !is_numeric($language) && !is_string($language)) {
@@ -691,7 +841,7 @@ class GalleryModel extends CoreModel {
             if($response['error']){
                 return $this->createException('InvalidParameterException', 'Language id', 'err.invalid.parameter.language');
             }
-            $language = $resposne['result']['set'];
+            $language = $response['result']['set'];
         }
         else if(is_string($language)){
             $mlsModel = $sModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
@@ -699,7 +849,7 @@ class GalleryModel extends CoreModel {
             if($response['error']){
                 return $this->createException('InvalidParameterException', 'Language iso code', 'err.invalid.parameter.language');
             }
-            $language = $resposne['result']['set'];
+            $language = $response['result']['set'];
         }
         $q_str = 'SELECT ' . $this->entity['gallery_localization']['alias'] . ' FROM ' . $this->entity['gallery_localization']['name'] . ' ' . $this->entity['gallery_localization']['alias']
             . ' WHERE ' . $this->entity['gallery_localization']['alias'] . '.gallery = ' . $gallery->getId()
@@ -749,9 +899,9 @@ class GalleryModel extends CoreModel {
             $gallery = $file->getId();
         }
         $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-                    .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-                    .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery
-                    .' AND '.$this->entity['gallery_media']['alias'].'.file = '.$file;
+            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
+            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery
+            .' AND '.$this->entity['gallery_media']['alias'].'.file = '.$file;
 
         $query = $this->em->createQuery($qStr);
 
@@ -1130,6 +1280,300 @@ class GalleryModel extends CoreModel {
         return $this->response;
     }
     /**
+     * @name            isLocaleAssociatedWithGallery()
+     *                  Checks if the locale is already associated with the product.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @user            $this->createException
+     *
+     * @param           mixed $locale 'entity' or 'entity' id
+     * @param           mixed $gallery 'entity' or 'entity' id.
+     * @param           bool $bypass true or false
+     *
+     * @return          mixed                   bool or $response
+     */
+    public function isLocaleAssociatedWithGallery($locale, $gallery, $bypass = false)
+    {
+        $this->resetResponse();
+        /**
+         * Validate Parameters
+         */
+        if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
+            return $this->createException('InvalidParameter', 'Language', 'err.invalid.parameter.language');
+        }
+
+        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
+            return $this->createException('InvalidParameter', 'Gallery', 'err.invalid.parameter.gallery');
+        }
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        /** If no entity is provided as file we need to check if it does exist */
+        if (is_numeric($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+            }
+            $locale = $response['result']['set'];
+        } else if (is_string($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'iso_code');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+            }
+            $locale = $response['result']['set'];
+        }
+        /** If no entity is provided as product we need to check if it does exist */
+        if (is_numeric($gallery)) {
+            $response = $this->getGallery($gallery, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
+            }
+            $gallery = $response['result']['set'];
+        } else if (is_string($gallery)) {
+            $response = $this->getGallery($gallery, 'sku');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
+            }
+            $gallery = $response['result']['set'];
+        }
+        $found = false;
+
+        $q_str = 'SELECT COUNT(' . $this->entity['active_gallery_locale']['alias'] . ')'
+            . ' FROM ' . $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias']
+            . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.language = ' . $locale->getId()
+            . ' AND ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $gallery->getId();
+        $query = $this->em->createQuery($q_str);
+
+        $result = $query->getSingleScalarResult();
+
+        /** flush all into database */
+        if ($result > 0) {
+            $found = true;
+            $code = 'scc.db.entry.exist';
+        } else {
+            $code = 'scc.db.entry.noexist';
+        }
+
+        if ($bypass) {
+            return $found;
+        }
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $found == true ? $result : $found,
+                'total_rows' => count($result),
+                'last_insert_id' => null,
+            ),
+            'error' => $found == true ? false : true,
+            'code' => $code,
+        );
+        return $this->response;
+    }
+
+    /**
+     * @name            isLocaleAssociatedWithGalleryCategory ()
+     *                  Checks if the locale is already associated with the product.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @user            $this->createException
+     *
+     * @param           mixed $locale 'entity' or 'entity' id
+     * @param           mixed $category 'entity' or 'entity' id.
+     * @param           bool $bypass true or false
+     *
+     * @return          mixed                   bool or $response
+     */
+    public function isLocaleAssociatedWithGalleryCategory($locale, $category, $bypass = false)
+    {
+        $this->resetResponse();
+        /**
+         * Validate Parameters
+         */
+        if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
+            return $this->createException('InvalidParameter', 'Language', 'err.invalid.parameter.language');
+        }
+
+        if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
+            return $this->createException('InvalidParameter', 'GalleryCategory', 'err.invalid.parameter.product_category');
+        }
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        /** If no entity is provided as file we need to check if it does exist */
+        if (is_numeric($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+            }
+            $locale = $response['result']['set'];
+        } else if (is_string($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'iso_code');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+            }
+            $locale = $response['result']['set'];
+        }
+        /** If no entity is provided as product we need to check if it does exist */
+        if (is_numeric($category)) {
+            $response = $this->getGalleryCategory($category, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Product', 'err.db.product.notexist');
+            }
+            $category = $response['result']['set'];
+        }
+
+        $found = false;
+
+        $q_str = 'SELECT COUNT(' . $this->entity['active_gallery_category_locale']['alias'] . ')'
+            . ' FROM ' . $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias']
+            . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.language = ' . $locale->getId()
+            . ' AND ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $category->getId();
+        $query = $this->em->createQuery($q_str);
+
+        $result = $query->getSingleScalarResult();
+
+        /** flush all into database */
+        if ($result > 0) {
+            $found = true;
+            $code = 'scc.db.entry.exist';
+        } else {
+            $code = 'scc.db.entry.noexist';
+        }
+
+        if ($bypass) {
+            return $found;
+        }
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $found == true ? $result : $found,
+                'total_rows' => count($result),
+                'last_insert_id' => null,
+            ),
+            'error' => $found == true ? false : true,
+            'code' => $code,
+        );
+        return $this->response;
+    }
+    /**
+     * @name            listActiveLocalesOfGallery()
+     *                  List active locales of a given gallery.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->createException()
+     *
+     * @param           mixed           $gallery entity, id, or sku
+     *
+     * @return          array           $gallery
+     */
+    public function listActiveLocalesOfGallery($gallery){
+        $this->resetResponse();
+        if (!is_string($gallery) && !is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
+            return $this->createException('InvalidParameter', 'Gallery entity', 'err.invalid.parameter.gallery');
+        }
+        if (is_numeric($gallery)) {
+            $response = $this->getGallery($gallery, 'id');
+        }
+        if (isset($response) && !$response['error']) {
+            $gallery = $response['result']['set'];
+        } else if (isset($response) && $response['error']) {
+            return $this->createException('EntityDoesNotExist', 'Gallery', 'err.invalid.parameter.gallery');
+        }
+        $galleryId = $gallery->getId();
+        $qStr = 'SELECT ' . $this->entity['active_gallery_locale']['alias']
+            . ' FROM ' . $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias']
+            . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $galleryId;
+        $query = $this->em->createQuery($qStr);
+        $result = $query->getResult();
+        $locales = array();
+        $unique = array();
+        foreach ($result as $entry) {
+            $id = $entry->getLanguage()->getId();
+            if (!isset($unique[$id])) {
+                $locales[] = $entry->getLanguage();
+                $unique[$id] = $entry->getLanguage();
+            }
+        }
+        unset($unique);
+        $totalRows = count($locales);
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $locales,
+                'total_rows' => $totalRows,
+                'last_insert_id' => null,
+            ),
+            'error' => false,
+            'code' => 'scc.db.entry.exist',
+        );
+        return $this->response;
+    }
+
+    /**
+     * @name            listActiveLocalesOfGalleryCategory ()
+     *                  List active locales of a given GALLERY category.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->createException()
+     *
+     * @param           mixed           $category entity, id
+     *
+     * @return          array           $response
+     */
+    public function listActiveLocalesOfGalleryCategory($category){
+        $this->resetResponse();
+        if (!is_string($category) && !is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
+            return $this->createException('InvalidParameter', 'GalleryCategory entity', 'err.invalid.parameter.gallery_category');
+        }
+        if (is_numeric($category)) {
+            $response = $this->getGalleryCategory($category, 'id');
+        } elseif (is_string($category)) {
+            $response = $this->getGalleryCategory($category, 'sku');
+        }
+        if (isset($response) && !$response['error']) {
+            $category = $response['result']['set'];
+        } else if (isset($response) && $response['error']) {
+            return $this->createException('EntityDoesNotExist', 'GalleryCategory', 'err.invalid.parameter.gallery_category');
+        }
+        $catId = $category->getId();
+        $qStr = 'SELECT ' . $this->entity['active_gallery_category_locale']['alias']
+            . ' FROM ' . $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias']
+            . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $catId;
+        $query = $this->em->createQuery($qStr);
+        $result = $query->getResult();
+        $locales = array();
+        $unique = array();
+        foreach ($result as $entry) {
+            $id = $entry->getLanguage()->getId();
+            if (!isset($unique[$id])) {
+                $locales[] = $entry->getLanguage();
+                $unique[$id] = $entry->getLanguage();
+            }
+        }
+        unset($unique);
+        $totalRows = count($locales);
+
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $locales,
+                'total_rows' => $totalRows,
+                'last_insert_id' => null,
+            ),
+            'error' => false,
+            'code' => 'scc.db.entry.exist',
+        );
+        return $this->response;
+    }
+    /**
      * @name 			listAllAudioOfGallery()
      *  				List all audio files that belong to a certain gallery and that match to a certain criteria.
      *
@@ -1203,6 +1647,23 @@ class GalleryModel extends CoreModel {
      */
     public function listDocumentsOfGallery($gallery, $sortorder = null, $limit = null) {
         return $this->listMediaOfGallery($gallery, 'd', $sortorder, $limit);
+    }
+    /**
+     * @name 			listAllIVideosOfGallery()
+     *  				List all image files that belong to a certain gallery and that match to a certain criteria.
+     *
+     * @since			1.0.1
+     * @version         1.1.1
+     *
+     * @author          Can Berkol
+     *
+     * @param           mixed           $gallery
+     * @param           array           $sortorder
+     *
+     * @return          array           $response
+     */
+    public function listAllVideosOfGallery($gallery, $sortorder = null) {
+        return $this->listMediaOfGallery($gallery, 'v', $sortorder);
     }
     /**
      * @name 			listGalleries()
@@ -1622,12 +2083,12 @@ class GalleryModel extends CoreModel {
         }
 
         $galleryFilter[] = array('glue' => 'and',
-                              'condition' => array(
-                                  array(
-                                      'glue' => 'and',
-                                      'condition' => array('column' => 'g.id', 'comparison' => 'in', 'value' => $galleryIds),
-                                  )
-                              )
+            'condition' => array(
+                array(
+                    'glue' => 'and',
+                    'condition' => array('column' => 'g.id', 'comparison' => 'in', 'value' => $galleryIds),
+                )
+            )
         );
         return $this->listGalleries($galleryFilter, $sortorder, $limit);
     }
@@ -2606,6 +3067,209 @@ class GalleryModel extends CoreModel {
         return $this->response;
     }
     /**
+     * @name            removeLocalesFromGallery()
+     *                  Removes the locales from galleries
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->doesGalleryExist()
+     * @use             $this->isLocaleAssociatedWithGallery()
+     *
+     * @param           array $locales id, entity, iso_Code
+     * @param           mixed $gallery id, entity, sku
+     *
+     * @return          array           $response
+     */
+    public function removeLocalesFromGallery($locales, $gallery){
+        $this->resetResponse();
+        /**
+         * Validate Parameters
+         */
+        /** remove invalid file entries */
+        foreach ($locales as $locale) {
+            if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language && !$locale instanceof BundleEntity\ActiveProductCategoryLocale) {
+                unset($locale);
+            }
+        }
+        /** issue an error only if there is no valid file or files of product entries */
+        if (count($locale) < 1) {
+            return $this->createException('InvalidParameter', '$locales', 'err.invalid.parameter.locales');
+        }
+        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
+            return $this->createException('InvalidParameter', '$gallery', 'err.invalid.parameter.gallery');
+        }
+        /** If no entity is provided as product we need to check if it does exist */
+        if (is_numeric($gallery)) {
+            $response = $this->getGallery($gallery, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.gallery.notexist');
+            }
+            $gallery = $response['result']['set'];
+        } else if (is_string($gallery)) {
+            $response = $this->getGallery($gallery, 'sku');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
+            }
+            $gallery = $response['result']['set'];
+        }
+        $aplCount = 0;
+        $to_remove = array();
+        $count = 0;
+        /** Start persisting files */
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        foreach ($locales as $locale) {
+            /** If no entity is provided as file we need to check if it does exist */
+            if (is_numeric($locale)) {
+                $response = $mlsModel->getLanguage($locale, 'id');
+                if ($response['error']) {
+                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+                }
+                $to_remove[] = $locale;
+            } else if (is_string($locale)) {
+                $response = $mlsModel->getLanguage($locale, 'iso_code');
+                if ($response['error']) {
+                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+                }
+                $to_remove[] = $locale;
+            }
+            if ($locale instanceof BundleEntity\ActiveGalleryLocale) {
+                $this->em->remove($locale);
+                $aplCount++;
+            } else {
+                $to_remove[] = $locale;
+            }
+            $count++;
+        }
+        /** flush all into database */
+        if ($aplCount > 0) {
+            $this->em->flush();
+        }
+        if (count($to_remove) > 0) {
+            $ids = implode(',', $to_remove);
+            $table = $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias'];
+            $q_str = 'DELETE FROM ' . $table
+                . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $gallery->getId()
+                . ' AND ' . $this->entity['active_gallery_locale']['alias'] . '.language IN(' . $ids . ')';
+
+            $query = $this->em->createQuery($q_str);
+            $query->getResult();
+        }
+
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $to_remove,
+                'total_rows' => $count,
+                'last_insert_id' => null,
+            ),
+            'error' => false,
+            'code' => 'scc.db.delete.done',
+        );
+        unset($count, $to_remove);
+        return $this->response;
+    }
+
+    /**
+     * @name            removeLocalesFromGalleryCategory ()
+     *                  Removes the locales from gallery
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->doesGalleryExist()
+     *
+     * @param           array $locales id, entity, iso_Code
+     * @param           mixed $category id, entity
+     *
+     * @return          array       $response
+     */
+    public function removeLocalesFromGalleryCategory($locales, $category)
+    {
+        $this->resetResponse();
+        /**
+         * Validate Parameters
+         */
+        /** remove invalid file entries */
+        foreach ($locales as $locale) {
+            if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language && !$locale instanceof BundleEntity\ActiveGalleryCategoryLocale) {
+                unset($locale);
+            }
+        }
+        /** issue an error only if there is no valid file or files of product entries */
+        if (count($locale) < 1) {
+            return $this->createException('InvalidParameter', '$locales', 'err.invalid.parameter.locales');
+        }
+        if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
+            return $this->createException('InvalidParameter', '$category', 'err.invalid.parameter.product');
+        }
+        /** If no entity is provided as product we need to check if it does exist */
+        if (is_numeric($category)) {
+            $response = $this->getGalleryCategory($category, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'GalleryCategory', 'err.db.gallery.category.notexist');
+            }
+            $category = $response['result']['set'];
+        }
+        $aplCount = 0;
+        $to_remove = array();
+        $count = 0;
+        /** Start persisting files */
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+        foreach ($locales as $locale) {
+            /** If no entity is provided as file we need to check if it does exist */
+            if (is_numeric($locale)) {
+                $response = $mlsModel->getLanguage($locale, 'id');
+                if ($response['error']) {
+                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+                }
+                $to_remove[] = $locale;
+            } else if (is_string($locale)) {
+                $response = $mlsModel->getLanguage($locale, 'iso_code');
+                if ($response['error']) {
+                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
+                }
+                $to_remove[] = $locale;
+            }
+            if ($locale instanceof BundleEntity\ActveGalleryCategoryLocale) {
+                $this->em->remove($locale);
+                $aplCount++;
+            } else {
+                $to_remove[] = $locale;
+            }
+            $count++;
+        }
+        /** flush all into database */
+        if ($aplCount > 0) {
+            $this->em->flush();
+        }
+        if (count($to_remove) > 0) {
+            $ids = implode(',', $to_remove);
+            $table = $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias'];
+            $q_str = 'DELETE FROM ' . $table
+                . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $category->getId()
+                . ' AND ' . $this->entity['active_gallery_category_locale']['alias'] . '.language IN(' . $ids . ')';
+
+            $query = $this->em->createQuery($q_str);
+            $query->getResult();
+        }
+
+        $this->response = array(
+            'rowCount' => $this->response['rowCount'],
+            'result' => array(
+                'set' => $to_remove,
+                'total_rows' => $count,
+                'last_insert_id' => null,
+            ),
+            'error' => false,
+            'code' => 'scc.db.delete.done',
+        );
+        unset($count, $to_remove);
+        return $this->response;
+    }
+    /**
      * @name            updateGallery()
      *                  Updates single gallery from database
      *
@@ -2957,7 +3621,7 @@ class GalleryModel extends CoreModel {
             return $response;
         }
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $response['result']['set'],
                 'total_rows' => $response['result']['total_rows'],
@@ -3049,7 +3713,7 @@ class GalleryModel extends CoreModel {
             return $response;
         }
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $response['result']['set'],
                 'total_rows' => $response['result']['total_rows'],
@@ -3136,7 +3800,7 @@ class GalleryModel extends CoreModel {
             return $response;
         }
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $response['result']['set'],
                 'total_rows' => $response['result']['total_rows'],
@@ -3226,7 +3890,7 @@ class GalleryModel extends CoreModel {
             return $response;
         }
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $response['result']['set'],
                 'total_rows' => $response['result']['total_rows'],
@@ -3318,7 +3982,7 @@ class GalleryModel extends CoreModel {
             return $response;
         }
         $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
+            'rowCount' => $this->response['rowCount'],
             'result' => array(
                 'set' => $response['result']['set'],
                 'total_rows' => $response['result']['total_rows'],
@@ -3784,7 +4448,9 @@ class GalleryModel extends CoreModel {
      *                  List gallery categories from database based on a variety of conditions.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.2
+     *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->resetResponse()
@@ -3794,10 +4460,11 @@ class GalleryModel extends CoreModel {
      * @param           array $sortOrder Array
      * @param           array $limit
      * @param           string $queryStr If a custom query string needs to be defined.
+     * @param           bool $returnLocales
      *
      * @return          array           $response
      */
-    public function listGalleryCategories($filter = null, $sortOrder = null, $limit = null, $queryStr = null)
+    public function listGalleryCategories($filter = null, $sortOrder = null, $limit = null, $queryStr = null, $returnLocales = false)
     {
         $this->resetResponse();
         if (!is_array($sortOrder) && !is_null($sortOrder)) {
@@ -3871,10 +4538,31 @@ class GalleryModel extends CoreModel {
          */
         $result = $query->getResult();
         $categories = array();
+        $unique = array();
         foreach($result as $gcl){
-            $categories[] = $gcl->getCategory();
+            $id = $gcl->getCategory()->getId();
+            if (!isset($unique[$id])) {
+                $categories[$id] = $gcl->getCategory();
+                $unique[$id] = $gcl->getCategory();
+            }
+            $localizations[$id][] = $gcl;
         }
         $totalRows = count($categories);
+        $responseSet = array();
+        if ($returnLocales) {
+            foreach ($categories as $key => $category) {
+                $responseSet[$key]['entity'] = $category;
+                $responseSet[$key]['localizations'] = $localizations[$key];
+            }
+        } else {
+            $responseSet = $categories;
+        }
+        $newCollection = array();
+        foreach ($responseSet as $item) {
+            $newCollection[] = $item;
+        }
+        unset($responseSet, $categories);
+
         if ($totalRows < 1) {
             $this->response['code'] = 'err.db.entry.notexist';
             return $this->response;
@@ -3882,7 +4570,7 @@ class GalleryModel extends CoreModel {
         $this->response = array(
             'rowCount' => $this->response['rowCount'],
             'result' => array(
-                'set' => $categories,
+                'set' => $newCollection,
                 'total_rows' => $totalRows,
                 'last_insert_id' => null,
             ),
@@ -4077,7 +4765,7 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name            validateAndGetGallery()
-     *                  Validates $gallery parameter and returns BiberLtd\Bundle\GalleryBundle\Entity\Gallery if found in database.
+     *                  Validates $gallery parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery if found in database.
      *
      * @since           1.0.9
      * @version         1.0.9
@@ -4088,7 +4776,7 @@ class GalleryModel extends CoreModel {
      *
      * @param           mixed           $gallery
      *
-     * @return          object          BiberLtd\Bundle\GalleryBundle\Entity\Gallery
+     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery
      */
     private function validateAndGetGallery($gallery){
         if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
@@ -4116,7 +4804,7 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name            validateAndGetGalleryCategory()
-     *                  Validates $category parameter and returns BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory if found in database.
+     *                  Validates $category parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory if found in database.
      *
      * @since           1.0.9
      * @version         1.0.9
@@ -4127,7 +4815,7 @@ class GalleryModel extends CoreModel {
      *
      * @param           mixed           $category
      *
-     * @return          object          BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
+     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory
      */
     private function validateAndGetGalleryCategory($category){
         if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
@@ -4354,9 +5042,67 @@ class GalleryModel extends CoreModel {
         );
         return $this->listGalleryCategories($filter,$sortOrder,$limit,$queryStr);
     }
+    /**
+     * @name            validateAndGetLocale()
+     *                  Validates $locale parameter and returns BiberLtd\Core\Bundles\MultiLanguageSupport\Entity\Language if found in database.
+     *
+     * @since           1.1.3
+     * @version         1.1.3
+     * @author          Can Berkol
+     *
+     * @use             $this->createException()
+     *
+     * @param           mixed           $locale
+     *
+     * @return          object          BiberLtd\Core\Bundles\ProductManagementBundle\Entity\Language
+     */
+    private function validateAndGetLocale($locale){
+        if (!is_string($locale) && !is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
+            return $this->createException('InvalidLanguageException', 'You have provided "'.gettype($locale).'" value in $locale parameter.', 'msg.error.invalid.parameter.locale');
+        }
+        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+
+        /** If no entity is provided as product we need to check if it does exist */
+        if (is_numeric($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'id');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Table : language, id: '.$locale,  'msg.error.db.language.notfound');
+            }
+            $locale = $response['result']['set'];
+        } else if (is_string($locale)) {
+            $response = $mlsModel->getLanguage($locale, 'iso_code');
+            if ($response['error']) {
+                return $this->createException('EntityDoesNotExist', 'Table : language, iso_code: '.$locale,  'msg.error.db.language.notfound');
+            }
+            $locale = $response['result']['set'];
+        }
+        return $locale;
+    }
+
 }
 /**
  * Change Log
+ *  * **************************************
+ * v1.1.3                      Can Berkol
+ * 21.08.2014
+ * **************************************
+ * A addLocalesToGallery()
+ * A addLocalesToGalleryCategory()
+ * A isGalleryAssociatedWithLocale()
+ * A isGalleryCategoryAssociatedWithLocale()
+ * A listActiveLocalesOfGallery()
+ * A listActiveLocalesOfGalleryCategory()
+ * A removeLocalesFromGallery()
+ * A removeLocalesFromGalleryCategory()
+ * A validateAndGetLocale()
+ * U __construct()
+ *
+ * **************************************
+ * v1.1.2                      Can Berkol
+ * 25.07.2014
+ * **************************************
+ * B listGalleryCategories()
+ *
  * **************************************
  * v1.1.1                      Said İmamoğlu
  * 18.07.2014
