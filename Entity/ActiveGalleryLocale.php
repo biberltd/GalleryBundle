@@ -21,7 +21,6 @@ use Doctrine\ORM\Mapping AS ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(
- *     schema="innodb",
  *     name="active_gallery_locale",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
  *     uniqueConstraints={@ORM\UniqueConstraint(name="idx_u_active_gallery_locale", columns={"gallery","language"})}
