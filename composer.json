@@ -1,30 +1,29 @@
 {
-    "name": "biberltd/gallery-bundle",
-    "type": "symfony-bundle",
-    "description": "",
-    "keywords": [],
-    "homepage": "http://github.com/biberltd/GalleryBundle",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Can Berkol",
-            "email": "can.berkol@biberltd.com"
-        },
-		{
-            "name": "Said İmamoğlu",
-            "email": "said.imamoglu@biberltd.com"
-        }
-    ],
-    "require": {
-        "biberltd/core-bundle" : "~3.1",
-	"biberltd/file-management-bundle" : "~3.1",
-	"biberltd/site-management-bundle" : "~3.1",
-	"biberltd/multilanguage-support-bundle" : "~3.1"
+  "name": "biberltd/gallery-bundle",
+  "type": "symfony-bundle",
+  "description": "",
+  "keywords": [],
+  "homepage": "http://github.com/biberltd/GalleryBundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Can Berkol",
+      "email": "can.berkol@biberltd.com"
     },
-    "autoload": {
-        "psr-0": { "BiberLtd\\Bundle\\GalleryBundle": "" }
-
-    },
-    "minimum-stability": "dev",
-    "target-dir": "BiberLtd/Bundle/GalleryBundle"
+    {
+      "name": "Said İmamoğlu",
+      "email": "said.imamoglu@biberltd.com"
+    }
+  ],
+  "require": {
+    "biberltd/core-bundle": "~3.3",
+    "biberltd/file-management-bundle": "~3.3",
+    "biberltd/site-management-bundle": "~3.3",
+    "biberltd/multilanguage-support-bundle": "~3.3"
+  },
+  "autoload": {
+    "psr-0": {"BiberLtd\\Bundle\\GalleryBundle": ""}
+  },
+  "minimum-stability": "dev",
+  "target-dir": "BiberLtd/Bundle/GalleryBundle"
 }
