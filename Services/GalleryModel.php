@@ -1,41 +1,17 @@
 <?php
 /**
- * GalleryModel Class
- *
- * This class acts as a database proxy model for GalleryBundle functionalities.
- *
  * @vendor      BiberLtd
- * @package		Core\Bundles\GalleryBundle
+ * @package		GalleryBundle
  * @subpackage	Services
- * @name	    FileManagementModel
+ * @name	    GalleryModel
  *
  * @author		Can Berkol
  * @author      Said Imamoglu
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.3
- * @date        21.08.2014
- *
- * =============================================================================================================
- * !! INSTRUCTIONS ON IMPORTANT ASPECTS OF MODEL METHODS !!!
- *
- * Each model function must return a $response ARRAY.
- * The array must contain the following keys and corresponding values.
- *
- * $response = array(
- *              'result'    =>   An array that contains the following keys:
- *                               'set'         Actual result set returned from ORM or null
- *                               'total_rows'  0 or number of total rows
- *                               'last_insert_id' The id of the item that is added last (if insert action)
- *              'error'     =>   true if there is an error; false if there is none.
- *              'code'      =>   null or a semantic and short English string that defines the error concanated
- *                               with dots, prefixed with err and the initials of the name of model class.
- *                               EXAMPLE: err.amm.action.not.found success messages have a prefix called scc..
- *
- *                               NOTE: DO NOT FORGET TO ADD AN ENTRY FOR ERROR CODE IN BUNDLE'S
- *                               RESOURCES/TRANSLATIONS FOLDER FOR EACH LANGUAGE.
- *
+ * @version     1.1.4
+ * @date        23.06.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -43,6 +19,7 @@ namespace BiberLtd\Bundle\GalleryBundle\Services;
 /** Extends CoreModel */
 use BiberLtd\Bundle\CoreBundle\CoreModel;
 /** Entities to be used */
+use BiberLtd\Bundle\CoreBundle\Responses\ModelResponse;
 use BiberLtd\Bundle\GalleryBundle\Entity as BundleEntity;
 use BiberLtd\Bundle\FileManagementBundle\Entity as FileBundleEntity;
 use BiberLtd\Bundle\MultiLanguageSupportBundle\Entity as MLSEntity;
@@ -54,48 +31,36 @@ use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
 use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 
 class GalleryModel extends CoreModel {
-    /** @var $by_opitons handles by options */
-    public $by_opts = array('entity', 'id', 'code', 'url_key', 'post');
-
-    /* @var $type must be [i=>image,s=>software,v=>video,f=>flash,d=>document,p=>package] */
-    public $type_opts = array('m' => 'media', 'i' => 'image', 'a' => 'audio', 'v' => 'video', 'f' => 'flash', 'd' => 'document', 'p' => 'package', 's' => 'software');
-    public $eq_opts = array('after', 'before', 'between', 'on', 'more', 'less', 'eq');
-
     /**
      * @name            __construct()
-     *                  Constructor.
      *
+     * @author          Can Berkol
      * @author          Said Imamoglu
      *
      * @since           1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      *
      * @param           object          $kernel
-     * @param           string          $db_connection  Database connection key as set in app/config.yml
-     * @param           string          $orm            ORM that is used.
+     * @param           string          $dbConnection
+     * @param           string          $orm
      */
-    public function __construct($kernel, $db_connection = 'default', $orm = 'doctrine') {
-        parent::__construct($kernel, $db_connection, $orm);
+    public function __construct($kernel, $dbConnection = 'default', $orm = 'doctrine') {
+        parent::__construct($kernel, $dbConnection, $orm);
 
-        /**
-         * Register entity names for easy reference.
-         */
         $this->entity = array(
-            'active_gallery_locale' => array('name' => 'GalleryBundle:ActiveGalleryLocale', 'alias' => 'agl'),
-            'active_gallery_category_locale' => array('name' => 'GalleryBundle:ActiveGalleryCategoryLocale', 'alias' => 'agcl'),
-            'categories_of_gallery' => array('name' => 'GalleryBundle:CategoriesOfGallery', 'alias' => 'cog'),
-            'file' => array('name' => 'FileManagementBundle:File', 'alias' => 'f'),
-            'gallery' => array('name' => 'GalleryBundle:Gallery', 'alias' => 'g'),
-            'gallery_category' => array('name' => 'GalleryBundle:GalleryCategory', 'alias' => 'gc'),
-            'gallery_category_localization' => array('name' => 'GalleryBundle:GalleryCategoryLocalization', 'alias' => 'gcl'),
-            'gallery_localization' => array('name' => 'GalleryBundle:GalleryLocalization', 'alias' => 'gl'),
-            'gallery_media' => array('name' => 'GalleryBundle:GalleryMedia', 'alias' => 'gm'),
+            'agl' 		=> array('name' => 'GalleryBundle:ActiveGalleryLocale', 'alias' => 'agl'),
+            'agcl' 		=> array('name' => 'GalleryBundle:ActiveGalleryCategoryLocale', 'alias' => 'agcl'),
+            'cog'		=> array('name' => 'GalleryBundle:CategoriesOfGallery', 'alias' => 'cog'),
+            'f' 		=> array('name' => 'FileManagementBundle:File', 'alias' => 'f'),
+            'g' 		=> array('name' => 'GalleryBundle:Gallery', 'alias' => 'g'),
+            'gc' 		=> array('name' => 'GalleryBundle:GalleryCategory', 'alias' => 'gc'),
+            'gcl' 		=> array('name' => 'GalleryBundle:GalleryCategoryLocalization', 'alias' => 'gcl'),
+            'gl' 		=> array('name' => 'GalleryBundle:GalleryLocalization', 'alias' => 'gl'),
+            'gm' 		=> array('name' => 'GalleryBundle:GalleryMedia', 'alias' => 'gm'),
         );
     }
-
     /**
      * @name            __destruct()
-     *                  Destructor.
      *
      * @author          Said Imamoglu
      *
@@ -110,17 +75,16 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name 		    addFileToGallery()
-     *                  Adds a single file to gallery.
      *
      * @since		    1.0.5
-     * @version         1.0.5
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
      *
      * @use             $this->addFilesToGallery()
      *
-     * @param           array           $file          Collection consists one of the following: 'entity' or entity 'id'
-     *                                                  Contains an array with two keys: file, and sortorder
-     * @param           mixed           $gallery        'entity' or 'entity' id.
+     * @param           mixed			$file
+     * @param           mixed           $gallery
      *
      * @return          array           $response
      */
@@ -130,10 +94,9 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name            addFilesToGallery()
-     *                  Add files into gallery.
      *
      * @since           1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -144,174 +107,106 @@ class GalleryModel extends CoreModel {
      * @return          array           $response
      */
     public function addFilesToGallery($files, $gallery) {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        $count = 0;
-        /** remove invalid file entries */
-        foreach ($files as $file) {
-            if (!is_numeric($file['file']) && !$file['file'] instanceof FileBundleEntity\File) {
-                unset($files[$count]);
-            }
-            $count++;
-        }
-        /** issue an error onlu if there is no valid file entries */
-        if (count($files) < 1) {
-            return $this->createException('InvalidParameterException', '$files', 'err.invalid.parameter.files');
-        }
-        unset($count);
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameterException', '$gallery', 'err.invalid.parameter.product');
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.gallery.notexist');
-            }
-            $gallery = $response['result']['set'];
-        }
-        $fmmodel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
+        $timeStamp = time();
+        $response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+        $gallery = $response->result->set;
+        $fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 
-        $fop_collection = array();
+        $fogCollection = array();
         $count = 0;
-        /** Start persisting files */
-        foreach ($files as $file) {
-            /** If no entity s provided as file we need to check if it does exist */
-            if (is_numeric($file['file'])) {
-                $response = $fmmodel->getFile($file['file'], 'id');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'File', 'err.db.file.notexist');
-                }
-                $file['file'] = $response['result']['set'];
+		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
+        foreach ($files as $entity){
+			if(!isset($entity['sort_order']) && isset($entity['sortorder'])){
+				$entity['sort_order'] = $entity['sortorder'];
+			}
+			$response = $fModel->getFile($entity['file']);
+			if($response->error->exist){
+				return $response;
+			}
+			$entity['file'] = $response->result->set;
+            if (!$this->isFileAssociatedWithGallery($entity['file']->getId(), $gallery, true)){
+                $galleryMedia = new BundleEntity\GalleryMedia();
+				$galleryMedia->setFile($entity['file'])->setGallery($gallery)->setDateAdded($now);
+				if (!is_null($entity['sort_order'])) {
+					$galleryMedia->setSortOrder($entity['sort_order']);
+				}
+				else {
+					$galleryMedia->setSortOrder($this->getMaxSortOrderOfGalleryMedia($gallery, true) + 1);
+				}
+				$galleryMedia->setCountView(0)->setType($entity['file']->getType());
+				$this->em->persist($galleryMedia);
+				$count++;
+				$fogCollection[] = $galleryMedia;
             }
-            /** Check if association exists */
-            if ($this->isFileAssociatedWithGallery($file['file']->getId(), $gallery, true)) {
-                new CoreExceptions\DuplicateAssociationException($this->kernel, 'File => Gallery');
-                $this->response['code'] = 'err.db.entry.notexist';
-                /** If file association already exist move silently to next file */
-                break;
-            }
-            $gm = new BundleEntity\GalleryMedia();
-            $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-            $gm->setFile($file['file'])->setGallery($gallery)->setDateAdded($now);
-            if (!is_null($file['sortorder'])) {
-                $gm->setSortOrder($file['sortorder']);
-            } else {
-                $gm->setSortOrder($this->getMaxSortOrderOfGalleryMedia($gallery, true) + 1);
-            }
-            $gm->setCountView(0);
-            $gm->setType($file['file']->getType());
-            /** persist entry */
-            $this->em->persist($gm);
-            $gm_collection[] = $gm;
-            $count++;
         }
-        /** flush all into database */
-        if ($count > 0) {
-            $this->em->flush();
-        } else {
-            $this->response['error'] = true;
-            $this->response['code'] = 'err.db.insert.failed';
-            return $this->response;
-        }
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $gm_collection,
-                'total_rows' => $count,
-                'last_insert_id' => null, //$fop->getId(),
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        unset($count, $gm_collection);
-        return $this->response;
-    }
+		if($count > 0){
+			$this->em->flush();
+			return new ModelResponse($fogCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
     /**
      * @name            addLocalesToGallery()
-     *                  Associates locales with a given gallery by creating new row in files_of_product_table.
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->isLocaleAssociatedWithGallery()
      * @use             $this->validateAndGetGallery()
      * @use             $this->validateAndGetLocale()
      *
-     * @param           array       $locales    Language entities, ids or iso_codes
-     * @param           mixed       $gallery    entity, id
+     * @param           array       $locales
+     * @param           mixed       $gallery
      *
      * @return          array       $response
      */
     public function addLocalesToGallery($locales, $gallery){
-        $this->resetResponse();
-        /** issue an error only if there is no valid file entries */
-        if (count($locales) < 1) {
-            return $this->createException('InvalidCollection', 'The $locales parameter must be an array collection.', 'msg.error.invalid.parameter.locales');
-        }
-        $gallery = $this->validateAndGetGallery($gallery);
+        $timeStamp = time();
+		$response = $this->getGallery($gallery);
 
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
         $aglCollection = array();
         $count = 0;
-        /** Start persisting locales */
         $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
         foreach ($locales as $locale) {
-            $locale = $this->validateAndGetLocale($locale);
+            $response = $mlsModel->getLanguage($locale);
+			if($response->error->exist){
+				return $response;
+			}
+			$locale = $response->result->set;
+			unset($response);
             /** If no entity s provided as file we need to check if it does exist */
             /** Check if association exists */
-            if ($this->isLocaleAssociatedWithGallery($locale, $gallery, true)) {
-                $this->response = array(
-                    'rowCount' => $this->response['rowCount'],
-                    'result' => array(
-                        'set' => null,
-                        'total_rows' => 0,
-                        'last_insert_id' => -1,
-                    ),
-                    'error' => true,
-                    'code' => 'msg.db.error.association.exist',
-                );
-                return $this->response();
+            if(!$this->isLocaleAssociatedWithGallery($locale, $gallery, true)) {
+				$agl = new BundleEntity\ActiveGalleryLocale();
+				$agl->setLanguage($locale)->setGallery($gallery);
+				$this->em->persist($agl);
+				$aglCollection[] = $agl;
+				$count++;
             }
-            $agl = new BundleEntity\ActiveGalleryLocale();
-            $agl->setLanguage($locale)->setGallery($gallery);
-
-            /** persist entry */
-            $this->em->persist($agl);
-            $aglCollection[] = $agl;
-            $count++;
         }
-        /** flush all into database */
-        if ($count > 0) {
-            $this->em->flush();
-        } else {
-            $this->response['code'] = 'msg.error.db.insert.failed';
-        }
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $aglCollection,
-                'total_rows' => $count,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'msg.success.db.insert',
-        );
-        unset($count, $fop_collection);
-        return $this->response;
-    }
+		if($count > 0){
+			$this->em->flush();
+			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
     /**
-     * @name            addLocalesToGalleryCategory ()
-     *                  Associates locales with a given gallery category by creating new row in files_of_product_table.
+     * @name            addLocalesToGalleryCategory()
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
-     * @use             $this->createException()
+	 *
      * @use             $this->validateAndGetLocale()
      * @use             $this->validateAndGetGalleryCategory()
      * @use             $this->isLocaleAssociatedWithGalleryCategory()
@@ -322,69 +217,45 @@ class GalleryModel extends CoreModel {
      * @return          array           $response
      */
     public function addLocalesToGalleryCategory($locales, $category){
-        $this->resetResponse();
-        /** issue an error only if there is no valid file entries */
-        if (count($locales) < 1) {
-            return $this->createException('InvalidCollection', 'The $locales parameter must be an array collection.', 'msg.error.invalid.parameter.locales');
-        }
-        $category = $this->validateAndGetGalleryCategory($category);
-
+		$timeStamp = time();
+		$response = $this->getGalleryCategory($category);
+        if($response->error->exist){
+		    return $response;
+	    }
+		$category = $response->result->set;
+		unset($response);
         $aglCollection = array();
         $count = 0;
         /** Start persisting locales */
         $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-        foreach ($locales as $locale) {
-            $locale = $this->validateAndGetLocale($locale);
-            /** If no entity s provided as file we need to check if it does exist */
-            /** Check if association exists */
-            if ($this->isLocaleAssociatedWithGalleryCategory($locale, $category, true)) {
-                $this->response = array(
-                    'rowCount' => $this->response['rowCount'],
-                    'result' => array(
-                        'set' => null,
-                        'total_rows' => 0,
-                        'last_insert_id' => -1,
-                    ),
-                    'error' => true,
-                    'code' => 'msg.error.db.association.exist',
-                );
-                return $this->response;
-            }
-            $agl = new BundleEntity\ActiveGalleryCategoryLocale();
-            $agl->setLanguage($locale)->setGalleryCategory($category);
-
-            /** persist entry */
-            $this->em->persist($agl);
-            $aglCollection[] = $agl;
-            $count++;
-        }
-        /** flush all into database */
-        if ($count > 0) {
-            $this->em->flush();
-        } else {
-            $this->response['code'] = 'msg.error.db.insert.failed';
-        }
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $aglCollection,
-                'total_rows' => $count,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'msg.success.db.insert',
-        );
-        unset($count, $fop_collection);
-        return $this->response;
-    }
+		foreach ($locales as $locale) {
+			$response = $mlsModel->getLanguage($locale);
+			if($response->error->exist){
+				return $response;
+			}
+			$locale = $response->result->set;
+			unset($response);
+			/** If no entity s provided as file we need to check if it does exist */
+			/** Check if association exists */
+			if(!$this->isLocaleAssociatedWithGalleryCategory($locale, $category, true)) {
+				$agl = new BundleEntity\ActiveGalleryCategoryLocale();
+				$agl->setLanguage($locale)->setGalleryCategory($category);
+				$this->em->persist($agl);
+				$aglCollection[] = $agl;
+				$count++;
+			}
+		}
+		if($count > 0){
+			$this->em->flush();
+			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
     /**
      * @name 			countDistinctMediaTotal()
-     *  				Returns the count of total but distinct media. Count same item only once even if it is
-     *                  associated with multiple galleries.
      *
      * @since			1.0.2
-     * @version         1.0.2
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -392,34 +263,21 @@ class GalleryModel extends CoreModel {
      * @return          array           $response
      */
     public function countDistinctMediaTotal() {
-        $this->resetResponse();
-        $query_str = 'SELECT COUNT( DISTINCT '. $this->entity['gallery_media']['alias'].')'
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias'];
+        $timeStamp = time();
+        $qStr = 'SELECT COUNT( DISTINCT '. $this->entity['gm']['alias'].')'
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias'];
 
-        $query = $this->em->createQuery($query_str);
+        $q = $this->em->createQuery($qStr);
 
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getSingleScalarResult();
+        $result = $q->getSingleScalarResult();
 
-        $this->response = array(
-            'result' => array(
-                'set' => $result,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name            countTotalAudioInGallery()
-     *                  Counts total audio in gallery.
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
@@ -434,10 +292,9 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name            countTotalDocumentsInGallery()
-     *                  Counts total audio in gallery.
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
@@ -452,10 +309,9 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name            countTotalImagesInGallery ()
-     *                  Counts total images in gallery.
      *
      * @since           1.0.6
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -472,62 +328,49 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name            countTotalMediaInGallery()
-     *                  Counts total media in gallery.
      *
      * @since           1.0.6
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
-     * @param           mixed       $gallery
-     * @param           string      $mediaType      all, i, a, v, f, d, p, s
+     * @param           mixed       	$gallery
+     * @param           string      	$mediaType      all, i, a, v, f, d, p, s
      *
      * @return          array           $response
      */
     public function countTotalMediaInGallery($gallery, $mediaType = 'all'){
-        $this->resetResponse();
+        $timeStamp = time();
         $allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
         if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
-            return $this->createException('InvalidParameterValueException', 'i, a, v, f, d, p, or s', 'err.invalid.parameter.mediaType');
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
         }
-        if(!$gallery instanceof BundleEntity\Gallery && !is_numeric($gallery)){
-            return $this->createException('InvalidParameterException', 'Gallery entity or numeric value representing row id', 'err.invalid.parameter.gallery');
-        }
-        if(is_numeric($gallery)){
-            $response = $this->getGallery(($gallery));
-            $gallery = $response['result']['set'];
-        }
-        $qStr = 'SELECT COUNT('.$this->entity['gallery_media']['alias'].')'
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery->getId();
+        $response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+        $qStr = 'SELECT COUNT('.$this->entity['gm']['alias'].')'
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+            .' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
         unset($response, $gallery);
-        $whereStr = '';
+        $wStr = '';
         if($mediaType != 'all'){
-            $whereStr = ' AND '.$this->entity['gallery_media']['alias'].".type = '".$mediaType."'";
+            $whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
         }
-        $qStr .= $whereStr;
+        $qStr .= $wStr;
 
         $query = $this->em->createQuery($qStr);
 
         $result = $query->getSingleScalarResult();
-
-        $this->response = array(
-            'result' => array(
-                'set' => $result,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name            countTotalImagesInGallery ()
-     *                  Counts total images in gallery.
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
@@ -543,73 +386,48 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name 			deleteGalleries()
-     *  				Deletes provided galleries from database.
      *
      * @since			1.0.0
-     * @version         1.0.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           array           $collection     Collection of Module entities, ids, or codes or url keys
+     * @param           array           $collection
      *
      * @return          array           $response
      */
     public function deleteGalleries($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countDeleted = 0;
-        foreach($collection as $entry){
-            if($entry instanceof BundleEntity\Gallery){
-                $this->em->remove($entry);
-                $countDeleted++;
-            }
-            else{
-                switch($entry){
-                    case is_numeric($entry):
-                        $response = $this->getGallery($entry, 'id');
-                        break;
-                    case is_string($entry):
-                        $response = $this->getGallery($entry, 'url_key');
-                        break;
-                }
-                if($response['error']){
-                    $this->createException('EntityDoesNotExist', $entry, 'err.invalid.entry');
-                }
-                $entry = $response['result']['set'];
-                $this->em->remove($entry);
-                $countDeleted++;
-            }
-        }
-        if($countDeleted < 0){
-            $this->response['error'] = true;
-            $this->response['code'] = 'err.db.fail.delete';
-
-            return $this->response;
-        }
-        $this->em->flush();
-        $this->response = array(
-            'rowCount' => 0,
-            'result' => array(
-                'set' => null,
-                'total_rows' => $countDeleted,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.deleted',
-        );
-        return $this->response;
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countDeleted = 0;
+		foreach($collection as $entry){
+			if($entry instanceof BundleEntity\Gallery){
+				$this->em->remove($entry);
+				$countDeleted++;
+			}
+			else{
+				$response = $this->getGallery($entry);
+				if(!$response->error->exists){
+					$this->em->remove($response->result->set);
+					$countDeleted++;
+				}
+			}
+		}
+		if($countDeleted < 0){
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		}
+		$this->em->flush();
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
     }
 
     /**
      * @name 			deleteGallery()
-     *  				Deletes an existing gallery from database.
      *
      * @since			1.0.0
-     * @version         1.0.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->geleteGalleries()
@@ -624,380 +442,249 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name 			doesGalleryExist()
-     *  				Checks if entry exists in database.
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     *
      * @use             $this->getGallery()
      *
-     * @param           mixed           $gallery        id, url_key
-     *
-     * @param           bool            $bypass         If set to true does not return response but only the result.
-     *
+     * @param           mixed           $gallery
+     * @param           bool            $bypass
+	 *
      * @return          mixed           $response
      */
     public function doesGalleryExist($gallery, $bypass = false) {
-        $this->resetResponse();
-        $exist = false;
-
-        $response = $this->getGallery($gallery, 'id');
-        if($response['error']){
-            $response = $this->getGallery($gallery, 'url_key');
-        }
-
-        if (!$response['error'] && $response['result']['total_rows'] > 0) {
-            $exist = true;
-            $error = false;
-        } else {
-            $exist = false;
-            $error = true;
-        }
-
-        if ($bypass) {
-            return $exist;
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $exist,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => $error,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		$response = $this->getGallery($gallery);
+		$exist = true;
+		if($response->error->exist){
+			$exist = false;
+			$response->result->set = false;
+		}
+		if($bypass){
+			return $exist;
+		}
+		return $response;
     }
     /**
-     * @name 		    doesGalleryExist()
-     *                  Checks if entry exists in database.
+     * @name 		    doesGalleryMediaExist()
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->getGalleryMedia()
      *
-     * @param           mixed           $galleryMedia   id
-     * @param           string          $by             by options
-     *
-     * @param           bool            $bypass         If set to true does not return response but only the result.
+     * @param           array           $galleryMedia
+     * @param           bool            $bypass
      *
      * @return          mixed           $response
      */
-    public function doesGalleryMediaExist($galleryMedia, $by = 'id', $bypass = false) {
-        $this->resetResponse();
+    public function doesGalleryMediaExist($galleryMedia, $bypass = false) {
+       	$timeStamp = time();
         $exist = false;
 
-        $response = $this->getGalleryMedia($galleryMedia, $by);
-
-        if (!$response['error'] && $response['result']['total_rows'] > 0) {
-            $exist = true;
-        }
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
+		$response = $fModel->getFile($galleryMedia['file']);
+		if($response->error->exist){
+			return $response;
+		}
+		$file = $response->result->set;
+		$response = $this->getGallery($galleryMedia['gallery']);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+        $response = $this->getGalleryMedia($file, $gallery);
+		if(!$response->error->exist){
+			$exist = true;
+		}
         if ($bypass) {
             return $exist;
         }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $exist,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name 			getGallery()
-     *  				Returns details of a gallery.
      *
      * @since			1.0.0
-     * @version         1.0.1
+     * @version         1.1.4
+	 *
+     * @author          Can Berlpş
      * @author          Said İmamoğlu
      *
-     * @use             $this->createException()
      * @use             $this->listProducts()
      *
-     * @param           mixed           $gallery            id, url_key
-     * @param           string          $by                 entity, id, url_key
+     * @param           mixed           $gallery
      *
      * @return          mixed           $response
      */
-    public function getGallery($gallery, $by = 'id') {
-        $this->resetResponse();
-        $by_opts = array('id', 'url_key');
-        if (!in_array($by, $by_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $by_opts), 'err.invalid.parameter.by');
-        }
-        if (!is_object($gallery) && !is_numeric($gallery) && !is_string($gallery)) {
-            return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.gallery');
-        }
-        if (is_object($gallery)) {
-            if (!$gallery instanceof BundleEntity\Gallery) {
-                return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.gallery');
-            }
-            /**
-             * Prepare & Return Response
-             */
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $gallery,
-                    'total_rows' => 1,
-                    'last_insert_id' => null,
-                ),
-                'error' => false,
-                'code' => 'scc.db.entry.exist',
-            );
-            return $this->response;
-        }
-        switch($by){
-            case 'url_key':
-                $column = $this->entity['gallery_localization']['alias'] . '.' . $by;
-                break;
-            default:
-                $column = $this->entity['gallery']['alias'] . '.' . $by;
-                break;
-        }
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $column, 'comparison' => '=', 'value' => $gallery),
-                )
-            )
-        );
+    public function getGallery($gallery) {
+		$timeStamp = time();
+		if($gallery instanceof BundleEntity\Gallery){
+			return new ModelResponse($gallery, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		}
+		$result = null;
+		switch($gallery){
+			case is_numeric($gallery):
+				$result = $this->em->getRepository($this->entity['g']['name'])->findOneBy(array('id' => $gallery));
+				break;
+			case is_string($gallery):
+				$result = $this->em->getRepository($this->entity['gl']['name'])->findOneBy(array('url_key' => $gallery));
+				if(is_null($result)){
+					$response = $this->getGalleryByUrlKey($gallery);
+					if(!$response->error->exist){
+						$result = $response->result->set;
+					}
+				}
+				unset($response);
+				break;
+		}
+		if(is_null($result)){
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+		}
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name            getGalleryByUrlKey()
+	 *
+	 * @since           1.1.4
+	 * @version         1.1.4
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->listProducts()
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed 			$urlKey
+	 * @param			mixed			$language
+	 *
+	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function getGalleryByUrlKey($urlKey, $language = null){
+		$timeStamp = time();
+		if(!is_string($urlKey)){
+			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
+		}
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => array('column' => $this->entity['gl']['alias'].'.url_key', 'comparison' => '=', 'value' => $urlKey),
+				)
+			)
+		);
+		if(!is_null($language)){
+			$mModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+			$response = $mModel->getLanguage($language);
+			if(!$response->error->exists){
+				$filter[] = array(
+					'glue' => 'and',
+					'condition' => array(
+						array(
+							'glue' => 'and',
+							'condition' => array('column' => $this->entity['gl']['alias'].'.language', 'comparison' => '=', 'value' => $response->result->set->getId()),
+						)
+					)
+				);
+			}
+		}
+		$response = $this->listGalleries($filter, null, array('start' => 0, 'count' => 1));
 
-        $response = $this->listGalleries($filter, null, array('start' => 0, 'count' => 1));
-        if ($response['error']) {
-            return $response;
-        }
-        $collection = $response['result']['set'];
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $collection[0],
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-    /**
-     * @name            getGalleryLocalization
-     *                  Returns given gallery's localizations.
-     *
-     * @since           1.0.0
-     * @version         1.0.7
-     *
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed           $gallery
-     * @param           mixed           $language
-     *
-     * @return          array           $response
-     */
-    public function getGalleryLocalization($gallery, $language) {
-        $this->resetResponse();
-        if (!$gallery instanceof BundleEntity\Gallery && !is_numeric($gallery)) {
-            return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.gallery');
-        }
-        if(is_numeric($gallery)){
-            $response = $this->getGallery($gallery);
-            if($response['error']){
-                return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.gallery');
-            }
-            $gallery = $response['result']['set'];
-        }
-        /** Parameter must be an array */
-        if (!$language instanceof MLSEntity\Language && !is_numeric($language) && !is_string($language)) {
-            return $this->createException('InvalidParameterException', 'Language', 'err.invalid.parameter.language');
-        }
-        if(is_numeric($language)){
-            $mlsModel = $sModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-            $response = $mlsModel->getLanguage($language, 'id');
-            if($response['error']){
-                return $this->createException('InvalidParameterException', 'Language id', 'err.invalid.parameter.language');
-            }
-            $language = $response['result']['set'];
-        }
-        else if(is_string($language)){
-            $mlsModel = $sModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-            $response = $mlsModel->getLanguage($language, 'iso_code');
-            if($response['error']){
-                return $this->createException('InvalidParameterException', 'Language iso code', 'err.invalid.parameter.language');
-            }
-            $language = $response['result']['set'];
-        }
-        $q_str = 'SELECT ' . $this->entity['gallery_localization']['alias'] . ' FROM ' . $this->entity['gallery_localization']['name'] . ' ' . $this->entity['gallery_localization']['alias']
-            . ' WHERE ' . $this->entity['gallery_localization']['alias'] . '.gallery = ' . $gallery->getId()
-            . ' AND ' . $this->entity['gallery_localization']['alias'] . '.language = ' . $language->getId();
+		$response->result->set = $response->result->set[0];
+		$response->stats->execution->start = $timeStamp;
+		$response->stats->execution->end = time();
 
-        $query = $this->em->createQuery($q_str);
-        /**
-         * 6. Run query
-         */
-        $result = $query->getResult();
-        /**
-         * Prepare & Return Response
-         */
-        $total_rows = count($result);
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $result,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist.',
-        );
-        return $this->response;
-    }
+		return $response;
+	}
     /**
      * @name 			getGalleryMedia()
-     *  				Returns GalleryMedia entry.
      *
      * @since			1.0.3
-     * @version         1.0.3
+     * @version         1.1.4
      * @author          Can Berkol
 
-     * @param           mixed           $file           id, entity
-     * @param           mixed           $gallery        id, entity
+     * @param           mixed           $file
+     * @param           mixed           $gallery
      *
      * @return          mixed           $response
      */
     public function getGalleryMedia($file, $gallery) {
-        $this->resetResponse();
-        if($file instanceof FileBundleEntity\File){
-            $file = $file->getId();
-        }
-        if($gallery instanceof BundleEntity\Gallery){
-            $gallery = $file->getId();
-        }
+        $timeStamp = time();
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
+		$response = $fModel->getFile($file);
+		if($response->error->exist){
+			return $response;
+		}
+		$file = $response->result->set;
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response->result->set;
+		}
+		$gallery = $response->result->set;
+		unset($response);
         $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
             .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery
-            .' AND '.$this->entity['gallery_media']['alias'].'.file = '.$file;
+            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery->getId()
+            .' AND '.$this->entity['gallery_media']['alias'].'.file = '.$file->getId();
 
-        $query = $this->em->createQuery($qStr);
+        $q = $this->em->createQuery($qStr);
 
-        $response = $query->getSingleResult();
+		$result = $q->getSingleResult();
 
-        if(!$response){
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+		if(is_null($result)){
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+		}
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+
+	}
     /**
      * @name 		    getMaxSortOrderOfGalleryMedia()
-     *                  Returns the largest sort order value for a given gallery from gallery_media table.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->createException()
      * @use             $this->getGallery()
      *
-     * @throws          InvalidParameterException
-     *
-     * @param           mixed           $gallery            entity, id
-     * @param           bool            $bypass             if set to true return bool instead of response
+     * @param           mixed           $gallery
+     * @param           bool            $bypass
      *
      * @return          mixed           bool | $response
      */
     public function getMaxSortOrderOfGalleryMedia($gallery, $bypass = false) {
-        $this->resetResponse();
+        $timeStamp = time();
         if (!is_object($gallery) && !is_numeric($gallery) && !is_string($gallery)) {
             return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
         }
-        if (is_object($gallery)) {
-            if (!$gallery instanceof BundleEntity\Gallery) {
-                return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
-            }
-        } else {
-            /** if numeric value given check if category exists */
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
-            }
-            $gallery = $response['result']['result'];
-        }
-        $q_str = 'SELECT MAX('.$this->entity['gallery_media']['alias'].'.sort_order) FROM ' . $this->entity['gallery_media']['name'] .' '. $this->entity['gallery_media']['alias']
-            . ' WHERE ' . $this->entity['gallery_media']['alias'] . '.gallery = ' . $gallery->getId();
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+        $q_str = 'SELECT MAX('.$this->entity['gm']['alias'].'.sort_order) FROM ' . $this->entity['gm']['name'] .' '. $this->entity['gm']['alias']
+            . ' WHERE ' . $this->entity['gm']['alias'] . '.gallery = ' . $gallery->getId();
         $query = $this->em->createQuery($q_str);
         $result = $query->getSingleScalarResult();
 
         if ($bypass) {
             return $result;
         }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $result,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name            insertGalleries()
      *
      * @since           1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Said İmamoğlu
      * @author          Can Berkol
@@ -1010,11 +697,10 @@ class GalleryModel extends CoreModel {
      */
 
     public function insertGalleries($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countInserts = 0;
         $countLocalizations = 0;
         $insertedItems = array();
@@ -1068,13 +754,11 @@ class GalleryModel extends CoreModel {
                             break;
                         case 'preview_file':
                             $fModel = $this->kernel->getContainer()->get('filemanagement.model');
-                            $response = $fModel->getFile($value, 'id');
-                            if(!$response['error']){
-                                $entity->$set($response['result']['set']);
+                            $response = $fModel->getFile($value);
+                            if($response->error->exist){
+								return $response;
                             }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
+							$entity->$set($response['result']['set']);
                             unset($response, $fModel);
                             break;
                         default:
@@ -1090,9 +774,6 @@ class GalleryModel extends CoreModel {
 
                 $countInserts++;
             }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
         }
         if($countInserts > 0){
             $this->em->flush();
@@ -1101,27 +782,18 @@ class GalleryModel extends CoreModel {
         if($countInserts > 0 && $countLocalizations > 0){
             $this->insertGalleryLocalizations($localizations);
         }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => $entity->getId(),
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+
+	}
     /**
      * @name            insertGallery()
-     *                  Inserts single gallery into database
      *
      * @since           1.0.0
-     * @version         1.0.2
+     * @version         1.1.4
      *
      * @author          Said İmamoğlu
      * @author          Can Berkol
@@ -1138,10 +810,9 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name 			insertGalleryLocalizations()
-     *  				Inserts one or more gallery localizations into database.
      *
      * @since			1.0.1
-     * @version         1.0.1
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -1151,11 +822,10 @@ class GalleryModel extends CoreModel {
      * @return          array           $response
      */
     public function insertGalleryLocalizations($collection){
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countInserts = 0;
         $insertedItems = array();
         foreach($collection as $item){
@@ -1171,298 +841,175 @@ class GalleryModel extends CoreModel {
                     $entity->setGallery($item['entity']);
                     $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
                     $response = $mlsModel->getLanguage($language, 'iso_code');
-                    if(!$response['error']){
-                        $entity->setLanguage($response['result']['set']);
+                    if($response->error->exist){
+                        return $response;
                     }
-                    else{
-                        break 1;
-                    }
+					$entity->setLanguage($response->result->set);
                     foreach($data as $column => $value){
                         $set = 'set'.$this->translateColumnName($column);
                         $entity->$set($value);
                     }
                     $this->em->persist($entity);
+					$insertedItems[] = $entity;
+					$countInserts++;
                 }
-                $insertedItems[] = $entity;
-                $countInserts++;
             }
         }
-        if($countInserts > 0){
-            $this->em->flush();
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
     /**
-     * @name 		    isGalleryAssocitedWithFile()
-     *  		        Checks if the gallery is already associated with the file.
+     * @name 		    isFileAssociatedWithGallery()
      *
      * @since		    1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           mixed           $file           'entity' or 'entity' id
-     * @param           mixed           $gallery        'entity' or 'entity' id.
-     * @param           bool            $bypass         true or false
+     * @param           mixed           $file
+     * @param           mixed           $gallery
+     * @param           bool            $bypass
      *
      * @return          mixed           bool or $response
      */
     public function isFileAssociatedWithGallery($file, $gallery, $bypass = false) {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        if (!is_numeric($file) && !$file instanceof FileBundleEntity\File) {
-            return $this->createException('InvalidParameterException', 'File', 'err.invalid.parameter.file');
-        }
-
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
-        }
-        $fmmodel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
-        /** If no entity is provided as file we need to check if it does exist */
-        if (is_numeric($file)) {
-            $response = $fmmodel->getFile($file, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'File', 'err.db.file.notexist');
-            }
-            $file = $response['result']['set'];
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
-            }
-            $gallery = $response['result']['set'];
-        }
+        $timeStamp = time();
+		$fModel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
+       	$response = $fModel->getFile($file);
+		if($response->error->exist){
+			return $response;
+		}
+		$file = $response->result->set;
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
         $found = false;
 
-        $q_str = 'SELECT COUNT(' . $this->entity['gallery_media']['alias'] . ')'
-            . ' FROM ' . $this->entity['gallery_media']['name'] . ' ' . $this->entity['gallery_media']['alias']
-            . ' WHERE ' . $this->entity['gallery_media']['alias'] . '.file = ' . $file->getId()
-            . ' AND ' . $this->entity['gallery_media']['alias'] . '.gallery = ' . $gallery->getId();
-        $query = $this->em->createQuery($q_str);
+        $qStr = 'SELECT COUNT(' . $this->entity['gm']['alias'] . ')'
+            . ' FROM ' . $this->entity['gm']['name'] . ' ' . $this->entity['gm']['alias']
+            . ' WHERE ' . $this->entity['gm']['alias'] . '.file = ' . $file->getId()
+            . ' AND ' . $this->entity['gm']['alias'] . '.gallery = ' . $gallery->getId();
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getSingleScalarResult();
+        $result = $q->getSingleScalarResult();
 
-        if ($result > 0) {
-            $found = true;
-            $code = 'scc.db.entry.exist';
-        } else {
-            $code = 'scc.db.entry.notexist';
-        }
-
-        if ($bypass) {
-            return $found;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $found,
-                'total_rows' => $result,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => $code,
-        );
-        return $this->response;
-    }
+		if ($result > 0) {
+			$found = true;
+		}
+		if ($bypass) {
+			return $found;
+		}
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
     /**
      * @name            isLocaleAssociatedWithGallery()
-     *                  Checks if the locale is already associated with the product.
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
      *
      * @user            $this->createException
      *
-     * @param           mixed $locale 'entity' or 'entity' id
-     * @param           mixed $gallery 'entity' or 'entity' id.
-     * @param           bool $bypass true or false
+     * @param           mixed 	$locale
+     * @param           mixed 	$gallery
+     * @param           bool 	$bypass
      *
-     * @return          mixed                   bool or $response
+     * @return          mixed
      */
-    public function isLocaleAssociatedWithGallery($locale, $gallery, $bypass = false)
-    {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
-            return $this->createException('InvalidParameter', 'Language', 'err.invalid.parameter.language');
-        }
-
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameter', 'Gallery', 'err.invalid.parameter.gallery');
-        }
-        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-        /** If no entity is provided as file we need to check if it does exist */
-        if (is_numeric($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-            }
-            $locale = $response['result']['set'];
-        } else if (is_string($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'iso_code');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-            }
-            $locale = $response['result']['set'];
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
-            }
-            $gallery = $response['result']['set'];
-        } else if (is_string($gallery)) {
-            $response = $this->getGallery($gallery, 'sku');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
-            }
-            $gallery = $response['result']['set'];
-        }
+    public function isLocaleAssociatedWithGallery($locale, $gallery, $bypass = false){
+		$timeStamp = time();
+        $response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+		$response = $mlsModel->getLanguage($locale);
+		if($response->error->exist){
+			return $response;
+		}
+		$locale = $response->result->set;
+		unset($response);
         $found = false;
 
-        $q_str = 'SELECT COUNT(' . $this->entity['active_gallery_locale']['alias'] . ')'
-            . ' FROM ' . $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias']
-            . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.language = ' . $locale->getId()
-            . ' AND ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $gallery->getId();
-        $query = $this->em->createQuery($q_str);
+		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . ')'
+            . ' FROM ' . $this->entity['agl']['name'] . ' ' . $this->entity['agl']['alias']
+            . ' WHERE ' . $this->entity['agl']['alias'] . '.language = ' . $locale->getId()
+            . ' AND ' . $this->entity['agl']['alias'] . '.gallery = ' . $gallery->getId();
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getSingleScalarResult();
+        $result = $q->getSingleScalarResult();
 
-        /** flush all into database */
-        if ($result > 0) {
-            $found = true;
-            $code = 'scc.db.entry.exist';
-        } else {
-            $code = 'scc.db.entry.noexist';
-        }
-
-        if ($bypass) {
-            return $found;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $found == true ? $result : $found,
-                'total_rows' => count($result),
-                'last_insert_id' => null,
-            ),
-            'error' => $found == true ? false : true,
-            'code' => $code,
-        );
-        return $this->response;
-    }
+		if ($result > 0) {
+			$found = true;
+		}
+		if ($bypass) {
+			return $found;
+		}
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
 
     /**
-     * @name            isLocaleAssociatedWithGalleryCategory ()
-     *                  Checks if the locale is already associated with the product.
+     * @name            isLocaleAssociatedWithGalleryCategory()
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @user            $this->createException
      *
-     * @param           mixed $locale 'entity' or 'entity' id
-     * @param           mixed $category 'entity' or 'entity' id.
-     * @param           bool $bypass true or false
+     * @param           mixed 		$locale
+     * @param           mixed 		$category
+     * @param           bool 		$bypass
      *
-     * @return          mixed                   bool or $response
+     * @return          mixed
      */
-    public function isLocaleAssociatedWithGalleryCategory($locale, $category, $bypass = false)
-    {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
-            return $this->createException('InvalidParameter', 'Language', 'err.invalid.parameter.language');
-        }
+    public function isLocaleAssociatedWithGalleryCategory($locale, $category, $bypass = false){
+		$timeStamp = time();
+		$response = $this->getGalleryCategory($category);
+		if($response->error->exist){
+			return $response;
+		}
+		$category = $response->result->set;
+		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+		$response = $mlsModel->getLanguage($locale);
+		if($response->error->exist){
+			return $response;
+		}
+		$locale = $response->result->set;
+		unset($response);
+		$found = false;
 
-        if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
-            return $this->createException('InvalidParameter', 'GalleryCategory', 'err.invalid.parameter.product_category');
-        }
-        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-        /** If no entity is provided as file we need to check if it does exist */
-        if (is_numeric($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-            }
-            $locale = $response['result']['set'];
-        } else if (is_string($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'iso_code');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-            }
-            $locale = $response['result']['set'];
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($category)) {
-            $response = $this->getGalleryCategory($category, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Product', 'err.db.product.notexist');
-            }
-            $category = $response['result']['set'];
-        }
+		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . ')'
+			. ' FROM ' . $this->entity['agcl']['name'] . ' ' . $this->entity['agcl']['alias']
+			. ' WHERE ' . $this->entity['agcl']['alias'] . '.language = ' . $locale->getId()
+			. ' AND ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId();
+		$q = $this->em->createQuery($qStr);
 
-        $found = false;
+		$result = $q->getSingleScalarResult();
 
-        $q_str = 'SELECT COUNT(' . $this->entity['active_gallery_category_locale']['alias'] . ')'
-            . ' FROM ' . $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias']
-            . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.language = ' . $locale->getId()
-            . ' AND ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $category->getId();
-        $query = $this->em->createQuery($q_str);
-
-        $result = $query->getSingleScalarResult();
-
-        /** flush all into database */
-        if ($result > 0) {
-            $found = true;
-            $code = 'scc.db.entry.exist';
-        } else {
-            $code = 'scc.db.entry.noexist';
-        }
-
-        if ($bypass) {
-            return $found;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $found == true ? $result : $found,
-                'total_rows' => count($result),
-                'last_insert_id' => null,
-            ),
-            'error' => $found == true ? false : true,
-            'code' => $code,
-        );
-        return $this->response;
-    }
+		if ($result > 0) {
+			$found = true;
+		}
+		if ($bypass) {
+			return $found;
+		}
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
     /**
      * @name            listActiveLocalesOfGallery()
      *                  List active locales of a given gallery.
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -1472,22 +1019,16 @@ class GalleryModel extends CoreModel {
      * @return          array           $gallery
      */
     public function listActiveLocalesOfGallery($gallery){
-        $this->resetResponse();
-        if (!is_string($gallery) && !is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameter', 'Gallery entity', 'err.invalid.parameter.gallery');
-        }
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-        }
-        if (isset($response) && !$response['error']) {
-            $gallery = $response['result']['set'];
-        } else if (isset($response) && $response['error']) {
-            return $this->createException('EntityDoesNotExist', 'Gallery', 'err.invalid.parameter.gallery');
-        }
-        $galleryId = $gallery->getId();
-        $qStr = 'SELECT ' . $this->entity['active_gallery_locale']['alias']
-            . ' FROM ' . $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias']
-            . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $galleryId;
+        $timeStamp = time();
+        $response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+        $qStr = 'SELECT ' . $this->entity['agl']['alias']
+            . ' FROM ' . $this->entity['agl']['name'] . ' ' . $this->entity['agl']['alias']
+            . ' WHERE ' . $this->entity['agl']['alias'] . '.gallery = ' . $gallery->getId;
         $query = $this->em->createQuery($qStr);
         $result = $query->getResult();
         $locales = array();
@@ -1500,217 +1041,168 @@ class GalleryModel extends CoreModel {
             }
         }
         unset($unique);
-        $totalRows = count($locales);
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $locales,
-                'total_rows' => $totalRows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+		$totalRows = count($locales);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
 
     /**
      * @name            listActiveLocalesOfGalleryCategory ()
-     *                  List active locales of a given GALLERY category.
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           mixed           $category entity, id
+     * @param           mixed           $category
      *
      * @return          array           $response
      */
     public function listActiveLocalesOfGalleryCategory($category){
-        $this->resetResponse();
-        if (!is_string($category) && !is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
-            return $this->createException('InvalidParameter', 'GalleryCategory entity', 'err.invalid.parameter.gallery_category');
-        }
-        if (is_numeric($category)) {
-            $response = $this->getGalleryCategory($category, 'id');
-        } elseif (is_string($category)) {
-            $response = $this->getGalleryCategory($category, 'sku');
-        }
-        if (isset($response) && !$response['error']) {
-            $category = $response['result']['set'];
-        } else if (isset($response) && $response['error']) {
-            return $this->createException('EntityDoesNotExist', 'GalleryCategory', 'err.invalid.parameter.gallery_category');
-        }
-        $catId = $category->getId();
-        $qStr = 'SELECT ' . $this->entity['active_gallery_category_locale']['alias']
-            . ' FROM ' . $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias']
-            . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $catId;
-        $query = $this->em->createQuery($qStr);
-        $result = $query->getResult();
-        $locales = array();
-        $unique = array();
-        foreach ($result as $entry) {
-            $id = $entry->getLanguage()->getId();
-            if (!isset($unique[$id])) {
-                $locales[] = $entry->getLanguage();
-                $unique[$id] = $entry->getLanguage();
-            }
-        }
-        unset($unique);
-        $totalRows = count($locales);
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $locales,
-                'total_rows' => $totalRows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		$timeStamp = time();
+		$response = $this->getGalleryCategory($category);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+		$qStr = 'SELECT ' . $this->entity['agcl']['alias']
+			. ' FROM ' . $this->entity['agcl']['name'] . ' ' . $this->entity['agcl']['alias']
+			. ' WHERE ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId;
+		$query = $this->em->createQuery($qStr);
+		$result = $query->getResult();
+		$locales = array();
+		$unique = array();
+		foreach ($result as $entry) {
+			$id = $entry->getLanguage()->getId();
+			if (!isset($unique[$id])) {
+				$locales[] = $entry->getLanguage();
+				$unique[$id] = $entry->getLanguage();
+			}
+		}
+		unset($unique);
+		$totalRows = count($locales);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name 			listAllAudioOfGallery()
-     *  				List all audio files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.0.8
-     * @version         1.0.8
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      *
      * @return          array           $response
      */
-    public function listAllAudioOfGallery($gallery, $sortorder = null) {
-        return $this->listMediaOfGallery($gallery, 'a', $sortorder);
+    public function listAllAudioOfGallery($gallery, $sortOrder = null) {
+        return $this->listMediaOfGallery($gallery, 'a', $sortOrder);
     }
     /**
      * @name 			listAllGalleries()
-     *  				List all galleries from database.
      *
      * @since			1.0.1
-     * @version         1.0.1
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
      *
      * @uses            $this->listGalleries()
      *
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listAllGalleries($sortorder = null, $limit = null) {
-        return $this->listGalleries(null, $sortorder, $limit);
+    public function listAllGalleries($sortOrder = null, $limit = null) {
+        return $this->listGalleries(null, $sortOrder, $limit);
     }
     /**
      * @name 			listAllImagesOfGallery()
-     *  				List all image files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.0.1
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      *
      * @return          array           $response
      */
-    public function listAllImagesOfGallery($gallery, $sortorder = null) {
-        return $this->listMediaOfGallery($gallery, 'i', $sortorder);
+    public function listAllImagesOfGallery($gallery, $sortOrder = null) {
+        return $this->listMediaOfGallery($gallery, 'i', $sortOrder);
     }
     /**
      * @name 			listDocumentsOfGallery()
-     *  				List all documents files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.1.1
-     * @version         1.1.1
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
      *
      * @return          array           $response
      */
-    public function listDocumentsOfGallery($gallery, $sortorder = null, $limit = null) {
-        return $this->listMediaOfGallery($gallery, 'd', $sortorder, $limit);
+    public function listDocumentsOfGallery($gallery, $sortOrder = null, $limit = null) {
+        return $this->listMediaOfGallery($gallery, 'd', $sortOrder, $limit);
     }
     /**
      * @name 			listAllIVideosOfGallery()
-     *  				List all image files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.0.1
-     * @version         1.1.1
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      *
      * @return          array           $response
      */
-    public function listAllVideosOfGallery($gallery, $sortorder = null) {
-        return $this->listMediaOfGallery($gallery, 'v', $sortorder);
+    public function listAllVideosOfGallery($gallery, $sortOrder = null) {
+        return $this->listMediaOfGallery($gallery, 'v', $sortOrder);
     }
     /**
      * @name 			listGalleries()
-     *  				List galleries from database based on a variety of conditions.
      *
      * @since			1.0.1
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->createException
      *
      * @param           array           $filter
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
-     * @param           string          $query_str             If a custom query string needs to be defined.
      *
      * @return          array           $response
      */
-    public function listGalleries($filter = null, $sortorder = null, $limit = null, $query_str = null) {
-        $this->resetResponse();
-        if (!is_array($sortorder) && !is_null($sortorder)) {
-            return $this->createException('InvalidSortOrderException', '', 'err.invalid.parameter.sortorder');
-        }
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        /**         * ************************************************** */
-        $orderStr = '';
-        $whereStr = '';
-        $groupStr = '';
-        $filterStr = '';
+    public function listGalleries($filter = null, $sortOrder = null, $limit = null) {
+		$timeStamp = time();
+		if(!is_array($sortOrder) && !is_null($sortOrder)){
+			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
+		}
+		$oStr = $wStr = $gStr = $fStr = '';
 
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        if (is_null($query_str)) {
-            $query_str = 'SELECT ' . $this->entity['gallery_localization']['alias']
-                . ' FROM ' . $this->entity['gallery_localization']['name'] . ' ' . $this->entity['gallery_localization']['alias']
-                . ' JOIN ' . $this->entity['gallery_localization']['alias'] . '.gallery ' . $this->entity['gallery']['alias'];
-        }
-        /**
-         * Prepare ORDER BY section of query.
-         */
-        if ($sortorder != null) {
-            foreach ($sortorder as $column => $direction) {
+		$qStr = 'SELECT ' . $this->entity['gl']['alias']
+                . ' FROM ' . $this->entity['gl']['name'] . ' ' . $this->entity['gl']['alias']
+                . ' JOIN ' . $this->entity['gl']['alias'] . '.gallery ' . $this->entity['g']['alias'];
+
+        if ($sortOrder != null) {
+            foreach ($sortOrder as $column => $direction) {
                 switch ($column) {
                     case 'id':
                     case 'date_added':
@@ -1722,48 +1214,29 @@ class GalleryModel extends CoreModel {
                     case 'count_video':
                     case 'count_document':
                     case 'site':
-                        $column = $this->entity['gallery']['alias'] . '.' . $column;
+                        $column = $this->entity['g']['alias'] . '.' . $column;
                         break;
                     case 'tile':
                     case 'url_key':
                     case 'description':
-                        $column = $this->entity['gallery_localization']['alias'] . '.' . $column;
+                        $column = $this->entity['gl']['alias'] . '.' . $column;
                         break;
                 }
-                $orderStr .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
-            }
-            $orderStr = rtrim($orderStr, ', ');
-            $orderStr = ' ORDER BY ' . $orderStr . ' ';
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
         }
+		if(!is_null($filter)){
+			$fStr = $this->prepareWhere($filter);
+			$wStr .= ' WHERE '.$fStr;
+		}
 
-        /**
-         * Prepare WHERE section of query.
-         */
-        if ($filter != null) {
-            $filterStr = $this->prepareWhere($filter);
-            $whereStr .= ' WHERE ' . $filterStr;
-        }
+		$qStr .= $wStr.$gStr.$oStr;
+		$q = $this->em->createQuery($qStr);
+		$q = $this->addLimit($q, $limit);
 
-        $query_str .= $whereStr . $groupStr . $orderStr;
-
-        $query = $this->em->createQuery($query_str);
-
-        /**
-         * Prepare LIMIT section of query
-         */
-        if ($limit != null) {
-            if (isset($limit['start']) && isset($limit['count'])) {
-                /** If limit is set */
-                $query->setFirstResult($limit['start']);
-                $query->setMaxResults($limit['count']);
-            } else {
-                $this->createException('InvalidLimit', '', 'err.invalid.limit');
-            }
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getResult();
+        $result = $q->getResult();
 
         $galleries = array();
         $unique = array();
@@ -1775,312 +1248,249 @@ class GalleryModel extends CoreModel {
             }
         }
         unset($unique);
-        $total_rows = count($galleries);
-        if ($total_rows < 1) {
-            $this->response['code'] = 'err.db.entry.notexist';
-            return $this->response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $galleries,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+		$totalRows = count($galleries);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($galleries, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
     /**
-     * @name 		listGalleryAddedAfter()
-     *              List galleries that are added after the given date.
+     * @name 			listGalleryAddedAfter()
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesAdded()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleryAddedAfter($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesAdded($date, 'after', $sortorder, $limit);
+    public function listGalleryAddedAfter($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesAdded($date, 'after', $sortOrder, $limit);
     }
     /**
      * @name 		    listGalleriesAddedBefore()
-     *                  List galleries that are added before the given date.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesAdded()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesAddedBefore($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesAdded($date, 'before', $sortorder, $limit);
+    public function listGalleriesAddedBefore($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesAdded($date, 'before', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesAddedBetween()
-     *  				List products that are added between two dates.
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.7
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesAdded()
      *
-     * @param           array           $dates                  The earlier and the later dates.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $dates
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesAddedBetween($dates, $sortorder = null, $limit = null) {
-        return $this->listGalleriesAdded($dates, 'between', $sortorder, $limit);
+    public function listGalleriesAddedBetween($dates, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesAdded($dates, 'between', $sortOrder, $limit);
     }
     /**
      * @name 			listGalleriesUpdatedAfter()
-     *  				List products that are updated after the given date.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUpdated()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUpdatedAfter($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUpdated($date, 'after', $sortorder, $limit);
+    public function listGalleriesUpdatedAfter($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUpdated($date, 'after', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesUpdatedBefore()
-     *  				List products that are updated before the given date.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUpdated()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUpdatedBefore($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUpdated($date, 'before', $sortorder, $limit);
+    public function listGalleriesUpdatedBefore($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUpdated($date, 'before', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesUpdatedBetween()
-     *  				List products that are updated between two dates.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUpdated()
      *
-     * @param           array           $dates                  The earlier and the later dates.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $dates
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUpdatedBetween($dates, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUpdated($dates, 'between', $sortorder, $limit);
+    public function listGalleriesUpdatedBetween($dates, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUpdated($dates, 'between', $sortOrder, $limit);
     }
     /**
      * @name 			listGalleriesUnpublishedAfter()
-     *  				List products that are updated after the given date.
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUnpublished()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUnpublishedAfter($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUnpublished($date, 'after', $sortorder, $limit);
+    public function listGalleriesUnpublishedAfter($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUnpublished($date, 'after', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesUnpublishedBefore()
-     *  				List products that are updated before the given date.
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUnpublished()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUnpublishedBefore($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUnpublished($date, 'before', $sortorder, $limit);
+    public function listGalleriesUnpublishedBefore($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUnpublished($date, 'before', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesUnpublishedBetween()
-     *  				List products that are updated between two dates.
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesUnpublished()
      *
-     * @param           array           $dates                  The earlier and the later dates.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $dates
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesUnpublishedBetween($dates, $sortorder = null, $limit = null) {
-        return $this->listGalleriesUnpublished($dates, 'between', $sortorder, $limit);
+    public function listGalleriesUnpublishedBetween($dates, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesUnpublished($dates, 'between', $sortOrder, $limit);
     }
     /**
      * @name            listImagesOfAllGalleries()
-     *                  Lists one ore more random media from gallery
      *
      * @since           1.0.1
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Said İmamoğlu
      * @author          Can Berkol
      *
-     * @use             $this->createException()
-     * @use             $fModel->listFiles()
-     *
-     * @param           integer     $count          Limit the number of items to be returned
-     * @param           array       $sortorder
+     * @param           integer     $count
+     * @param           array       $sortOrder
      * @param           array       $limit
      * @param           array       $filter
      *
      * @return          array           $response
      */
-    public function listImagesOfAllGalleries($count = 1, $sortorder = null, $limit = null, $filter = null){
-        $mediaType = 'i';
-        return $this->listMediaOfAllGalleries($count, $mediaType, $sortorder, $limit, $filter);
+    public function listImagesOfAllGalleries($count = 1, $sortOrder = null, $limit = null, $filter = null){
+        return $this->listMediaOfAllGalleries($count, 'i', $sortOrder, $limit, $filter);
     }
     /**
      * @name            listGalleriesOfMedia()
-     *                  Lists all galleries that file belongs to.
      *
      * @since           1.0.8
-     * @version         1.0.8
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
-     * @use             $this->createException()
-     * @use             $fModel->listFiles()
-     *
      * @param           mixed       $file
-     * @param           array       $sortorder
+     * @param           array       $sortOrder
      * @param           array       $limit
      * @param           array       $filter
      *
      * @return          array           $response
      */
-    public function listGalleriesOfMedia($file, $sortorder = null, $limit = null, $filter = null){
-        $this->resetResponse();
-        if(!$file instanceof FileBundleEntity\File && !is_integer($file)){
-            return $this->createException('InvalidParameterValueException', 'File entity or integer  representing row id', 'err.invalid.parameter.file');
-        }
-        if(is_numeric($file)){
-            $fModel = $this->kernel->getContainer()->get('filemanagement.model');
-            $response = $this->getFile($file);
-            if($response['error']){
-                return $this->createException('InvalidParameterValueException', 'File entity or integer  representing row id', 'err.invalid.parameter.file');
-            }
-            $file = $response['result']['set'];
-        }
-        $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-            .' WHERE '.$this->entity['gallery_media']['alias'].'.file = '.$file->getId();
-        unset($response, $gallery);
+    public function listGalleriesOfMedia($file, $sortOrder = null, $limit = null, $filter = null){
+        $timeStamp = time();
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
+		$response = $fModel->getFile($file);
+		if($response->error->exist){
+			return $response;
+		}
+		$file = $response->result->set;
+        $qStr = 'SELECT '.$this->entity['gm']['alias']
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+            .' WHERE '.$this->entity['gm']['alias'].'.file = '.$file->getId();
+        unset($response, $file);
 
-        $query = $this->em->createQuery($qStr);
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getResult();
+        $result = $q->getResult();
 
         $galleryIds = array();
         $totalRows = count($result);
 
-        if($totalRows > 0){
-            foreach($result as $gm){
-                $galleryIds[] = $gm->getGallery()->getId();
-                $this->em->detach($gm);
-            }
-        }
-        else{
-            $this->response = array(
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+
+		foreach($result as $gm){
+			$galleryIds[] = $gm->getGallery()->getId();
+			$this->em->detach($gm);
+		}
+
 
         $galleryFilter[] = array('glue' => 'and',
             'condition' => array(
@@ -2090,267 +1500,251 @@ class GalleryModel extends CoreModel {
                 )
             )
         );
-        return $this->listGalleries($galleryFilter, $sortorder, $limit);
+        return $this->listGalleries($galleryFilter, $sortOrder, $limit);
     }
     /**
      * @name 		    listGalleriesOfSite()
-     *                  List galleries with given site value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleries()
      *
-     * @param           array           $site                   count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $site
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesOfSite($site, $sortorder = null, $limit = null) {
+    public function listGalleriesOfSite($site, $sortOrder = null, $limit = null) {
+		$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+		$response = $sModel->getSite($site);
+		if($response->error->exist){
+			return $response;
+		}
+		$site = $response->result->set;
+		unset($response);
         $filter[] = array(
             'glue' => 'and',
             'condition' => array(
                 array(
                     'glue' => 'and',
-                    'condition' => array('column' => $this->entity['gallery']['alias'] . '.site', 'comparison' => '=', 'value' => $site),
+                    'condition' => array('column' => $this->entity['g']['alias'] . '.site', 'comparison' => '=', 'value' => $site->getId()),
                 )
             )
         );
-        return $this->listGalleries($filter, $sortorder, $limit);
+        return $this->listGalleries($filter, $sortOrder, $limit);
     }
     /**
      * @name 		    listGalleriesWithAudioCount()
-     *                  List audio files with count equal to given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           mixed           $count                  count number(s)
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           mixed           $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithAudioCount($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('a', 'eq', $count, $sortorder, $limit);
+    public function listGalleriesWithAudioCount($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('a', 'eq', $count, $sortOrder, $limit);
     }
-
     /**
      * @name 		    listGalleriesWithAudioCountBetween()
-     *                  List audio files with count in between..
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  The number of count
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithAudioCountBetween($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('a', 'between', $count, $sortorder, $limit);
+    public function listGalleriesWithAudioCountBetween($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('a', 'between', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithAudioCountLessThan()
-     *                  List audio files with count less than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithAudioCountLessThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('a', 'less', $count, $sortorder, $limit);
+    public function listGalleriesWithAudioCountLessThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('a', 'less', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithAudioCountMoreThan()
-     *                  List audio files with count more than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithAudioCountMoreThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('a', 'more', $count, $sortorder, $limit);
+    public function listGalleriesWithAudioCountMoreThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('a', 'more', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithDocumentCount()
-     *                  List document files with count equal to given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           mixed           $count                  count number(s)
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithDocumentCount($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('d', 'eq', $count, $sortorder, $limit);
+    public function listGalleriesWithDocumentCount($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('d', 'eq', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithDocumentCountBetween()
-     *                  List document files with between two given count values.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  The number of count
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithDocumentCountBetween($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('d', 'between', $count, $sortorder, $limit);
+    public function listGalleriesWithDocumentCountBetween($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('d', 'between', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithDocumentCountLessThan()
-     *                  List document files with count less than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithDocumentCountLessThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('d', 'less', $count, $sortorder, $limit);
+    public function listGalleriesWithDocumentCountLessThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('d', 'less', $count, $sortOrder, $limit);
     }
 
     /**
-     * @name 		    listGalleriesWithDocumenCounttMoreThan()
-     *                  List document files with count more than given value.
+     * @name 		    listGalleriesWithDocumentCountMoreThan()
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithDocumenCounttMoreThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('d', 'more', $count, $sortorder, $limit);
+    public function listGalleriesWithDocumenCounttMoreThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('d', 'more', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithImageCount()
-     *                  List image files that count equal to given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           mixed           $count                  count number(s)
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithImageCount($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('i', 'eq', $count, $sortorder, $limit);
+    public function listGalleriesWithImageCount($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('i', 'eq', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithImageCountBetween()
-     *                  List image files that between two given count values.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  The number of count
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           intger          $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithImageCountBetween($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('i', 'between', $count, $sortorder, $limit);
+    public function listGalleriesWithImageCountBetween($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('i', 'between', $count, $sortOrder, $limit);
     }
 
     /**
@@ -2358,236 +1752,215 @@ class GalleryModel extends CoreModel {
      *                  List image files with count less than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithImageCountLessThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('i', 'less', $count, $sortorder, $limit);
+    public function listGalleriesWithImageCountLessThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('i', 'less', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithImageCountMoreThan()
-     *                  List image files with count more than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithImageCountMoreThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('i', 'more', $count, $sortorder, $limit);
+    public function listGalleriesWithImageCountMoreThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('i', 'more', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithMediaCount()
-     *                  List audio files that count equal to given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           mixed           $count                  count number(s)
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithMediaCount($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('m', 'eq', $count, $sortorder, $limit);
+    public function listGalleriesWithMediaCount($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('m', 'eq', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithMediaCountBetween()
-     *                  List media files that between two given count values.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  The number of count
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithMediaCountBetween($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('m', 'between', $count, $sortorder, $limit);
+    public function listGalleriesWithMediaCountBetween($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('m', 'between', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithMediaCountLessThan()
-     *                  List media files with count less than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithMediaCountLessThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('m', 'less', $count, $sortorder, $limit);
+    public function listGalleriesWithMediaCountLessThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('m', 'less', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithMediaCountMoreThan()
-     *                  List media files with count more than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithMediaCountMoreThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('m', 'more', $count, $sortorder, $limit);
+    public function listGalleriesWithMediaCountMoreThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('m', 'more', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithVideoCount()
-     *                  List video files that count equal to given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           mixed           $count                  count number(s)
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithVideoCount($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('v', 'eq', $count, $sortorder, $limit);
+    public function listGalleriesWithVideoCount($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('v', 'eq', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithVideoCountBetween()
-     *                  List video files that between two given count values.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  The number of count
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithVideoCountBetween($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('v', 'between', $count, $sortorder, $limit);
+    public function listGalleriesWithVideoCountBetween($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('v', 'between', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithVideoCountLessThan()
-     *                  List video files with count less than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithVideoCountLessThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('v', 'less', $count, $sortorder, $limit);
+    public function listGalleriesWithVideoCountLessThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('v', 'less', $count, $sortOrder, $limit);
     }
 
     /**
      * @name 		    listGalleriesWithVideoCountMoreThan()
-     *                  List video files with count more than given value.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleriesWithTypeCount()
      *
-     * @param           array           $count                  count number
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           integer         $count
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesWithVideoCountMoreThan($count, $sortorder = null, $limit = null) {
-        return $this->listGalleriesWithTypeCount('v', 'more', $count, $sortorder, $limit);
+    public function listGalleriesWithVideoCountMoreThan($count, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesWithTypeCount('v', 'more', $count, $sortOrder, $limit);
     }
     /**
      * @name 			listGalleriesPublishedAfter()
-     *  				List products that are updated after the given date.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesPublished()
@@ -2607,145 +1980,123 @@ class GalleryModel extends CoreModel {
 
     /**
      * @name 			listGalleriesPublishedBefore()
-     *  				List products that are updated before the given date.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesPublished()
      *
-     * @param           array           $date                   The date to be checked.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $date
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesPublishedBefore($date, $sortorder = null, $limit = null) {
-        return $this->listGalleriesPublished($date, 'before', $sortorder, $limit);
+    public function listGalleriesPublishedBefore($date, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesPublished($date, 'before', $sortOrder, $limit);
     }
 
     /**
      * @name 			listGalleriesPublishedBetween()
-     *  				List products that are updated between two dates.
      *
      * @since			1.0.0
-     * @version         1.0.0
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleriesPublished()
      *
-     * @param           array           $dates                  The earlier and the later dates.
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $dates
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    public function listGalleriesPublishedBetween($dates, $sortorder = null, $limit = null) {
-        return $this->listGalleriesPublished($dates, 'between', $sortorder, $limit);
+    public function listGalleriesPublishedBetween($dates, $sortOrder = null, $limit = null) {
+        return $this->listGalleriesPublished($dates, 'between', $sortOrder, $limit);
     }
     /**
      * @name 			listLastImagesOfAllGalleries()
-     *  				List a limited number of images from all available galleries. This function is used for sampling
-     *                  purposes.
      *
      * @since			1.0.1
-     * @version         1.0.1
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->listImagesOfAllGalleries
      *
      * @param           integer         $limit
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $sortOrder
      *
      * @return          array           $response
      */
-    public function listLastImagesOfAllGalleries($limit, $sortorder = null) {
-        return $this->listImagesOfAllGalleries($sortorder, array('start' => 0, 'count' => $limit));
+    public function listLastImagesOfAllGalleries($limit, $sortOrder = null) {
+        return $this->listImagesOfAllGalleries($sortOrder, array('start' => 0, 'count' => $limit));
     }
     /**
      * @name            listMediaOfAllGalleries()
-     *                  Lists one ore more random media from gallery
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
      * @use             $this->createException()
      * @use             $fModel->listFiles()
      *
-     * @param           string      $mediaType      all, i, a, v, f, d, p, s
-     * @param           array       $sortorder
+     * @param           string      $mediaType
+     * @param           array       $sortOrder
      * @param           array       $limit
      * @param           array       $filter
      *
      * @return          array           $response
      */
-    public function listMediaOfAllGalleries($mediaType = 'all', $sortorder = null, $limit = null, $filter = null){
-        $this->resetResponse();
-        $allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
-        if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
-            return $this->createException('InvalidParameterValueException', 'i, a, v, f, d, p, or s', 'err.invalid.parameter.mediaType');
-        }
-        $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias'];
+    public function listMediaOfAllGalleries($mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+        $timeStamp = time();
+		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
+		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
+		}
+        $qStr = 'SELECT '.$this->entity['gm']['alias']
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias'];
         unset($response, $gallery);
-        $whereStr = '';
+        $wStr = '';
         if($mediaType != 'all'){
-            $whereStr = ' WHERE '.$this->entity['gallery_media']['alias'].".type = '".$mediaType."'";
+			$wStr = ' WHERE '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
         }
+		$qStr = $qStr.$wStr;
+        $q = $this->em->createQuery($qStr);
 
-        $query = $this->em->createQuery($qStr);
-
-        $result = $query->getResult();
+        $result = $q->getResult();
 
         $fileIds = array();
         $totalRows = count($result);
 
-        if($totalRows > 0){
-            foreach($result as $gm){
-                $fileIds[] = $gm->getFile()->getId();
-            }
-        }
-        else{
-            $this->response = array(
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
 
-        $fileFilter[] = array('glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
-                )
-            )
-        );
-        $fModel = $this->kernel->getContainer()->get('filemanagement.model');
+		foreach($result as $gm){
+			$fileIds[] = $gm->getFile()->getId();
+			$this->em->detach($gm);
+		}
 
-        return $fModel->listFiles($fileFilter, $sortorder, $limit);
+		$filter[] = array('glue' => 'and',
+								 'condition' => array(
+									 array(
+										 'glue' => 'and',
+										 'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
+									 )
+								 )
+		);
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
+
+        return $fModel->listFiles($filter, $sortOrder, $limit);
     }
     /**
      * @name            listMediaOfGallery()
-     *                  Lists one ore more random media from gallery
      *
      * @since           1.0.7
-     * @version         1.0.8
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
@@ -2754,105 +2105,86 @@ class GalleryModel extends CoreModel {
      *
      * @param           mixed       $gallery
      * @param           string      $mediaType      all, i, a, v, f, d, p, s
-     * @param           array       $sortorder
+     * @param           array       $sortOrder
      * @param           array       $limit
      * @param           array       $filter
      *
      * @return          array           $response
      */
-    public function listMediaOfGallery($gallery, $mediaType = 'all', $sortorder = null, $limit = null, $filter = null){
-        $this->resetResponse();
-        $allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
-        if(!$gallery instanceof BundleEntity\Gallery && !is_numeric($gallery)){
-            return $this->createException('InvalidParameterValueException', 'Gallery entity or integer  representing row id', 'err.invalid.parameter.gallery');
-        }
-        if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
-            return $this->createException('InvalidParameterValueException', 'i, a, v, f, d, p, or s', 'err.invalid.parameter.mediaType');
-        }
-        if(is_numeric($gallery)){
-            $response = $this->getGallery($gallery);
-            if($response['error']){
-                return $this->createException('InvalidParameterValueException', 'Gallery entity or integer  representing row id', 'err.invalid.parameter.gallery');
-            }
-            $gallery = $response['result']['set'];
-        }
-        $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery->getId();
+    public function listMediaOfGallery($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+		$timeStamp = time();
+		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
+		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
+		}
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+        $qStr = 'SELECT '.$this->entity['gm']['alias']
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+            .' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
         unset($response, $gallery);
         $whereStr = '';
         if($mediaType != 'all'){
-            $whereStr = ' AND '.$this->entity['gallery_media']['alias'].".type = '".$mediaType."'";
+            $whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
         }
         $qStr .= $whereStr;
 
-        $query = $this->em->createQuery($qStr);
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getResult();
+        $result = $q->getResult();
+		$totalRows = count($result);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
 
-        $fileIds = array();
-        $totalRows = count($result);
+		foreach($result as $gm){
+			$fileIds[] = $gm->getFile()->getId();
+			$this->em->detach($gm);
+		}
 
-        if($totalRows > 0){
-            foreach($result as $gm){
-                $fileIds[] = $gm->getFile()->getId();
-            }
-        }
-        else{
-            $this->response = array(
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
+		$filter[] = array('glue' => 'and',
+						  'condition' => array(
+							  array(
+								  'glue' => 'and',
+								  'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
+							  )
+						  )
+		);
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
-        $fileFilter[] = array('glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
-                )
-            )
-        );
-        $fModel = $this->kernel->getContainer()->get('filemanagement.model');
-
-        return $fModel->listFiles($fileFilter, $sortorder, $limit);
+		return $fModel->listFiles($filter, $sortOrder, $limit);
     }
     /**
      * @name 			listImagesOfGallery()
-     *  				List all image files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.0.1
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
      *
      * @return          array           $response
      */
-    public function listImagesOfGallery($gallery, $sortorder = null, $limit = null) {
-        return $this->listMediaOfGallery($gallery, 'i', $sortorder, $limit);
+    public function listImagesOfGallery($gallery, $sortOrder = null, $limit = null) {
+        return $this->listMediaOfGallery($gallery, 'i', $sortOrder, $limit);
     }
     /**
      * @name            listRandomImagesFromGallery()
-     *                  Get one or more random images from gallery.
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
      * @param           mixed       $gallery
-     * @param           integer     $count          Limit the number of items to be returned
+     * @param           integer     $count
      *
      * @return          array           $response
      */
@@ -2861,10 +2193,9 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name            listRandomMediaFromGallery()
-     *                  Lists one ore more random media from gallery
      *
      * @since           1.0.7
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      *
@@ -2875,411 +2206,220 @@ class GalleryModel extends CoreModel {
      * @return          array           $response
      */
     public function listRandomMediaFromGallery($gallery, $count = 1, $mediaType = 'all'){
-        $this->resetResponse();
-        $allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
-        if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
-            return $this->createException('InvalidParameterValueException', 'i, a, v, f, d, p, or s', 'err.invalid.parameter.mediaType');
-        }
-        if(!$gallery instanceof BundleEntity\Gallery && !is_numeric($gallery)){
-            return $this->createException('InvalidParameterException', 'Gallery entity or numeric value representing row id', 'err.invalid.parameter.gallery');
-        }
-        if(is_numeric($gallery)){
-            $response = $this->getGallery(($gallery));
-            $gallery = $response['result']['set'];
-        }
-        $qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-            .' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-            .' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery->getId();
+		$timeStamp = time();
+		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
+		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
+		}
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+        $qStr = 'SELECT '.$this->entity['gm']['alias']
+            .' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+            .' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
         unset($response, $gallery);
-        $whereStr = '';
+        $wStr = '';
         if($mediaType != 'all'){
-            $whereStr = ' AND '.$this->entity['gallery_media']['alias'].".type = '".$mediaType."'";
+			$wStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
         }
-        $qStr .= $whereStr;
-        $query = $this->em->createQuery($qStr);
+        $qStr .= $wStr;
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getResult();
+        $result = $q->getResult();
 
         $files = array();
-        $counter = 0;
         $totalRows = count($result);
         $lastIndex = $totalRows - 1;
 
-        if($totalRows > 0){
-            foreach($result as $gm){
-                $index = rand(0, $lastIndex);
-                if($counter >= $count){
-                    break;
-                }
-                $files[] = $result[$index]->getFile();
-                $counter++;
-            }
-        }
-        else{
-            $this->response = array(
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
 
-        $this->response = array(
-            'result' => array(
-                'set' => $files,
-                'total_rows' => count($files),
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		for($counter = 0; $counter >= $count; $counter++){
+			$index = rand(0, $lastIndex);
+			$files[] = $result[$index]->getFile();
+			$counter++;
+		}
+
+		return new ModelResponse($files, $counter, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
     /**
      * @name 			listVideosOfGallery()
-     *  				List all video files that belong to a certain gallery and that match to a certain criteria.
      *
      * @since			1.1.1
-     * @version         1.1.1
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @param           mixed           $gallery
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
      *
      * @return          array           $response
      */
-    public function listVideosOfGallery($gallery, $sortorder = null, $limit = null) {
-        return $this->listMediaOfGallery($gallery, 'v', $sortorder, $limit);
+    public function listVideosOfGallery($gallery, $sortOrder = null, $limit = null) {
+        return $this->listMediaOfGallery($gallery, 'v', $sortOrder, $limit);
     }
     /**
      *  @name 		    removeFilesFromProduct()
-     *                  Removes the association of files with gallery.
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->doesGalleryExist()
-     * @use             $this->isFileAssociatedWithGallery()
-     * @use             $FMMService->doesFileExist()
-     *
-     * @throws          CoreExceptions\DuplicateAssociationException
-     * @throws          CoreExceptions\EntityDoesNotExistException
-     * @throws          CoreExceptions\InvalidParameterException
-     *
-     * @param           array           $files          Collection consists one of the following: 'entity' or entity 'id'
-     *                                                  The entity can be a File entity or or a FilesOfProduct entity.
-     * @param           mixed           $gallery        'entity' or 'entity' id.
+     * @param           array           $files
+     * @param           mixed           $gallery
      *
      * @return          array           $response
      */
     public function removeFilesFromGallery($files, $gallery) {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        $count = 0;
-        /** remove invalid file entries */
+		$timeStamp = time();
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
+		$idsToRemove = array();
+        $fModel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
         foreach ($files as $file) {
-            if (!is_numeric($file) && !$file instanceof FileBundleEntity\File && !$file instanceof BundleEntity\GalleryMedia) {
-                unset($files[$count]);
-            }
-            $count++;
+			$response = $fModel->getFile($file);
+			if($response->error->exist){
+				continue;
+			}
+            $idsToRemove[] = $response->result->set->getId();
         }
-        /** issue an error only if there is no valid file or files of product entries */
-        if (count($files) < 1) {
-            return $this->createException('InvalidParameterException', '$files', 'err.invalid.parameter.files');
-        }
-        unset($count);
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameterException', '$gallery', 'err.invalid.parameter.product');
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.gallery.notexist');
-            }
-            $gallery = $response['result']['set'];
-        }
-        $fmmodel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
+		$in = ' IN (' . implode(',', $idsToRemove) . ')';
+		$qStr = 'DELETE FROM '.$this->entity['fog']['name'].' '.$this->entity['fog']['alias']
+			.' WHERE '.$this->entity['fog']['alias'].'.gallery '.$gallery->getId()
+			.' AND '.$this->entity['fog']['alias'].'.file '.$in;
 
-        $fop_count = 0;
-        $to_remove = array();
-        $count = 0;
-        /** Start persisting files */
-        foreach ($files as $file) {
-            /** If no entity is provided as file we need to check if it does exist */
-            if (is_numeric($file)) {
-                $response = $fmmodel->getFile($file, 'id');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'File', 'err.db.file.notexist');
-                }
-                $to_remove[] = $file;
-            }
-            if ($file instanceof BundleEntity\GalleryMedia) {
-                $this->em->remove($file);
-                $fop_count++;
-            }
-            else {
-                $to_remove[] = $file->getId();
-            }
-            $count++;
-        }
-        /** flush all into database */
-        if ($fop_count > 0) {
-            $this->em->flush();
-        }
-        if (count($to_remove) > 0) {
-            $ids = implode(',', $to_remove);
-            $table = $this->entity['gallery_media']['name'] . ' ' . $this->entity['gallery_media']['alias'];
-            $q_str = 'DELETE FROM ' . $table
-                . ' WHERE ' . $this->entity['gallery_media']['alias'] . '.gallery = ' . $gallery->getId()
-                . ' AND ' . $this->entity['gallery_media']['alias'] . '.file IN(' . $ids . ')';
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
 
-            $query = $this->em->createQuery($q_str);
-            /**
-             * 6. Run query
-             */
-            $query->getResult();
-        }
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $to_remove,
-                'total_rows' => $count,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.delete.done',
-        );
-        unset($count, $to_remove);
-        return $this->response;
-    }
+		$deleted = true;
+		if (!$result) {
+			$deleted = false;
+		}
+		if ($deleted) {
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+	}
     /**
      * @name            removeLocalesFromGallery()
-     *                  Removes the locales from galleries
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->doesGalleryExist()
      * @use             $this->isLocaleAssociatedWithGallery()
      *
-     * @param           array $locales id, entity, iso_Code
-     * @param           mixed $gallery id, entity, sku
+     * @param           array 		$locales
+     * @param           mixed 		$gallery
      *
      * @return          array           $response
      */
     public function removeLocalesFromGallery($locales, $gallery){
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        /** remove invalid file entries */
-        foreach ($locales as $locale) {
-            if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language && !$locale instanceof BundleEntity\ActiveProductCategoryLocale) {
-                unset($locale);
-            }
-        }
-        /** issue an error only if there is no valid file or files of product entries */
-        if (count($locale) < 1) {
-            return $this->createException('InvalidParameter', '$locales', 'err.invalid.parameter.locales');
-        }
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameter', '$gallery', 'err.invalid.parameter.gallery');
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.gallery.notexist');
-            }
-            $gallery = $response['result']['set'];
-        } else if (is_string($gallery)) {
-            $response = $this->getGallery($gallery, 'sku');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Gallery', 'err.db.product.notexist');
-            }
-            $gallery = $response['result']['set'];
-        }
-        $aplCount = 0;
-        $to_remove = array();
-        $count = 0;
-        /** Start persisting files */
-        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-        foreach ($locales as $locale) {
-            /** If no entity is provided as file we need to check if it does exist */
-            if (is_numeric($locale)) {
-                $response = $mlsModel->getLanguage($locale, 'id');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-                }
-                $to_remove[] = $locale;
-            } else if (is_string($locale)) {
-                $response = $mlsModel->getLanguage($locale, 'iso_code');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-                }
-                $to_remove[] = $locale;
-            }
-            if ($locale instanceof BundleEntity\ActiveGalleryLocale) {
-                $this->em->remove($locale);
-                $aplCount++;
-            } else {
-                $to_remove[] = $locale;
-            }
-            $count++;
-        }
-        /** flush all into database */
-        if ($aplCount > 0) {
-            $this->em->flush();
-        }
-        if (count($to_remove) > 0) {
-            $ids = implode(',', $to_remove);
-            $table = $this->entity['active_gallery_locale']['name'] . ' ' . $this->entity['active_gallery_locale']['alias'];
-            $q_str = 'DELETE FROM ' . $table
-                . ' WHERE ' . $this->entity['active_gallery_locale']['alias'] . '.gallery = ' . $gallery->getId()
-                . ' AND ' . $this->entity['active_gallery_locale']['alias'] . '.language IN(' . $ids . ')';
+		$timeStamp = time();
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		$idsToRemove = array();
+		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+		foreach ($locales as $locale) {
+			$response = $mlsModel->getLanguage($locale);
+			if($response->error->exist){
+				continue;
+			}
+			$idsToRemove[] = $response->result->set->getId();
+		}
+		$in = ' IN (' . implode(',', $idsToRemove) . ')';
+		$qStr = 'DELETE FROM '.$this->entity['agl']['name'].' '.$this->entity['agl']['alias']
+			.' WHERE '.$this->entity['agl']['alias'].'.gallery '.$gallery->getId()
+			.' AND '.$this->entity['agl']['alias'].'.language '.$in;
 
-            $query = $this->em->createQuery($q_str);
-            $query->getResult();
-        }
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
 
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $to_remove,
-                'total_rows' => $count,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.delete.done',
-        );
-        unset($count, $to_remove);
-        return $this->response;
+		$deleted = true;
+		if (!$result) {
+			$deleted = false;
+		}
+		if ($deleted) {
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
     }
 
     /**
-     * @name            removeLocalesFromGalleryCategory ()
-     *                  Removes the locales from gallery
+     * @name            removeLocalesFromGalleryCategory()
      *
      * @since           1.1.3
-     * @version         1.1.3
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @use             $this->doesGalleryExist()
      *
-     * @param           array $locales id, entity, iso_Code
-     * @param           mixed $category id, entity
+     * @param           array 		$locales
+     * @param           mixed 		$category
      *
      * @return          array       $response
      */
-    public function removeLocalesFromGalleryCategory($locales, $category)
-    {
-        $this->resetResponse();
-        /**
-         * Validate Parameters
-         */
-        /** remove invalid file entries */
-        foreach ($locales as $locale) {
-            if (!is_numeric($locale) && !$locale instanceof MLSEntity\Language && !$locale instanceof BundleEntity\ActiveGalleryCategoryLocale) {
-                unset($locale);
-            }
-        }
-        /** issue an error only if there is no valid file or files of product entries */
-        if (count($locale) < 1) {
-            return $this->createException('InvalidParameter', '$locales', 'err.invalid.parameter.locales');
-        }
-        if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
-            return $this->createException('InvalidParameter', '$category', 'err.invalid.parameter.product');
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($category)) {
-            $response = $this->getGalleryCategory($category, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'GalleryCategory', 'err.db.gallery.category.notexist');
-            }
-            $category = $response['result']['set'];
-        }
-        $aplCount = 0;
-        $to_remove = array();
-        $count = 0;
-        /** Start persisting files */
-        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-        foreach ($locales as $locale) {
-            /** If no entity is provided as file we need to check if it does exist */
-            if (is_numeric($locale)) {
-                $response = $mlsModel->getLanguage($locale, 'id');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-                }
-                $to_remove[] = $locale;
-            } else if (is_string($locale)) {
-                $response = $mlsModel->getLanguage($locale, 'iso_code');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Language', 'err.db.language.notexist');
-                }
-                $to_remove[] = $locale;
-            }
-            if ($locale instanceof BundleEntity\ActveGalleryCategoryLocale) {
-                $this->em->remove($locale);
-                $aplCount++;
-            } else {
-                $to_remove[] = $locale;
-            }
-            $count++;
-        }
-        /** flush all into database */
-        if ($aplCount > 0) {
-            $this->em->flush();
-        }
-        if (count($to_remove) > 0) {
-            $ids = implode(',', $to_remove);
-            $table = $this->entity['active_gallery_category_locale']['name'] . ' ' . $this->entity['active_gallery_category_locale']['alias'];
-            $q_str = 'DELETE FROM ' . $table
-                . ' WHERE ' . $this->entity['active_gallery_category_locale']['alias'] . '.category = ' . $category->getId()
-                . ' AND ' . $this->entity['active_gallery_category_locale']['alias'] . '.language IN(' . $ids . ')';
+    public function removeLocalesFromGalleryCategory($locales, $category){
+		$timeStamp = time();
+		$response = $this->getGalleryCategory($category);
+		if($response->error->exist){
+			return $response;
+		}
+		$category = $response->result->set;
+		$idsToRemove = array();
+		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+		foreach ($locales as $locale) {
+			$response = $mlsModel->getLanguage($locale);
+			if($response->error->exist){
+				continue;
+			}
+			$idsToRemove[] = $response->result->set->getId();
+		}
+		$in = ' IN (' . implode(',', $idsToRemove) . ')';
+		$qStr = 'DELETE FROM '.$this->entity['agcl']['name'].' '.$this->entity['agcl']['alias']
+			.' WHERE '.$this->entity['agcl']['alias'].'.category '.$category->getId()
+			.' AND '.$this->entity['agcl']['alias'].'.language '.$in;
 
-            $query = $this->em->createQuery($q_str);
-            $query->getResult();
-        }
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
 
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $to_remove,
-                'total_rows' => $count,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.delete.done',
-        );
-        unset($count, $to_remove);
-        return $this->response;
-    }
+		$deleted = true;
+		if (!$result) {
+			$deleted = false;
+		}
+		if ($deleted) {
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+	}
     /**
      * @name            updateGallery()
      *                  Updates single gallery from database
      *
      * @since           1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->updateCountries()
+     * @use             $this->updateGalleries()
      *
-     * @param           mixed   $gallery     Entity or post data
+     * @param           mixed   $gallery
      *
      * @return          array   $response
      *
@@ -3289,10 +2429,9 @@ class GalleryModel extends CoreModel {
     }
     /**
      * @name            updateGalleries()
-     *                  Updates one or more galleries of given post data or entity
      *
      * @since           1.0.0
-     * @version         1.0.1
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -3301,17 +2440,16 @@ class GalleryModel extends CoreModel {
      *
      * @throw           InvalidParameterException
      *
-     * @param           mixed   $collection     Entity or post data
+     * @param           mixed   $collection
      *
      * @return          array   $response
      *
      */
     public function updateGalleries($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countUpdates = 0;
         $updatedItems = array();
         foreach($collection as $data){
@@ -3322,9 +2460,9 @@ class GalleryModel extends CoreModel {
                 $countUpdates++;
             }
             else if(is_object($data)){
-                if(!property_exists($data, 'id') || !is_numeric($data->id)){
-                    return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
-                }
+				if(!property_exists($data, 'id') || !is_numeric($data->id)){
+					return $this->createException('InvalidParameterException', 'Parameter must be an object with the "id" property and id property ​must have an integer value.', 'E:S:003');
+				}
                 if(!property_exists($data, 'date_updated')){
                     $data->date_updated = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
                 }
@@ -3351,8 +2489,11 @@ class GalleryModel extends CoreModel {
                                     $newLocalization = true;
                                     $localization = new BundleEntity\GalleryLocalization();
                                     $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                                    $response = $mlsModel->getLanguage($langCode, 'iso_code');
-                                    $localization->setLanguage($response['result']['set']);
+                                    $response = $mlsModel->getLanguage($langCode);
+									if($response->error->exist){
+										return $response;
+									}
+                                    $localization->setLanguage($response->result->set);
                                     $localization->setGallery($oldEntity);
                                 }
                                 foreach($translation as $transCol => $transVal){
@@ -3369,23 +2510,19 @@ class GalleryModel extends CoreModel {
                         case 'preview_file':
                             $fModel = $this->kernel->getContainer()->get('filemanagement.model');
                             $response = $fModel->getFile($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
+							if($response->error->exist){
+								return $response;
+							}
+							$oldEntity->$set($response->result->set);
+                            unset($response, $fModel);
                             break;
                         case 'site':
                             $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
                             $response = $sModel->getSite($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\SiteDoesNotExistException($this->kernel, $value);
-                            }
+							if($response->error->exist){
+								return $response;
+							}
+							$oldEntity->$set($response->result->set);
                             unset($response, $sModel);
                             break;
                         case 'id':
@@ -3401,184 +2538,35 @@ class GalleryModel extends CoreModel {
                     }
                 }
             }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countUpdates > 0){
-            $this->em->flush();
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $updatedItems,
-                'total_rows' => $countUpdates,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.update.done',
-        );
-        return $this->response;
-    }
-    /**
-     * @name            updateGalleryMedia()
-     *                  Updates single gallery media from database
-     *
-     * @since           1.0.3
-     * @version         1.0.3
-     * @author          Can Berkol
-     *
-     * @use             $this->updateGalleryMediaEntries()
-     *
-     * @param           mixed   $collection     Entity or post data
-     *
-     * @return          array   $response
-     *
-     */
+        }if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
 
-    public function updateGalleryMedia($collection) {
-        return $this->updateGalleryMediaEntries(array($collection));
-    }
-
-    /**
-     * @param           mixed $collection Entity or post data
-     * @since           1.0.3
-     * @version         1.0.3
-     *
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @throw           InvalidParameterException
-     *
-     * @internal param string $by entity or post
-     *
-     * @return          array   $response
-     */
-
-    public function updateGalleryMediaEntries($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countUpdates = 0;
-        $updatedItems = array();
-        foreach($collection as $data){
-            if($data instanceof BundleEntity\GalleryMedia){
-                $entity = $data;
-                $this->em->persist($entity);
-                $updatedItems[] = $entity;
-                $countUpdates++;
-            }
-            else if(is_object($data)){
-                if(property_exists($data, 'date_added')){
-                    unset($data->date_added);
-                }
-                $response = $this->getGalleryMedia($data->file, $data->gallery);
-                if($response['error']){
-                    return $this->createException('EntityDoesNotExist', 'GalleryMedia with id '.$data->id, 'err.invalid.entity');
-                }
-                $oldEntity = $response['result']['set'];
-                foreach($data as $column => $value){
-                    $set = 'set'.$this->translateColumnName($column);
-                    switch($column){
-                        case 'file':
-                            $fModel = $this->kernel->getContainer()->get('filemanagement.model');
-                            $response = $fModel->getFile($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'gallery':
-                            $response = $this->getGallery($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'id':
-                            break;
-                        default:
-                            $oldEntity->$set($value);
-                            break;
-                    }
-                    if($oldEntity->isModified()){
-                        $this->em->persist($oldEntity);
-                        $countUpdates++;
-                        $updatedItems[] = $oldEntity;
-                    }
-                }
-            }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countUpdates > 0){
-            $this->em->flush();
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $updatedItems,
-                'total_rows' => $countUpdates,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.update.done',
-        );
-        return $this->response;
-    }
-    /** ***************************************************************************************************
-     *  PRIVATE METHODS
-     *  ***************************************************************************************************/
     /**
      * @name 		    listGalleriesAdded()
-     *                  List galleries that are added before, after, or in between of the given date(s).
      *
      * @since		    1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @uses            $this->listGalleries()
      *
-     * @param           mixed           $date                   One DateTime object or start and end DateTime objects.
-     * @param           string          $eq                     after, before, between
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           mixed           $date
+     * @param           string          $eq
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    private function listGalleriesAdded($date, $eq, $sortorder = null, $limit = null) {
-        $this->resetResponse();
+    private function listGalleriesAdded($date, $eq, $sortOrder = null, $limit = null) {
+        $timeStamp = time();
 
-        if (!$date instanceof \DateTime && !is_array($date)) {
-            return $this->createException('InvalidParameterException', 'DateTime object or Array', 'err.invalid.parameter.date');
-        }
-        if (!in_array($eq, $this->eq_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->eq_opts), 'err.invalid.parameter.eq');
-        }
-        /**
-         * Prepare $filter
-         */
-        $column = $this->entity['gallery']['alias'] . '.date_added';
-
+        $column = $this->entity['g']['alias'] . '.date_added';
         if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
             switch ($eq) {
                 case 'after':
@@ -3588,6 +2576,7 @@ class GalleryModel extends CoreModel {
                     $eq = '<';
                     break;
                 case 'on':
+				default:
                     $eq = '=';
                     break;
             }
@@ -3601,7 +2590,8 @@ class GalleryModel extends CoreModel {
                     )
                 )
             );
-        } else {
+        }
+		else {
             $filter[] = array(
                 'glue' => 'and',
                 'condition' => array(
@@ -3616,60 +2606,28 @@ class GalleryModel extends CoreModel {
                 )
             );
         }
-        $response = $this->listGalleries($filter, $sortorder, $limit);
-        if (!$response['error']) {
-            return $response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => $response['result']['total_rows'],
-                'last_insert_id' => null,
-            ),
-            'error' => true,
-            'code' => 'err.db.entry.notexist',
-        );
-        return $this->response;
+        return $this->listGalleries($filter, $sortOrder, $limit);
     }
-
-
-
-
 
     /**
      * @name 			listGalleriesUpdated()
-     *  				List products that are updated before, after, or in between of the given date(s).
      *
      * @since			1.0.0
-     * @version         1.0.4
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listGalleries()
      *
-     * @param           mixed           $date                   One DateTime object or start and end DateTime objects.
-     * @param           string          $eq                     after, before, between
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           mixed           $date
+     * @param           string          $eq
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    private function listGalleriesUpdated($date, $eq, $sortorder = null, $limit = null) {
-        $this->resetResponse();
-
-        if (!$date instanceof \DateTime && !is_array($date)) {
-            return $this->createException('InvalidParameterException', 'DateTime object or Array', 'err.invalid.parameter.date');
-        }
-        if (!in_array($eq, $this->eq_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->eq_opts), 'err.invalid.parameter.eq');
-        }
-        /**
-         * Prepare $filter
-         */
-        $column = $this->entity['gallery']['alias'] . '.date_added';
+    private function listGalleriesUpdated($date, $eq, $sortOrder = null, $limit = null) {
+		$timeStamp = time();
+        $column = $this->entity['g']['alias'] . '.date_added';
 
         if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
             switch ($eq) {
@@ -3680,6 +2638,7 @@ class GalleryModel extends CoreModel {
                     $eq = '<';
                     break;
                 case 'on':
+				default:
                     $eq = '=';
                     break;
             }
@@ -3708,55 +2667,28 @@ class GalleryModel extends CoreModel {
                 )
             );
         }
-        $response = $this->listGalleries($filter, $sortorder, $limit);
-        if (!$response['error']) {
-            return $response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => $response['result']['total_rows'],
-                'last_insert_id' => null,
-            ),
-            'error' => true,
-            'code' => 'err.db.entry.notexist',
-        );
-        return $this->response;
+        return $this->listGalleries($filter, $sortOrder, $limit);
     }
     /**
      * @name 			listGalleriesPublished()
-     *  				List products that are updated before, after, or in between of the given date(s).
      *
      * @since			1.0.0
-     * @version         1.0.4
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listProducts()
      *
-     * @param           mixed           $date                   One DateTime object or start and end DateTime objects.
-     * @param           string          $eq                     after, before, between
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           mixed           $date
+     * @param           string          $eq
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    private function listGalleriesPublished($date, $eq, $sortorder = null, $limit = null) {
+    private function listGalleriesPublished($date, $eq, $sortOrder = null, $limit = null) {
         $this->resetResponse();
 
-        if (!$date instanceof \DateTime && !is_array($date)) {
-            return $this->createException('InvalidParameterException', 'DateTime object or Array', 'err.invalid.parameter.date');
-        }
-        if (!in_array($eq, $this->eq_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->eq_opts), 'err.invalid.parameter.eq');
-        }
-        /**
-         * Prepare $filter
-         */
-        $column = $this->entity['gallery']['alias'] . '.date_published';
+        $column = $this->entity['g']['alias'] . '.date_published';
 
         if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
             switch ($eq) {
@@ -3767,6 +2699,7 @@ class GalleryModel extends CoreModel {
                     $eq = '<';
                     break;
                 case 'on':
+				default:
                     $eq = '=';
                     break;
             }
@@ -3795,58 +2728,29 @@ class GalleryModel extends CoreModel {
                 )
             );
         }
-        $response = $this->listGalleries($filter, $sortorder, $limit);
-        if (!$response['error']) {
-            return $response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => $response['result']['total_rows'],
-                'last_insert_id' => null,
-            ),
-            'error' => true,
-            'code' => 'err.db.entry.notexist',
-        );
-        return $this->response;
+        return $this->listGalleries($filter, $sortOrder, $limit);
     }
-
-
 
     /**
      * @name 			listGalleriesUnpublished()
-     *  				List products that are updated before, after, or in between of the given date(s).
      *
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.4
      * @author          Can Berkol
      *
      * @uses            $this->listProducts()
      *
-     * @param           mixed           $date                   One DateTime object or start and end DateTime objects.
-     * @param           string          $eq                     after, before, between
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           mixed           $date
+     * @param           string          $eq
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
      *
      * @return          array           $response
      */
-    private function listGalleriesUnpublished($date, $eq, $sortorder = null, $limit = null) {
-        $this->resetResponse();
+    private function listGalleriesUnpublished($date, $eq, $sortOrder = null, $limit = null) {
+        $timeStamp = time();
 
-        if (!$date instanceof \DateTime && !is_array($date)) {
-            return $this->createException('InvalidParameterException', 'DateTime object or Array', 'err.invalid.parameter.date');
-        }
-        if (!in_array($eq, $this->eq_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->eq_opts), 'err.invalid.parameter.eq');
-        }
-        /**
-         * Prepare $filter
-         */
-        $column = $this->entity['gallery']['alias'] . '.date_unpublished';
+        $column = $this->entity['g']['alias'] . '.date_unpublished';
 
         if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
             switch ($eq) {
@@ -3885,161 +2789,52 @@ class GalleryModel extends CoreModel {
                 )
             );
         }
-        $response = $this->listGalleries($filter, $sortorder, $limit);
-        if (!$response['error']) {
-            return $response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => $response['result']['total_rows'],
-                'last_insert_id' => null,
-            ),
-            'error' => true,
-            'code' => 'err.db.entry.notexist',
-        );
-        return $this->response;
-    }
-    /**
-     * @name            listGalleriesWithTypeCount
-     *                  Lists galleries with more/less/between of items in given type.
-     *
-     * @since            1.0.0
-     * @version          1.0.7
-     *
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @uses            $this->listProducts()
-     *
-     * @param           string          $type
-     * @param           integer         $count
-     * @param           string          $eq
-     * @param           array           $sortorder
-     * @param           array           $limit
-     *
-     * @return          array           $response
-     */
-    private function listGalleriesWithTypeCount($type, $count, $eq, $sortorder = null, $limit = null) {
-        $this->resetResponse();
-        if (!in_array($eq, $this->eq_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->eq_opts), 'err.invalid.parameter.eq');
-        }
-        if (!in_array($type, $this->type_opts)) {
-            return $this->createException('InvalidParameterValueException', implode(',', $this->type_opts), 'err.invalid.parameter.eq');
-        }
-        /**
-         * Prepare $filter
-         */
-        $column = $this->entity['gallery']['alias'] . '.count_' . $this->type_opts[$type];
+        return $this->listGalleries($filter, $sortOrder, $limit);
 
-        if ($eq == 'more' || $eq == 'less' || $eq == 'eq') {
-            if (!is_int($count)) {
-                return $this->createException('InvalidParameterException', 'Count', 'err.invalid.parameter.date');
-            }
-            switch ($eq) {
-                case 'more':
-                    $eq = '>';
-                    break;
-                case 'less':
-                    $eq = '<';
-                    break;
-                case 'eq':
-                    $eq = '=';
-                    break;
-            }
-            $condition = array('column' => $column, 'comparison' => $eq, 'value' => $count);
-            $filter[] = array(
-                'glue' => 'and',
-                'condition' => array(
-                    array(
-                        'glue' => 'and',
-                        'condition' => $condition,
-                    )
-                )
-            );
-        } else {
-            if (!is_array($count)) {
-                return $this->createException('InvalidParameterException', 'Count', 'err.invalid.parameter.date');
-            }
-            $filter[] = array(
-                'glue' => 'and',
-                'condition' => array(
-                    array(
-                        'glue' => 'and',
-                        'condition' => array('column' => $column, 'comparison' => '>', 'value' => $count[0]),
-                    ),
-                    array(
-                        'glue' => 'and',
-                        'condition' => array('column' => $column, 'comparison' => '<', 'value' => $count[1]),
-                    )
-                )
-            );
-        }
-        $response = $this->listGalleries($filter, $sortorder, $limit);
-        if (!$response['error']) {
-            return $response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => $response['result']['total_rows'],
-                'last_insert_id' => null,
-            ),
-            'error' => true,
-            'code' => 'err.db.entry.notexist',
-        );
-        return $this->response;
     }
-
 
     /**
      * @name            insertGalleryCategory()
-     *                  Inserts one gallery category into database.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->insertGalleryCategories()
      *
-     * @param           mixed $data Entity or post
+     * @param           mixed 			$category
      *
      * @return          array           $response
      */
-    public function insertGalleryCategory($data)
-    {
-        $this->resetResponse();
-        return $this->insertGalleryCategories(array($data));
+    public function insertGalleryCategory($category) {
+        return $this->insertGalleryCategories(array($category));
     }
 
     /**
      * @name            insertGalleryCategories()
-     *                  Inserts one or more gallery categories into database.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->createException()
-     * @use             $this->insertGalleryCategoryLocalization()
-     *
-     * @param           array $collection Collection of entities or post data.
+     * @param           array			$collection
      *
      * @return          array           $response
      */
-    public function insertGalleryCategories($collection)
-    {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameter', 'Array', 'err.invalid.parameter.collection');
-        }
+    public function insertGalleryCategories($collection){
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countInserts = 0;
         $countLocalizations = 0;
         $insertedItems = array();
+		$localizations = array();
+		$now = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\GalleryCategory) {
                 $entity = $data;
@@ -4047,10 +2842,9 @@ class GalleryModel extends CoreModel {
                 $insertedItems[] = $entity;
                 $countInserts++;
             } else if (is_object($data)) {
-                $localizations = array();
                 $entity = new BundleEntity\GalleryCategory;
                 if (!property_exists($data, 'date_added')) {
-                    $data->date_added = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+                    $data->date_added = $now;
                 }
                 if (!property_exists($data, 'site')) {
                     $data->site = 1;
@@ -4076,39 +2870,27 @@ class GalleryModel extends CoreModel {
                 $insertedItems[] = $entity;
 
                 $countInserts++;
-            } else {
-                new CoreExceptions\InvalidDataException($this->kernel);
             }
         }
-        if ($countInserts > 0) {
-            $this->em->flush();
-        }
-        /** Now handle localizations */
+
         if ($countInserts > 0 && $countLocalizations > 0) {
             $this->insertGalleryCategoryLocalizations($localizations);
         }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => $entity->getId(),
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 
+	}
     /**
      * @name            insertGalleryCategoryLocalizations()
-     *                  Inserts one or more gallery category localizations into database.
+	 *
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->createException()
@@ -4117,101 +2899,92 @@ class GalleryModel extends CoreModel {
      *
      * @return          array           $response
      */
-    public function insertGalleryCategoryLocalizations($collection)
-    {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameter', 'Array', 'err.invalid.parameter.collection');
-        }
+    public function insertGalleryCategoryLocalizations($collection){
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countInserts = 0;
         $insertedItems = array();
-        foreach ($collection as $item) {
-            if ($item instanceof BundleEntity\GalleryCategoryLocalization) {
-                $entity = $item;
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-                $countInserts++;
-            } else {
-                foreach ($item['localizations'] as $language => $data) {
-                    $entity = new BundleEntity\GalleryCategoryLocalization;
-                    $entity->setCategory($item['entity']);
-                    $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                    $response = $mlsModel->getLanguage($language, 'iso_code');
-                    if (!$response['error']) {
-                        $entity->setLanguage($response['result']['set']);
-                    } else {
-                        break 1;
-                    }
-                    foreach ($data as $column => $value) {
-                        $set = 'set' . $this->translateColumnName($column);
-                        $entity->$set($value);
-                    }
-                    $this->em->persist($entity);
-                }
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-        }
-        if ($countInserts > 0) {
-            $this->em->flush();
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
+		foreach($collection as $data){
+			if($data instanceof BundleEntity\GalleryCategoryLocalization){
+				$entity = $data;
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+			else{
+				$category = $data['entity'];
+				foreach($data['localizations'] as $locale => $translation){
+					$entity = new BundleEntity\GalleryCategoryLocalization();
+					$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+					$response = $lModel->getLanguage($locale);
+					if($response->error->exist){
+						return $response;
+					}
+					$entity->setLanguage($response->result->set);
+					unset($response);
+					$entity->setCategory($category);
+					foreach($translation as $column => $value){
+						$set = 'set'.$this->translateColumnName($column);
+						switch($column){
+							default:
+								$entity->$set($value);
+								break;
+						}
+					}
+					$this->em->persist($entity);
+					$insertedItems[] = $entity;
+					$countInserts++;
+				}
+			}
+		}
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
 
     /**
      * @name            updateGalleryCategory()
-     *                  Updates single gallery category. The data must be either a post data (array) or an entity
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->updateGalleryCategories()
      *
-     * @param           mixed $data entity or post data
+     * @param           mixed 			$category
      *
      * @return          mixed           $response
      */
-    public function updateGalleryCategory($data)
-    {
-        return $this->updateGalleryCategories(array($data));
+    public function updateGalleryCategory($category){
+        return $this->updateGalleryCategories(array($category));
     }
 
     /**
      * @name            updateGalleryCategories()
-     *                  Updates one or more product details in database.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->doesGalleryCategoryExist()
-     * @use             $this->createException()
-     *
-     * @param           array $collection Collection of Product entities or array of entity details.
+     * @param           array			$collection
      *
      * @return          array           $response
      */
-    public function updateGalleryCategories($collection)
-    {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameter', 'Array', 'err.invalid.parameter.collection');
-        }
+    public function updateGalleryCategories($collection){
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
         $countUpdates = 0;
-        $countLocalizations = 0;
+		$localizations = 0;
         $updatedItems = array();
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\GalleryCategory) {
@@ -4246,7 +3019,7 @@ class GalleryModel extends CoreModel {
                                     $newLocalization = true;
                                     $localization = new BundleEntity\GalleryCategoryLocalization();
                                     $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                                    $response = $mlsModel->getLanguage($langCode, 'iso_code');
+                                    $response = $mlsModel->getLanguage($langCode);
                                     $localization->setLanguage($response['result']['set']);
                                     $localization->setCategory($oldEntity);
                                 }
@@ -4273,182 +3046,125 @@ class GalleryModel extends CoreModel {
                         $updatedItems[] = $oldEntity;
                     }
                 }
-            } else {
-                new CoreExceptions\InvalidDataException($this->kernel);
             }
         }
-        if ($countUpdates > 0) {
-            $this->em->flush();
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $updatedItems,
-                'total_rows' => $countUpdates,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.update.done',
-        );
-        return $this->response;
-    }
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
 
     /**
      * @name            deleteGalleryCategory ()
-     *                  Deletes an existing gallery category from database.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->deleteGalleryCategories()
      *
-     * @param           mixed           $data           a single value of 'entity', 'id', 'url_key'
+     * @param           mixed           $category
      *
      * @return          mixed           $response
      */
-    public function deleteGalleryCategory($data){
-        return $this->deleteGalleryCategories(array($data));
+    public function deleteGalleryCategory($category){
+        return $this->deleteGalleryCategories(array($category));
     }
     /**
      * @name            deleteGalleryCategories()
      *                  Deletes provided gallery categories from database.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
      * @author          Said İmamoğlu
      *
-     * @use             $this->createException()
-     * @use             $this->validateAndGetGalleryCategory()
-     *
-     * @param           array           $collection             Collection consists one of the following: 'entity', 'id', 'sku', 'site', 'type', 'status'
+     * @param           array           $collection
      *
      * @return          array           $response
      */
     public function deleteGalleryCategories($collection){
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidCollection', 'The $collection parameter must be an array collection.', 'msg.error.invalid.collection.array');
-        }
-        $countDeleted = 0;
-        foreach ($collection as $entry){
-            $entry = $this->validateAndGetGalleryCategory($entry);
-            $this->em->remove($entry);
-            $countDeleted++;
-        }
-        if ($countDeleted < 0) {
-            $this->response['error'] = true;
-            $this->response['code'] = 'msg.error.db.delete.failed';
-
-            return $this->response;
-        }
-        $this->em->flush();
-        $this->response = array(
-            'rowCount' => 0,
-            'result' => array(
-                'set' => null,
-                'total_rows' => $countDeleted,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'msg.success.db.delete',
-        );
-        return $this->response;
-    }
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countDeleted = 0;
+		foreach($collection as $entry){
+			if($entry instanceof BundleEntity\GalleryCategory){
+				$this->em->remove($entry);
+				$countDeleted++;
+			}
+			else{
+				$response = $this->getGalleryCategory($entry);
+				if(!$response->error->exists){
+					$this->em->remove($response->result->set);
+					$countDeleted++;
+				}
+			}
+		}
+		if($countDeleted < 0){
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		}
+		$this->em->flush();
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+	}
 
     /**
      * @name            addCategoriesToProduct()
-     *                  Associates gallery categories with a given gallery.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @use             $this->resetResponse()
-     * @use             $this->createException()
-     * @use             $this->validateAndGetGallery()
-     * @use             $this->getGalleryCategory()
-     * @use             $this->isCategoryAssociatedWithGallery()
-     *
-     * @param           array           $set        Collection of attribute and sortorder set
-     *                                              Contains an array with two keys: attribute, and sortorder
-     * @param           mixed           $gallery    'entity' or 'entity' id or sku.
-     *
+     * @param           array           $set
+     * @param           mixed           $gallery
+	 *
      * @return          array           $response
      */
     public function addCategoriesToGallery($set, $gallery){
-        $this->resetResponse();
-        $count = 0;
-        /** remove invalid gallery category entries */
-        foreach ($set as $attr) {
-            if (!is_numeric($attr['category']) && !$attr['category'] instanceof BundleEntity\GalleryCategory) {
-                unset($attr[$count]);
-            }
-            $count++;
-        }
-        /** issue an error only if there is no valid file entries */
-        if (count($set) < 1) {
-            return $this->createException('InvalidCategorySet', '', 'msg.error.invalid.parameter.gallery.category.set', false);
-        }
-        unset($count);
-        $gallery = $this->validateAndGetGallery($gallery);
-
-        $count = 0;
-        /** Start persisting files */
+        $timeStamp = time();
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
         foreach ($set as $item) {
-            /** If no entity is provided as gallery we need to check if it does exist */
-            if (!$item['category'] instanceof BundleEntity\GalleryCategory && is_numeric($item['category'])) {
-                $response = $this->getGalleryCategory($item['category'], 'id');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Table: product_category, id: ' . $gallery, 'msg.error.db.product.notfound');
-                }
-                $item['category'] = $response['result']['set'];
-            } else {
-                return $this->createException('InvalidParameter', '$set must contain an array of arrays where "category" key holds a value of an integer representing database row id or BiberLtd\\Core\\Bundles\\GalleryBundle\\Entity\\GalleryCategory entity', 'msg.error.invalid.parameter.product.category');
-            }
+			$response = $this->getGalleryCategory($item['category']);
+			if($response->error->exist){
+				continue;
+			}
+			$category = $response->result->set;
             $aopCollection = array();
             /** Check if association exists */
-            if (!$this->isCategoryAssociatedWithGallery($item['category'], $gallery, true)) {
+            if (!$this->isCategoryAssociatedWithGallery($category, $gallery, true)) {
                 $aop = new BundleEntity\CategoriesOfGallery();
                 $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-                $aop->setCategory($item['category'])->setGallery($gallery)->setDateAdded($now);
+                $aop->setCategory($category)->setGallery($gallery)->setDateAdded($now);
                 /** persist entry */
                 $this->em->persist($aop);
                 $aopCollection[] = $aop;
-                $count++;
             }
         }
         /** flush all into database */
-        if ($count > 0) {
-            $this->em->flush();
-        } else {
-            $this->response['code'] = 'err.db.insert.failed';
-        }
 
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $aopCollection,
-                'total_rows' => $count,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        unset($count, $aopCollection);
-        return $this->response;
-    }
+		if(count($aopCollection) > 0){
+			$this->em->flush();
+			return new ModelResponse($aopCollection, count($aopCollection), 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
 
     /**
      * @name            listGalleryCategories()
-     *                  List gallery categories from database based on a variety of conditions.
      *
      * @since           1.0.9
-     * @version         1.1.2
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -4456,87 +3172,52 @@ class GalleryModel extends CoreModel {
      * @use             $this->resetResponse()
      * @use             $this->createException()
      *
-     * @param           array $filter Multi-dimensional array
-     * @param           array $sortOrder Array
-     * @param           array $limit
-     * @param           string $queryStr If a custom query string needs to be defined.
-     * @param           bool $returnLocales
+     * @param           array 	$filter
+     * @param           array 	$sortOrder
+     * @param           array 	$limit
      *
-     * @return          array           $response
+     * @return          array   $response
      */
-    public function listGalleryCategories($filter = null, $sortOrder = null, $limit = null, $queryStr = null, $returnLocales = false)
-    {
-        $this->resetResponse();
-        if (!is_array($sortOrder) && !is_null($sortOrder)) {
-            return $this->createException('InvalidSortOrder', '', 'err.invalid.parameter.sortorder');
-        }
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        /**         * ************************************************** */
-        $orderStr = '';
-        $whereStr = '';
-        $groupStr = '';
+    public function listGalleryCategories($filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		if(!is_array($sortOrder) && !is_null($sortOrder)){
+			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
+		}
+		$oStr = $wStr = $gStr = $fStr = '';
 
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        if (is_null($queryStr)) {
-            $queryStr = 'SELECT ' . $this->entity['gallery_category_localization']['alias'] . ', ' . $this->entity['gallery_category']['alias']
-                . ' FROM ' . $this->entity['gallery_category_localization']['name'] . ' ' . $this->entity['gallery_category_localization']['alias']
-                . ' JOIN ' . $this->entity['gallery_category_localization']['alias'] . '.category ' . $this->entity['gallery_category']['alias'];
-        }
-        /**
-         * Prepare ORDER BY section of query.
-         */
+		$qStr = 'SELECT ' . $this->entity['gcl']['alias'] . ', ' . $this->entity['gcl']['alias']
+                . ' FROM ' . $this->entity['gcl']['name'] . ' ' . $this->entity['gcl']['alias']
+                . ' JOIN ' . $this->entity['gcl']['alias'] . '.category ' . $this->entity['gc']['alias'];
+
         if ($sortOrder != null) {
             foreach ($sortOrder as $column => $direction) {
                 switch ($column) {
                     case 'id':
                     case 'date_added':
-                        $column = $this->entity['gallery_category']['alias'] . '.' . $column;
+                        $column = $this->entity['gc']['alias'] . '.' . $column;
                         break;
                     case 'name':
                     case 'url_key':
-                        $column = $this->entity['gallery_category_localization']['alias'] . '.' . $column;
+                        $column = $this->entity['gcl']['alias'] . '.' . $column;
                         break;
                 }
-                $orderStr .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
-            }
-            $orderStr = rtrim($orderStr, ', ');
-            $orderStr = ' ORDER BY ' . $orderStr . ' ';
-        }
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
+		}
 
-        /**
-         * Prepare WHERE section of query.
-         */
-        if ($filter != null) {
-            $filterStr = $this->prepareWhere($filter);
-            $whereStr .= ' WHERE ' . $filterStr;
-        }
+		if(!is_null($filter)){
+			$fStr = $this->prepareWhere($filter);
+			$wStr .= ' WHERE '.$fStr;
+		}
 
-        $queryStr .= $whereStr . $groupStr . $orderStr;
+		$qStr .= $wStr.$gStr.$oStr;
+		$q = $this->em->createQuery($qStr);
+		$q = $this->addLimit($q, $limit);
 
-        $query = $this->em->createQuery($queryStr);
+		$result = $q->getResult();
 
-        /**
-         * Prepare LIMIT section of query
-         */
-        if ($limit != null) {
-            if (isset($limit['start']) && isset($limit['count'])) {
-                /** If limit is set */
-                $query->setFirstResult($limit['start']);
-                $query->setMaxResults($limit['count']);
-            } else {
-                new CoreExceptions\InvalidLimitException($this->kernel, '');
-            }
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getResult();
         $categories = array();
         $unique = array();
         foreach($result as $gcl){
@@ -4548,118 +3229,102 @@ class GalleryModel extends CoreModel {
             $localizations[$id][] = $gcl;
         }
         $totalRows = count($categories);
-        $responseSet = array();
-        if ($returnLocales) {
-            foreach ($categories as $key => $category) {
-                $responseSet[$key]['entity'] = $category;
-                $responseSet[$key]['localizations'] = $localizations[$key];
-            }
-        } else {
-            $responseSet = $categories;
-        }
-        $newCollection = array();
-        foreach ($responseSet as $item) {
-            $newCollection[] = $item;
-        }
-        unset($responseSet, $categories);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($categories, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
 
-        if ($totalRows < 1) {
-            $this->response['code'] = 'err.db.entry.notexist';
-            return $this->response;
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $newCollection,
-                'total_rows' => $totalRows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+	/**
+	 * @name 			getGalleryCategory()
+	 *
+	 * @since			1.0.0
+	 * @version         1.1.4
+	 *
+	 * @author          Can Berkol
+	 * @author          Said İmamoğlu
+	 *
+	 * @use             $this->listProducts()
+	 *
+	 * @param           mixed           $category
+	 *
+	 * @return          mixed           $response
+	 */
+	public function getGalleryCategory($category) {
+		$timeStamp = time();
+		if($category instanceof BundleEntity\GalleryCategory){
+			return new ModelResponse($category, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		}
+		$result = null;
+		switch($category){
+			case is_numeric($category):
+				$result = $this->em->getRepository($this->entity['gc']['name'])->findOneBy(array('id' => $category));
+				break;
+			case is_string($category):
+				$result = $this->em->getRepository($this->entity['gcl']['name'])->findOneBy(array('url_key' => $category));
+				if(is_null($result)){
+					$response = $this->getGalleryCategoryByUrlKey($category);
+					if(!$response->error->exist){
+						$result = $response->result->set;
+					}
+				}
+				unset($response);
+				break;
+		}
+		if(is_null($result)){
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+		}
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name            getGalleryCategoryByUrlKey()
+	 *
+	 * @since           1.1.4
+	 * @version         1.1.4
+	 * @author          Can Berkol
+	 *
+	 * @param           mixed 			$urlKey
+	 * @param			mixed			$language
+	 *
+	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function getGalleryCategoryByUrlKey($urlKey, $language = null){
+		$timeStamp = time();
+		if(!is_string($urlKey)){
+			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
+		}
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => array('column' => $this->entity['gl']['alias'].'.url_key', 'comparison' => '=', 'value' => $urlKey),
+				)
+			)
+		);
+		if(!is_null($language)){
+			$mModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+			$response = $mModel->getLanguage($language);
+			if(!$response->error->exists){
+				$filter[] = array(
+					'glue' => 'and',
+					'condition' => array(
+						array(
+							'glue' => 'and',
+							'condition' => array('column' => $this->entity['gcl']['alias'].'.language', 'comparison' => '=', 'value' => $response->result->set->getId()),
+						)
+					)
+				);
+			}
+		}
+		$response = $this->listGalleries($filter, null, array('start' => 0, 'count' => 1));
 
-    /**
-     * @name            getGalleryCategory()
-     *                  Returns details of a gallery category.
-     *
-     * @since           1.0.9
-     * @version         1.0.9
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->resetResponse()
-     * @use             $this->createException()
-     * @use             $this->listGalleryCategories()
-     *
-     * @param           mixed           $category  id, url_key
-     * @param           string          $by         id, sku
-     *
-     * @return          mixed           $response
-     */
-    public function getGalleryCategory($category, $by = 'id'){
-        $this->resetResponse();
-        $by_opts = array('id', 'url_key');
-        if (!is_string($by)){
-            return $this->createException('InvalidParameter', '$by parameter must hold a string value.', 'msg.error.invalid.parameter.by');
-        }
-        if (!in_array($by, $by_opts)) {
-            return $this->createException('InvalidByOption', 'Accepted values are: '.implode(',', $by_opts).'. You have provided "'.$by.'"', 'msg.error.invalid.option');
-        }
-        if (!$category instanceof BundleEntity\GalleryCategory && !is_numeric($category) && !is_string($category)) {
-            return $this->createException('InvalidParameter', '$category parameter must hold BiberLtd\\Core\\Bundles\\GalleryBundle\\Entity\\GalleryCategory entity, a string representing url_key, or an integer representing database row id.', 'msg.error.invalid.parameter.product.attribute');
-        }
-        if (is_object($category)) {
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $category,
-                    'total_rows' => 1,
-                    'last_insert_id' => null,
-                ),
-                'error' => false,
-                'code' => 'scc.db.entry.exist',
-            );
-            return $this->response;
-        }
-        switch ($by) {
-            case 'url_key':
-                $column = $this->entity['gallery_category_localization']['alias'].'.'.$by;
-                break;
-            default:
-                $column = $this->entity['gallery_category']['alias'].'.'.$by;
-                break;
-        }
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $column, 'comparison' => '=', 'value' => $category),
-                )
-            )
-        );
+		$response->result->set = $response->result->set[0];
+		$response->stats->execution->start = $timeStamp;
+		$response->stats->execution->end = time();
 
-        $response = $this->listGalleryCategories($filter, null, array('start' => 0, 'count' => 1));
-        if ($response['error']) {
-            return $response;
-        }
-        $collection = $response['result']['set'];
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $collection[0],
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'msg.success.db.entry.exists',
-        );
-        return $this->response;
-    }
+		return $response;
+	}
 
     /**
      * @name            doesGalleryCategoryExist()
@@ -4672,178 +3337,77 @@ class GalleryModel extends CoreModel {
      * @use             $this->resetResponse()
      * @use             $this->getGalleryCategory()
      *
-     * @param           mixed           $category          id, url_key
-     * @param           string          $by                 all, entity, id, url_key
-     * @param           bool            $bypass             If set to true does not return response but only the result.
-     *
+     * @param           mixed           $category
+     * @param           bool            $bypass
+	 *
      * @return          mixed           $response
      */
-    public function doesGalleryCategoryExist($category, $by = 'id', $bypass = false){
-        $this->resetResponse();
-        $exist = false;
+    public function doesGalleryCategoryExist($category, $bypass = false) {
+		$response = $this->getGalleryCategory($category);
+		$exist = true;
+		if ($response->error->exist) {
+			$exist = false;
+			$response->result->set = false;
+		}
+		if ($bypass) {
+			return $exist;
+		}
 
-        $response = $this->getGalleryCategory($category, $by);
-
-        if (!$response['error'] && $response['result']['total_rows'] > 0) {
-            $exist = true;
-        }
-        if ($bypass) { return $exist; }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $exist,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'msg.success.db.entry.exists',
-        );
-        return $this->response;
-    }
-
+		return $response;
+	}
     /**
      * @name            isCategoryAssociatedWithGallery()
-     *                  Checks if the attribute is already associated with the product category.
      *
      * @since           1.0.9
-     * @version         1.0.9
+     * @version         1.1.4
+	 *
+     * @author          Can Berkol
      * @author          Said İmamoğlu
      *
-     * @user            $this->resetResponse()
-     * @user            $this->createException()
-     * @user            $this->getGalleryCategory()
-     * @user            $this->getGallery()
+     * @param           mixed 		$category
+     * @param           mixed 		$gallery
+     * @param           bool 		$bypass
      *
-     * @param           mixed $category 'entity' or 'entity' id
-     * @param           mixed $gallery 'entity' or 'entity' id.
-     * @param           bool $bypass true or false
-     *
-     * @return          mixed               bool or $response
+     * @return          mixed       bool or $response
      */
-    public function isCategoryAssociatedWithGallery($category, $gallery, $bypass = false)
-    {
-        $this->resetResponse();
-        $gallery = $this->validateAndGetGallery($gallery);
-        $category = $this->validateAndGetGalleryCategory($category);
-
+    public function isCategoryAssociatedWithGallery($category, $gallery, $bypass = false){
+        $timeStamp = time();
+		$response = $this->getGalleryCategory($category);
+		if($response->error->exist){
+			return $response;
+		}
+		$category = $response->result->set;
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		unset($response);
         $found = false;
 
-        $q_str = 'SELECT COUNT(' . $this->entity['categories_of_gallery']['alias'] . ')'
-            . ' FROM ' . $this->entity['categories_of_gallery']['name'] . ' ' . $this->entity['categories_of_gallery']['alias']
-            . ' WHERE ' . $this->entity['categories_of_gallery']['alias'] . '.category = ' . $category->getId()
-            . ' AND ' . $this->entity['categories_of_gallery']['alias'] . '.gallery = ' . $gallery->getId();
-        $query = $this->em->createQuery($q_str);
+        $qStr = 'SELECT COUNT(' . $this->entity['cog']['alias'] . ')'
+            . ' FROM ' . $this->entity['cog']['name'] . ' ' . $this->entity['cog']['alias']
+            . ' WHERE ' . $this->entity['cog']['alias'] . '.category = ' . $category->getId()
+            . ' AND ' . $this->entity['cog']['alias'] . '.gallery = ' . $gallery->getId();
 
-        $result = $query->getSingleScalarResult();
+        $q = $this->em->createQuery($qStr);
 
-        /** flush all into database */
+        $result = $q->getSingleScalarResult();
+
         if ($result > 0) {
             $found = true;
-            $code = 'scc.db.entry.exist';
-        } else {
-            $code = 'scc.db.entry.noexist';
         }
-
         if ($bypass) {
             return $found;
         }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $found == true ? $result : $found,
-                'total_rows' => count($result),
-                'last_insert_id' => null,
-            ),
-            'error' => $found == true ? false : true,
-            'code' => $code,
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name            validateAndGetGallery()
-     *                  Validates $gallery parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery if found in database.
-     *
-     * @since           1.0.9
-     * @version         1.0.9
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     * @use             $this->getGallery()
-     *
-     * @param           mixed           $gallery
-     *
-     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\Gallery
-     */
-    private function validateAndGetGallery($gallery){
-        if (!is_numeric($gallery) && !$gallery instanceof BundleEntity\Gallery) {
-            return $this->createException('InvalidParameter', '$gallery parameter must hold BiberLtd\\Core\\Bundles\\GalleryBundle\\Entity\\Gallery Entity, string representing url_key or sku, or integer representing database row id', 'msg.error.invalid.parameter.product');
-        }
-        if ($gallery instanceof BundleEntity\Gallery) {
-            return $gallery;
-        }
-        if (is_numeric($gallery)) {
-            $response = $this->getGallery($gallery, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table: gallery, id: ' . $gallery, 'msg.error.db.gallery.notfound');
-            }
-            $gallery = $response['result']['set'];
-        } else if (is_string($gallery)) {
-            $response = $this->getGallery($gallery, 'url_key');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table : gallery, id / url_key: ' . $gallery, 'msg.error.db.gallery.notfound');
-            }
-            $gallery = $response['result']['set'];
-        }
-
-        return $gallery;
-    }
-
-    /**
-     * @name            validateAndGetGalleryCategory()
-     *                  Validates $category parameter and returns BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory if found in database.
-     *
-     * @since           1.0.9
-     * @version         1.0.9
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     * @use             $this->getGalleryCategory()
-     *
-     * @param           mixed           $category
-     *
-     * @return          object          BiberLtd\Core\Bundles\GalleryBundle\Entity\GalleryCategory
-     */
-    private function validateAndGetGalleryCategory($category){
-        if (!is_numeric($category) && !$category instanceof BundleEntity\GalleryCategory) {
-            return $this->createException('InvalidParameter', '$category parameter must hold BiberLtd\\Core\\Bundles\\GalleryBundle\\Entity\\GalleryCategory Entity or integer representing database row id', 'msg.error.invalid.parameter.product.attribute');
-        }
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($category)) {
-            $response = $this->getGalleryCategory($category, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table : gallery_category, id: ' . $category,  'msg.error.db.gallery.category.notfound');
-            }
-            $category = $response['result']['set'];
-        }
-        else if (is_string($category)) {
-            $response = $this->getGalleryCategory($category, 'url_key');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table : gallery_category, url_key: ' . $category,  'msg.error.db.gallery.category.notfound');
-            }
-            $category = $response['result']['set'];
-        }
-        return $category;
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
 
     /**
      * @name            listGalleriesOfCategory()
      *
      * @since           1.0.9
-     * @version         1.1.0
+     * @version         1.1.4
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -4851,238 +3415,147 @@ class GalleryModel extends CoreModel {
      * @use             $this->listGalleryCategories()
      *
      * @param           mixed   $category
-     * @param           array $filter Multi-dimensional array
-     * @param           array $sortOrder Array
-     * @param           array $limit
-     * @param           string $queryStr If a custom query string needs to be defined.
+     * @param           array 	$filter
+     * @param           array 	$sortOrder
+     * @param           array 	$limit
      *
      * @return          array
      *
      */
-    public function listGalleriesOfCategory($category, $filter = null, $sortOrder = null, $limit = null, $queryStr = null){
-        $this->resetResponse();
-        $category = $this->validateAndGetGalleryCategory($category);
+    public function listGalleriesOfCategory($category, $filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		$response  = $this->getGalleryCategory($category);
+		if($response->error->exist){
+			return $response;
+		}
+		$category = $response->result->set;
+		$qStr = 'SELECT ' . $this->entity['cog']['alias']
+			. ' FROM ' . $this->entity['cog']['name'] . ' ' . $this->entity['cog']['alias']
+			. ' WHERE ' . $this->entity['cog']['alias'] . '.category = ' . $category->getId();
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
 
-        $qStr = '';
-        $selectStr = 'SELECT ' . $this->entity['categories_of_gallery']['alias'];
-        $fromStr = ' FROM ' . $this->entity['categories_of_gallery']['name'] . ' ' . $this->entity['categories_of_gallery']['alias'];
-        $joinStr = '';
-        $whereStr = ' WHERE ' . $this->entity['categories_of_gallery']['alias'] . '.category = ' . $category->getId();
-        $orderStr = '';
-        if (!is_null($sortOrder)) {
-            foreach ($sortOrder as $column => $value) {
-                switch ($column) {
-                    case 'date_added':
-                    case 'date_updated':
-                        $joinStr = ' JOIN ' . $this->entity['categories_of_gallery']['alias'] . '.gallery ' . $this->entity['gallery']['alias'];
-                        $column = $this->entity['gallery']['alias'] . '.' . $column;
-                        break;
-                }
-                $orderStr .= $column . ' ' . strtoupper($value) . ', ';
-            }
-            $orderStr = ' ORDER BY ' . $orderStr;
-        }
-        $qStr = $selectStr . $fromStr . $joinStr . $whereStr . $orderStr;
-        $qStr = rtrim(trim($qStr), ',');
-        $query = $this->em->createQuery($qStr);
-        if (!is_null($limit)) {
-            $query->setFirstResult($limit['start']);
-            $query->setMaxResults($limit['count']);
-        }
-        $result = $query->getResult();
-
-        $totalRows = count($result);
-        if ($totalRows == 0) {
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => $totalRows,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
-        $galleries = array();
-        foreach ($result as $cog) {
-            $galleries[] = $cog->getGallery();
-        }
-        $totalRows = count($galleries);
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $galleries,
-                'total_rows' => $totalRows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'err.db.entry.exist',
-        );
-        return $this->response;
+		$collection= array();
+		if (count($result) > 0) {
+			foreach ($result as $cog) {
+				$collection[] = $cog->getGallery()->getId();
+			}
+		}
+		if (count($collection) < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		$columnI = $this->entity['g']['alias'] . '.id';
+		$conditionI = array('column' => $columnI, 'comparison' => 'in', 'value' => $collection);
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => $conditionI,
+				)
+			)
+		);
+		return $this->listGalleries($filter, $sortOrder, $limit);
     }
     /**
      * @name            listGalleriesOfCategory()
      *
      * @since           1.0.9
-     * @version         1.1.0
+     * @version         1.1.4
+	 *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->listGalleryCategories()
      *
      * @param           mixed   $gallery
-     * @param           array   $filter Multi-dimensional array
-     * @param           array   $sortOrder Array
+     * @param           array   $filter
+     * @param           array   $sortOrder
      * @param           array   $limit
-     * @param           string  $queryStr If a custom query string needs to be defined.
      *
      * @return          array
      *
      */
-    public function listCategoriesOfGallery($gallery, $filter = null, $sortOrder = null, $limit = null, $queryStr = null){
-        $this->resetResponse();
-        $gallery = $this->validateAndGetGallery($gallery);
+    public function listCategoriesOfGallery($gallery, $filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		$response  = $this->getGallerY($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		$qStr = 'SELECT ' . $this->entity['cog']['alias']
+			. ' FROM ' . $this->entity['cog']['name'] . ' ' . $this->entity['cog']['alias']
+			. ' WHERE ' . $this->entity['cog']['alias'] . '.GALLERY = ' . $gallery->getId();
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
 
-        $qStr = '';
-        $selectStr = 'SELECT ' . $this->entity['categories_of_gallery']['alias'];
-        $fromStr = ' FROM ' . $this->entity['categories_of_gallery']['name'] . ' ' . $this->entity['categories_of_gallery']['alias'];
-        $joinStr = '';
-        $whereStr = ' WHERE ' . $this->entity['categories_of_gallery']['alias'] . '.gallery = ' . $gallery->getId();
-        $orderStr = '';
-        if (!is_null($sortOrder)) {
-            foreach ($sortOrder as $column => $value) {
-                switch ($column) {
-                    case 'date_added':
-                    case 'date_updated':
-                        $joinStr = ' JOIN ' . $this->entity['categories_of_gallery']['alias'] . '.category ' . $this->entity['gallery_category']['alias'];
-                        $column = $this->entity['gallery_category']['alias'] . '.' . $column;
-                        break;
-                }
-                $orderStr .= $column . ' ' . strtoupper($value) . ', ';
-            }
-            $orderStr = ' ORDER BY ' . $orderStr;
-        }
-        $qStr = $selectStr . $fromStr . $joinStr . $whereStr . $orderStr;
-        $qStr = rtrim(trim($qStr), ',');
-        $query = $this->em->createQuery($qStr);
-        if (!is_null($limit)) {
-            $query->setFirstResult($limit['start']);
-            $query->setMaxResults($limit['count']);
-        }
-        $result = $query->getResult();
-
-        $totalRows = count($result);
-        if ($totalRows == 0) {
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => $totalRows,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
-        $cats = array();
-        foreach ($result as $cog) {
-            $cats[] = $cog->getCategory();
-        }
-        $totalRows = count($cats);
-
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $cats,
-                'total_rows' => $totalRows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'err.db.entry.exist',
-        );
-        return $this->response;
+		$collection= array();
+		if (count($result) > 0) {
+			foreach ($result as $cog) {
+				$collection[] = $cog->getCategory()->getId();
+			}
+		}
+		if (count($collection) < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		$columnI = $this->entity['gc']['alias'] . '.id';
+		$conditionI = array('column' => $columnI, 'comparison' => 'in', 'value' => $collection);
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => $conditionI,
+				)
+			)
+		);
+		return $this->listGalleryCategories($filter, $sortOrder, $limit);
     }
     /**
      * @name        listGalleryCategoriesInLocale()
-     *              Lists gallery categories of given language
      *
-     * @author      Said İmamoglu
      * @since       1.1.2
-     * @version     1.1.2
+     * @version     1.1.4
+	 *
+     * @author      Said İmamoglu
      *
      * @param       mixed   $locale
      * @param       array   $filter
      * @param       array   $sortOrder
      * @param       array   $limit
-     * @param       string  $queryStr
      *
      * @return      array
      *
      */
-    public function listGalleryCategoriesInLocales($locale,$filter=array(),$sortOrder = array(),$limit = array() ,$queryStr = null ){
+    public function listGalleryCategoriesInLocales($locale,$filter=array(),$sortOrder = array(),$limit = array()){
         $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
         $response = $mlsModel->getLanguage($locale,'iso_code');
-        if ($response['error']) {
-            return $this->createException('EntityDoesNotExist', 'Table: language, iso_code: ' . $locale, 'msg.error.db.language.notfound');
-        }
-        $language = $response['result']['set'];
+        if($response->error->exist){
+			return $response;
+		}
+        $language = $response->result->set;
         unset($response);
         $filter[] = array(
             'glue' => 'and',
             'condition' => array(
                 array(
                     'glue' => 'and',
-                    'condition' => array('column' => $this->entity['gallery_category_localization']['alias'] . '.language', 'comparison' => '=', 'value' =>$language->getId() ),
+                    'condition' => array('column' => $this->entity['gcl']['alias'] . '.language', 'comparison' => '=', 'value' => $language->getId() ),
                 )
             )
         );
-        return $this->listGalleryCategories($filter,$sortOrder,$limit,$queryStr);
+        return $this->listGalleryCategories($filter, $sortOrder, $limit);
     }
-    /**
-     * @name            validateAndGetLocale()
-     *                  Validates $locale parameter and returns BiberLtd\Core\Bundles\MultiLanguageSupport\Entity\Language if found in database.
-     *
-     * @since           1.1.3
-     * @version         1.1.3
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed           $locale
-     *
-     * @return          object          BiberLtd\Core\Bundles\ProductManagementBundle\Entity\Language
-     */
-    private function validateAndGetLocale($locale){
-        if (!is_string($locale) && !is_numeric($locale) && !$locale instanceof MLSEntity\Language) {
-            return $this->createException('InvalidLanguageException', 'You have provided "'.gettype($locale).'" value in $locale parameter.', 'msg.error.invalid.parameter.locale');
-        }
-        $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-
-        /** If no entity is provided as product we need to check if it does exist */
-        if (is_numeric($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table : language, id: '.$locale,  'msg.error.db.language.notfound');
-            }
-            $locale = $response['result']['set'];
-        } else if (is_string($locale)) {
-            $response = $mlsModel->getLanguage($locale, 'iso_code');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table : language, iso_code: '.$locale,  'msg.error.db.language.notfound');
-            }
-            $locale = $response['result']['set'];
-        }
-        return $locale;
-    }
-
 }
 /**
  * Change Log
- *  * **************************************
+ * **************************************
+ * v1.1.4                      23.06.2015
+ * Can Berkol
+ * **************************************
+ * FR :: Made compatible with Core 3.3.
+ *
+ * **************************************
  * v1.1.3                      Can Berkol
  * 21.08.2014
  * **************************************
@@ -5204,93 +3677,5 @@ class GalleryModel extends CoreModel {
  * A insertyGalleries()
  * A updateGallery()
  * A updateGalleries()
- *
- * **************************************
- * v1.0.1                   Said İmamoğlu
- * 14.01.2014
- * **************************************
- * A countDistinctMediaTotal()
- *
- * **************************************
- * v1.0.1                   Said İmamoğlu
- * 27.11.2013
- * **************************************
- * A addFileToGallery()
- * A isFileAssociatedWithGallery()
- * A getMaxSortOrderOfGalleryMedia()
- * A doesGalleryMediaExist()
- * A getGalleryMedia()
- * A listGalleryMedias()
- * A listFilesWithType()
- * A listAllMediaOfGalleryByViewCount()
- * A listAllMediaOfGalleryByViewCountBetween()
- * A listAllMediaOfGalleryByViewCountLessThan()
- * A listAllMediaOfGalleryByViewCountMoreThan()
- * A removeFilesFromGallery()
- *
- * **************************************
- * v1.0.1 Said İmamoğlu
- * 27.11.2013
- * **************************************
- * A listGalleriesAdded()
- * A listGalleryAddedAfter()
- * A listGalleriesAddedBefore()
- * A listGalleriesAddedBetween()
- * A listGalleriesPublished()
- * A listGalleriesPublishedAfter()
- * A listGalleriesPublishedBefore()
- * A listGalleriesPublishedBetween()
- * A listGalleriesUnpublished()
- * A listGalleriesUnpublishedAfter()
- * A listGalleriesUnpublishedBefore()
- * A listGalleriesUnpublishedBetween()
- * A listGalleriesUpdated()
- * A listGalleriesUpdatedAfter()
- * A listGalleriesUpdatedBefore()
- * A listGalleriesUpdatedBetween()
- * A listGalleriesWithDocumentCount()
- * A listGalleriesWithDocumentCountBetween()
- * A listGalleriesWithDocumentCountLessThan()
- * A listGalleriesWithDocumenCounttMoreThan()
- * A listGalleriesWithImageCount()
- * A listGalleriesWithImageCountBetween()
- * A listGalleriesWithImageCountLessThan()
- * A listGalleriesWithImageCountMoreThan()
- * A listGalleriesWithMediaCount()
- * A listGalleriesWithMediaCountBetween()
- * A listGalleriesWithMediaCountLessThan()
- * A listGalleriesWithMediaCountMoreThan()
- * A listGalleriesWithVideoCount()
- * A listGalleriesWithVideoCountBetween()
- * A listGalleriesWithVideoCountLessThan()
- * A listGalleriesWithVideoCountMoreThan()
- * A updateGallery()
- * A updateGalleries()
- * A listGalleriesOfSite()
- * A listAllImagesOfGallery()
- * A listAllVideosOfGallery()
- * A listAllDocumentsOfGallery()
- *
- * **************************************
- * v1.0.1                      Can Berkol
- * 27.11.2013
- * **************************************
- * A deleteGalleries()
- * A deleteGallery()
- * A listAllGalleries()
- * A listImagesOfGallery()
- * A listImagesOfAllGaleries()
- * A listLastImagesOfAllGalleries()
- * A listMediaOfGallery()
- * A listGalleries()
- * A insertGallery()
- * A insertGalleries()
- *
- * **************************************
- * v1.0.0                      Can Berkol
- * 26.11.2013
- * **************************************
- * A __construct()
- * A __destruct()
  *
  */
