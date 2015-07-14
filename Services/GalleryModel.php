@@ -3223,8 +3223,8 @@ class GalleryModel extends CoreModel {
         foreach($result as $gcl){
             $id = $gcl->getCategory()->getId();
             if (!isset($unique[$id])) {
-                $categories[$id] = $gcl->getCategory();
-                $unique[$id] = $gcl->getCategory();
+                $categories[] = $gcl->getCategory();
+                $unique[$id] = '';
             }
             $localizations[$id][] = $gcl;
         }
@@ -3280,8 +3280,9 @@ class GalleryModel extends CoreModel {
 	 * @name            getGalleryCategoryByUrlKey()
 	 *
 	 * @since           1.1.4
-	 * @version         1.1.4
+	 * @version         1.1.5
 	 * @author          Can Berkol
+	 * @author          Said İmamoğlu
 	 *
 	 * @param           mixed 			$urlKey
 	 * @param			mixed			$language
@@ -3298,7 +3299,7 @@ class GalleryModel extends CoreModel {
 			'condition' => array(
 				array(
 					'glue' => 'and',
-					'condition' => array('column' => $this->entity['gl']['alias'].'.url_key', 'comparison' => '=', 'value' => $urlKey),
+					'condition' => array('column' => $this->entity['gcl']['alias'].'.url_key', 'comparison' => '=', 'value' => $urlKey),
 				)
 			)
 		);
@@ -3317,7 +3318,7 @@ class GalleryModel extends CoreModel {
 				);
 			}
 		}
-		$response = $this->listGalleries($filter, null, array('start' => 0, 'count' => 1));
+		$response = $this->listGalleryCategories($filter, null, array('start' => 0, 'count' => 1));
 
 		$response->result->set = $response->result->set[0];
 		$response->stats->execution->start = $timeStamp;
@@ -3549,6 +3550,11 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.1.5                      14.07.2015
+ * Said İmamoğlu
+ * **************************************
+ * BF :: Entity namespaces were wrong in getGalleryCategoryByUrlKey() method. Fixed
  * **************************************
  * v1.1.4                      23.06.2015
  * Can Berkol
