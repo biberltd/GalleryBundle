@@ -1072,7 +1072,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$qStr = 'SELECT ' . $this->entity['agcl']['alias']
 			. ' FROM ' . $this->entity['agcl']['name'] . ' ' . $this->entity['agcl']['alias']
-			. ' WHERE ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId;
+			. ' WHERE ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId();
 		$query = $this->em->createQuery($qStr);
 		$result = $query->getResult();
 		$locales = array();
@@ -1081,7 +1081,7 @@ class GalleryModel extends CoreModel {
 			$id = $entry->getLanguage()->getId();
 			if (!isset($unique[$id])) {
 				$locales[] = $entry->getLanguage();
-				$unique[$id] = $entry->getLanguage();
+				$unique[$id] = '';
 			}
 		}
 		unset($unique);
