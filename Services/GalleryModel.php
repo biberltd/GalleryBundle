@@ -535,12 +535,9 @@ class GalleryModel extends CoreModel {
 				$result = $this->em->getRepository($this->entity['g']['name'])->findOneBy(array('id' => $gallery));
 				break;
 			case is_string($gallery):
-				$result = $this->em->getRepository($this->entity['gl']['name'])->findOneBy(array('url_key' => $gallery));
-				if(is_null($result)){
-					$response = $this->getGalleryByUrlKey($gallery);
-					if(!$response->error->exist){
-						$result = $response->result->set;
-					}
+				$response = $this->getGalleryByUrlKey($gallery);
+				if(!$response->error->exist){
+					$result = $response->result->set;
 				}
 				unset($response);
 				break;
