@@ -599,7 +599,6 @@ class GalleryModel extends CoreModel {
 		$response->result->set = $response->result->set[0];
 		$response->stats->execution->start = $timeStamp;
 		$response->stats->execution->end = time();
-		$response->result->set = $response->result->set[0];
 
 		return $response;
 	}
