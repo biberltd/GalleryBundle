@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.4
- * @date        23.06.2015
+ * @version     1.1.6
+ * @date        06.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -2156,6 +2156,74 @@ class GalleryModel extends CoreModel {
 		return $fModel->listFiles($filter, $sortOrder, $limit);
 	}
 	/**
+	 * @name            listMediaOfGalleryWithStatus()
+	 *
+	 * @since           1.1.6
+	 * @version         1.1.6
+	 *
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 * @use             $fModel->listFiles()
+	 *
+	 * @param           mixed       $gallery
+	 * @param           string      $status
+	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
+	 * @param           array       $sortOrder
+	 * @param           array       $limit
+	 * @param           array       $filter
+	 *
+	 * @return          array           $response
+	 */
+	public function listMediaOfGalleryWithStatus($gallery, $status, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+		$timeStamp = time();
+		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
+		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
+		}
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		$qStr = 'SELECT '.$this->entity['gm']['alias']
+			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
+		unset($response, $gallery);
+		$whereStr = '';
+		if($mediaType != 'all'){
+			$whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
+		}
+		$whereStr = ' AND '.$this->entity['gm']['alias'].".status = '".$status."'";
+
+		$qStr .= $whereStr;
+
+		$q = $this->em->createQuery($qStr);
+
+		$result = $q->getResult();
+		$totalRows = count($result);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+
+		foreach($result as $gm){
+			$fileIds[] = $gm->getFile()->getId();
+			$this->em->detach($gm);
+		}
+
+		$filter[] = array('glue' => 'and',
+						  'condition' => array(
+							  array(
+								  'glue' => 'and',
+								  'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
+							  )
+						  )
+		);
+		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
+
+		return $fModel->listFiles($filter, $sortOrder, $limit);
+	}
+	/**
 	 * @name 			listImagesOfGallery()
 	 *
 	 * @since			1.0.1
@@ -2172,6 +2240,28 @@ class GalleryModel extends CoreModel {
 	 */
 	public function listImagesOfGallery($gallery, $sortOrder = null, $limit = null) {
 		return $this->listMediaOfGallery($gallery, 'i', $sortOrder, $limit);
+	}
+	/**
+	 * @name            listPublishedMediaOfGallery()
+	 *
+	 * @since           1.1.6
+	 * @version         1.1.6
+	 *
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 * @use             $fModel->listFiles()
+	 *
+	 * @param           mixed       $gallery
+	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
+	 * @param           array       $sortOrder
+	 * @param           array       $limit
+	 * @param           array       $filter
+	 *
+	 * @return          array           $response
+	 */
+	public function listPublishedMediaOfGallery($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+		return $this->listMediaOfGalleryWithStatus($gallery, 'p', $mediaType, $sortOrder, $limit, $filter);
 	}
 	/**
 	 * @name            listRandomImagesFromGallery()
@@ -3548,11 +3638,20 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ *
+ * **************************************
+ * v1.1.6                      06.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: listMediaOfGalleryWithStatus()
+ * FR :: listPublishedMediaOfGallery()
+ *
  * **************************************
  * v1.1.5                      14.07.2015
  * Said İmamoğlu
  * **************************************
  * BF :: Entity namespaces were wrong in getGalleryCategoryByUrlKey() method. Fixed
+ *
  * **************************************
  * v1.1.4                      23.06.2015
  * Can Berkol

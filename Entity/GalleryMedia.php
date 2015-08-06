@@ -3,9 +3,11 @@
  * @name        GalleryMedia
  * @package		BiberLtd\Bundle\CoreBundle\GalleryBundle
  *
+ * @author		Can Berkol
  * @author		Murat Ünal
- * @version     1.0.1
- * @date        09.09.2013
+ *
+ * @version     1.0.2
+ * @date        06.08.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -22,19 +24,19 @@ use BiberLtd\Bundle\CoreBundle\CoreEntity;
  * @ORM\Table(
  *     name="gallery_media",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
- *     indexes={@ORM\Index(name="idx_n_gallery_media_date_added", columns={"date_added"})},
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idx_u_gallery_media", columns={"gallery","file"})}
+ *     indexes={@ORM\Index(name="idxNGalleryMediaDateAdded", columns={"date_added"})},
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUGalleryMedia", columns={"gallery","file"})}
  * )
  */
 class GalleryMedia extends CoreEntity
 {
     /** 
-     * @ORM\Column(type="string", length=1, nullable=false)
+     * @ORM\Column(type="string", length=1, nullable=false, options={"default":"i"})
      */
     private $type;
 
     /** 
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":1})
      */
     private $sort_order;
 
@@ -44,9 +46,14 @@ class GalleryMedia extends CoreEntity
     public $date_added;
 
     /** 
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
     private $count_view;
+
+    /**
+     * @ORM\Column(type="string", nullable=false, options={"default":"p"})
+     */
+    private $status;
 
     /** 
      * @ORM\Id
@@ -64,8 +71,6 @@ class GalleryMedia extends CoreEntity
 
     /**
      * @name            setCountView ()
-     *                  Sets the count_view property.
-     *                  Updates the data only if stored value and value to be set are different.
      *
      * @author          Can Berkol
      *
@@ -88,7 +93,6 @@ class GalleryMedia extends CoreEntity
 
     /**
      * @name            getCountView ()
-     *                               Returns the value of count_view property.
      *
      * @author          Can Berkol
      *
@@ -102,9 +106,7 @@ class GalleryMedia extends CoreEntity
     }
 
     /**
-     * @name                  setFile ()
-     *                                Sets the file property.
-     *                                Updates the data only if stored value and value to be set are different.
+     * @name            setFile ()
      *
      * @author          Can Berkol
      *
@@ -205,7 +207,6 @@ class GalleryMedia extends CoreEntity
 
     /**
      * @name            getSortOrder ()
-     *                               Returns the value of sort_order property.
      *
      * @author          Can Berkol
      *
@@ -220,8 +221,6 @@ class GalleryMedia extends CoreEntity
 
     /**
      * @name                  setType ()
-     *                                Sets the type property.
-     *                                Updates the data only if stored value and value to be set are different.
      *
      * @author          Can Berkol
      *
@@ -256,13 +255,51 @@ class GalleryMedia extends CoreEntity
     public function getType() {
         return $this->type;
     }
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
+
+	/**
+	 * @name        getStatus ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.2
+	 * @version     1.0.2
+	 *
+	 * @return      mixed
+	 */
+	public function getStatus() {
+		return $this->status;
+	}
+
+	/**
+	 * @name        setStatus ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.2
+	 * @version     1.0.2
+	 *
+	 * @param       mixed $status
+	 *
+	 * @return      $this
+	 */
+	public function setStatus($status) {
+		if (!$this->setModified('status', $status)->isModified()) {
+			return $this;
+		}
+		$this->status = $status;
+
+		return $this;
+	}
 
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.2                      06.08.2015
+ * 06.08.2015
+ * **************************************
+ * FR :: get/setStats methods added.
+ *
  * **************************************
  * v1.0.1                      Murat Ünal
  * 09.09.2013

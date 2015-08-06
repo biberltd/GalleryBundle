@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<skipper version="3.2.3.1247" mvc="Symfony2" orm="Doctrine2" name="GalleryBundle" uuid="1dbd6e9b-55c7-4a69-9d18-0d9329401305">
+  <external-module storage-path="../../site-management-bundle/ORM/SiteManagement.module.xml"/>
+  <external-module storage-path="../../multilanguage-support-bundle/ORM/MultiLanguageSupport.module.xml"/>
+  <external-module storage-path="../../file-management-bundle/ORM/FileManagement.module.xml"/>
+  <external-module storage-path="Gallery.module.xml"/>
+  <visual-data>
+    <association uuid="02e3ef16-39f8-42b5-891d-96224803b169" color="#969696"/>
+    <association uuid="2620717a-8122-4e98-b00d-82e9336f208a" color="#969696"/>
+    <association uuid="4264b639-d965-4c07-90bb-322dd765d46d" color="#969696"/>
+    <association uuid="457c327e-fd6a-42a2-b9c6-a2e652f7e3bd" color="#969696"/>
+    <association uuid="45c125cd-0ba3-4a9c-973e-92bbcfb91a59" color="#969696"/>
+    <association uuid="4a21a97e-810e-4e2d-a330-69d23cf801c7" color="#969696"/>
+    <association uuid="691cd89a-3534-4a4c-bf70-544fa15a4c35" color="#969696"/>
+    <association uuid="6bdd4756-e0bc-45bb-af07-5c1334df1954" caption1-position-x="0" caption1-position-y="0" center-position-x="0" center-position-y="-20" color="#969696"/>
+    <association uuid="71f15a54-6bc9-4510-84b1-2b2817781440" color="#969696"/>
+    <association uuid="93fd6dcc-590e-4490-ad0f-03a9b480fa94" color="#969696"/>
+    <association uuid="950c249b-f49a-4e2c-8cfb-dde43d48523d" color="#969696"/>
+    <association uuid="9639d43b-88fb-40f1-b3ae-7953a871b27a" color="#969696"/>
+    <association uuid="97ef5905-ac76-4575-a7bf-bb7cd1384aaf" color="#969696"/>
+    <association uuid="98e73fcc-5187-40f2-abd5-d97626cead61" color="#969696"/>
+    <association uuid="a393d6cb-6dfa-4f98-abff-05f62c4ac62a" color="#969696"/>
+    <association uuid="a50bcd82-290b-4009-b270-6e47a63148cc" color="#969696"/>
+    <association uuid="b210e152-462a-45f8-b840-75b0217b73c5" color="#969696"/>
+    <association uuid="b83033bc-e5cf-44cf-b13c-c64a00587564" color="#969696"/>
+    <association uuid="d19b665d-e0ea-4939-a7b0-86527a7dc1d1" color="#969696"/>
+    <association uuid="dcbf1caf-6474-4dfe-90be-7b58aa71c5c7" color="#969696"/>
+    <association uuid="e30e81e3-1353-4266-a88e-5f4a6b20352d" color="#969696"/>
+    <association uuid="e759f273-144f-4e29-817a-0fe9f39c4187" color="#969696"/>
+    <module uuid="264804cf-5ddd-4089-aaa2-d7c0f129a5ed" position-x="640" position-y="106"/>
+    <module uuid="860bb986-ef71-4cef-9da2-f560e58c2569" position-x="50" position-y="50"/>
+    <module uuid="9d574194-22af-4673-a2ee-bb67ec7d212e" position-x="1466" position-y="51"/>
+    <module uuid="f986ba73-0f06-4a31-887c-578a5ee61a6f" position-x="2261" position-y="50"/>
+    <project uuid="1dbd6e9b-55c7-4a69-9d18-0d9329401305" size-x="0" size-x2="3115" size-y="0" size-y2="593"/>
+  </visual-data>
+</skipper>

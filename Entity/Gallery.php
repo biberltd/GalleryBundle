@@ -63,35 +63,32 @@ class Gallery extends CoreLocalizableEntity
     private $date_unpublished;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_media;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_image;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_video;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_audio;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_document;
 
     /**
-     * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization",
-     *     mappedBy="gallery"
-     * )
+     * @ORM\OneToMany(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization", mappedBy="gallery")
      */
     protected $localizations;
 
