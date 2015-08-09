@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.6
- * @date        06.08.2015
+ * @version     1.1.7
+ * @date        09.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -2516,6 +2516,41 @@ class GalleryModel extends CoreModel {
 		return $this->updateGalleries(array($gallery));
 	}
 	/**
+	 * @name            updateGalleryLocalizations()
+	 *
+	 * @since           1.1.7
+	 * @version         1.1.7
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array 			$collection
+	 *
+	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateGalleryLocalizations($collection) {
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countUpdates = 0;
+		$updatedItems = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\GalleryLocalization) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$updatedItems[] = $entity;
+				$countUpdates++;
+			}
+		}
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
+	/**
 	 * @name            updateGalleries()
 	 *
 	 * @since           1.0.0
@@ -3052,7 +3087,41 @@ class GalleryModel extends CoreModel {
 	public function updateGalleryCategory($category){
 		return $this->updateGalleryCategories(array($category));
 	}
-
+	/**
+	 * @name            updateGalleryCategoryLocalizations()
+	 *
+	 * @since           1.1.7
+	 * @version         1.1.7
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array 			$collection
+	 *
+	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateGalleryCategoryLocalizations($collection) {
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countUpdates = 0;
+		$updatedItems = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\GalleryCategoryLocalization) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$updatedItems[] = $entity;
+				$countUpdates++;
+			}
+		}
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
 	/**
 	 * @name            updateGalleryCategories()
 	 *
@@ -3638,6 +3707,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.1.7                      09.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: updateGalleryLocalizations() added.
+ * FR :: updateGalleryCategoryLocalizations() added.
  *
  * **************************************
  * v1.1.6                      06.08.2015
