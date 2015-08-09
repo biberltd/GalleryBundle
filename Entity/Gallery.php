@@ -524,6 +524,40 @@ class Gallery extends CoreLocalizableEntity
         return $this->folder;
     }
 
+	/**
+	 * @name        getSortOrder ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.4
+	 * @version     1.0.4
+	 *
+	 * @return      mixed
+	 */
+	public function getSortOrder() {
+		return $this->sort_order;
+	}
+
+	/**
+	 * @name       setSortOrder ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.4
+	 * @version     1.0.4
+	 *
+	 * @param       mixed $sort_order
+	 *
+	 * @return      $this
+	 */
+	public function setSortOrder($sort_order) {
+		if (!$this->setModified('sort_order', $sort_order)->isModified()) {
+			return $this;
+		}
+		$this->sort_order = $sort_order;
+
+		return $this;
+	}
 }
 /**
  * Change Log:
