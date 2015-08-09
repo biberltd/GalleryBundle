@@ -6,8 +6,8 @@
  * @author      Can Berkol
  * @author		Murat Ünal
  *
- * @version     1.0.3
- * @date        28.11.2013
+ * @version     1.0.4
+ * @date        09.08.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -86,6 +86,11 @@ class Gallery extends CoreLocalizableEntity
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_document;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false, options={"default":1})
+     */
+    private $sort_order;
 
     /**
      * @ORM\OneToMany(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization", mappedBy="gallery")
@@ -522,6 +527,12 @@ class Gallery extends CoreLocalizableEntity
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.4                      09.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: added sort_order property.
+ *
  * **************************************
  * v1.0.3                      Can Berkol
  * 28.11.2013
