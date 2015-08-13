@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.7
- * @date        09.08.2015
+ * @version     1.1.8
+ * @date        13.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -1177,7 +1177,7 @@ class GalleryModel extends CoreModel {
 	 * @name 			listGalleries()
 	 *
 	 * @since			1.0.1
-	 * @version         1.1.4
+	 * @version         1.1.8
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->createException
@@ -1212,6 +1212,7 @@ class GalleryModel extends CoreModel {
 					case 'count_video':
 					case 'count_document':
 					case 'site':
+					case 'sort_order':
 						$column = $this->entity['g']['alias'] . '.' . $column;
 						break;
 					case 'tile':
@@ -2432,7 +2433,7 @@ class GalleryModel extends CoreModel {
 		}
 		$in = ' IN (' . implode(',', $idsToRemove) . ')';
 		$qStr = 'DELETE FROM '.$this->entity['agl']['name'].' '.$this->entity['agl']['alias']
-			.' WHERE '.$this->entity['agl']['alias'].'.gallery '.$gallery->getId()
+			.' WHERE '.$this->entity['agl']['alias'].'.gallery = '.$gallery->getId()
 			.' AND '.$this->entity['agl']['alias'].'.language '.$in;
 
 		$q = $this->em->createQuery($qStr);
@@ -2480,7 +2481,7 @@ class GalleryModel extends CoreModel {
 		}
 		$in = ' IN (' . implode(',', $idsToRemove) . ')';
 		$qStr = 'DELETE FROM '.$this->entity['agcl']['name'].' '.$this->entity['agcl']['alias']
-			.' WHERE '.$this->entity['agcl']['alias'].'.category '.$category->getId()
+			.' WHERE '.$this->entity['agcl']['alias'].'.category = '.$category->getId()
 			.' AND '.$this->entity['agcl']['alias'].'.language '.$in;
 
 		$q = $this->em->createQuery($qStr);
@@ -3707,6 +3708,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.1.8                      12.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: listGalleries() can now handle 'sort_order' field as an order column.
+ *
  * **************************************
  * v1.1.7                      09.08.2015
  * Can Berkol
