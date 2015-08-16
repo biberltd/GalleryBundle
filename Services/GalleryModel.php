@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.8
- * @date        13.08.2015
+ * @version     1.1.9
+ * @date        16.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -255,7 +255,7 @@ class GalleryModel extends CoreModel {
 	 * @name 			countDistinctMediaTotal()
 	 *
 	 * @since			1.0.2
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->createException()
@@ -264,7 +264,7 @@ class GalleryModel extends CoreModel {
 	 */
 	public function countDistinctMediaTotal() {
 		$timeStamp = time();
-		$qStr = 'SELECT COUNT( DISTINCT '. $this->entity['gm']['alias'].')'
+		$qStr = 'SELECT COUNT( DISTINCT '. $this->entity['gm']['alias'].'.file)'
 			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias'];
 
 		$q = $this->em->createQuery($qStr);
@@ -330,7 +330,7 @@ class GalleryModel extends CoreModel {
 	 * @name            countTotalMediaInGallery()
 	 *
 	 * @since           1.0.6
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 *
 	 * @author          Can Berkol
 	 *
@@ -351,7 +351,7 @@ class GalleryModel extends CoreModel {
 		}
 		$gallery = $response->result->set;
 		unset($response);
-		$qStr = 'SELECT COUNT('.$this->entity['gm']['alias'].')'
+		$qStr = 'SELECT COUNT('.$this->entity['gm']['alias'].'.file)'
 			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
 			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
 		unset($response, $gallery);
@@ -862,7 +862,7 @@ class GalleryModel extends CoreModel {
 	 * @name 		    isFileAssociatedWithGallery()
 	 *
 	 * @since		    1.0.7
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->createException()
@@ -889,7 +889,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['gm']['alias'] . ')'
+		$qStr = 'SELECT COUNT(' . $this->entity['gm']['alias'] . '.file)'
 			. ' FROM ' . $this->entity['gm']['name'] . ' ' . $this->entity['gm']['alias']
 			. ' WHERE ' . $this->entity['gm']['alias'] . '.file = ' . $file->getId()
 			. ' AND ' . $this->entity['gm']['alias'] . '.gallery = ' . $gallery->getId();
@@ -909,7 +909,7 @@ class GalleryModel extends CoreModel {
 	 * @name            isLocaleAssociatedWithGallery()
 	 *
 	 * @since           1.1.3
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 *
 	 * @author          Can Berkol
 	 *
@@ -937,7 +937,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . ')'
+		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . '.file)'
 			. ' FROM ' . $this->entity['agl']['name'] . ' ' . $this->entity['agl']['alias']
 			. ' WHERE ' . $this->entity['agl']['alias'] . '.language = ' . $locale->getId()
 			. ' AND ' . $this->entity['agl']['alias'] . '.gallery = ' . $gallery->getId();
@@ -958,7 +958,7 @@ class GalleryModel extends CoreModel {
 	 * @name            isLocaleAssociatedWithGalleryCategory()
 	 *
 	 * @since           1.1.3
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 * @author          Can Berkol
 	 *
 	 * @user            $this->createException
@@ -985,7 +985,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . ')'
+		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . '.file)'
 			. ' FROM ' . $this->entity['agcl']['name'] . ' ' . $this->entity['agcl']['alias']
 			. ' WHERE ' . $this->entity['agcl']['alias'] . '.language = ' . $locale->getId()
 			. ' AND ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId();
@@ -3142,7 +3142,7 @@ class GalleryModel extends CoreModel {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$localizations = 0;
+		$localizations = array();
 		$updatedItems = array();
 		foreach ($collection as $data) {
 			if ($data instanceof BundleEntity\GalleryCategory) {
@@ -3518,7 +3518,7 @@ class GalleryModel extends CoreModel {
 	 * @name            isCategoryAssociatedWithGallery()
 	 *
 	 * @since           1.0.9
-	 * @version         1.1.4
+	 * @version         1.1.9
 	 *
 	 * @author          Can Berkol
 	 * @author          Said İmamoğlu
@@ -3544,7 +3544,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['cog']['alias'] . ')'
+		$qStr = 'SELECT COUNT(' . $this->entity['cog']['alias'] . '.category)'
 			. ' FROM ' . $this->entity['cog']['name'] . ' ' . $this->entity['cog']['alias']
 			. ' WHERE ' . $this->entity['cog']['alias'] . '.category = ' . $category->getId()
 			. ' AND ' . $this->entity['cog']['alias'] . '.gallery = ' . $gallery->getId();
@@ -3708,6 +3708,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.1.9                      16.08.2015
+ * Can Berkol
+ * **************************************
+ * BF :: Fix for "Error: Invalid PathExpression. Must be a StateFieldPathExpression." applied.
+ *
  * **************************************
  * v1.1.8                      12.08.2015
  * Can Berkol
