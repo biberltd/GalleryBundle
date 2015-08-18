@@ -1277,6 +1277,54 @@ class GalleryModel extends CoreModel {
 		return $this->listGalleriesAdded($date, 'after', $sortOrder, $limit);
 	}
 	/**
+	 * @name            listGalleryMedia()
+	 *
+	 * @since           1.2.0
+	 * @version         1.2.0
+	 *
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 * @use             $fModel->listFiles()
+	 *
+	 * @param           mixed       $gallery
+	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
+	 * @param           array       $sortOrder
+	 * @param           array       $limit
+	 * @param           array       $filter
+	 *
+	 * @return          array           $response
+	 */
+	public function listGalleryMedia($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+		$timeStamp = time();
+		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
+		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
+			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
+		}
+		$response = $this->getGallery($gallery);
+		if($response->error->exist){
+			return $response;
+		}
+		$gallery = $response->result->set;
+		$qStr = 'SELECT '.$this->entity['gm']['alias']
+			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
+		unset($response, $gallery);
+		$whereStr = '';
+		if($mediaType != 'all'){
+			$whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
+		}
+		$qStr .= $whereStr;
+
+		$q = $this->em->createQuery($qStr);
+		$result = $q->getResult();
+		$totalRows = count($result);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
 	 * @name 		    listGalleriesAddedBefore()
 	 *
 	 * @since		    1.0.0
@@ -3718,6 +3766,7 @@ class GalleryModel extends CoreModel {
  * BF :: gallery and gallery category active localization methods have been fixed.
  * BF :: db_connection is replaced with dbConnection.
  * BF :: addMediaGallery now can handle recently added status field.
+ * FR :: listGalleryMedia() method added. This method returns GalleryMedia entities.
  *
  * **************************************
  * v1.1.9                      16.08.2015
