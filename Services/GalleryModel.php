@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.1.9
- * @date        16.08.2015
+ * @version     1.2.0
+ * @date        18.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -909,7 +909,7 @@ class GalleryModel extends CoreModel {
 	 * @name            isLocaleAssociatedWithGallery()
 	 *
 	 * @since           1.1.3
-	 * @version         1.1.9
+	 * @version         1.2.0
 	 *
 	 * @author          Can Berkol
 	 *
@@ -937,7 +937,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . '.file)'
+		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . '.gallery)'
 			. ' FROM ' . $this->entity['agl']['name'] . ' ' . $this->entity['agl']['alias']
 			. ' WHERE ' . $this->entity['agl']['alias'] . '.language = ' . $locale->getId()
 			. ' AND ' . $this->entity['agl']['alias'] . '.gallery = ' . $gallery->getId();
@@ -958,7 +958,7 @@ class GalleryModel extends CoreModel {
 	 * @name            isLocaleAssociatedWithGalleryCategory()
 	 *
 	 * @since           1.1.3
-	 * @version         1.1.9
+	 * @version         1.2.0
 	 * @author          Can Berkol
 	 *
 	 * @user            $this->createException
@@ -985,7 +985,7 @@ class GalleryModel extends CoreModel {
 		unset($response);
 		$found = false;
 
-		$qStr = 'SELECT COUNT(' . $this->entity['agl']['alias'] . '.file)'
+		$qStr = 'SELECT COUNT(' . $this->entity['agcl']['alias'] . '.category)'
 			. ' FROM ' . $this->entity['agcl']['name'] . ' ' . $this->entity['agcl']['alias']
 			. ' WHERE ' . $this->entity['agcl']['alias'] . '.language = ' . $locale->getId()
 			. ' AND ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId();
@@ -3708,6 +3708,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.2.0                      18.08.2015
+ * Can Berkol
+ * **************************************
+ * BF :: gallery and gallery category active localization methods have been fixed.
+ *
  * **************************************
  * v1.1.9                      16.08.2015
  * Can Berkol
