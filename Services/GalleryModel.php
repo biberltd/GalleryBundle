@@ -96,7 +96,7 @@ class GalleryModel extends CoreModel {
 	 * @name            addFilesToGallery()
 	 *
 	 * @since           1.0.0
-	 * @version         1.1.4
+	 * @version         1.2.0
 	 *
 	 * @author          Can Berkol
 	 * @author          Said İmamoğlu
@@ -137,6 +137,9 @@ class GalleryModel extends CoreModel {
 					$galleryMedia->setSortOrder($this->getMaxSortOrderOfGalleryMedia($gallery, true) + 1);
 				}
 				$galleryMedia->setCountView(0)->setType($entity['file']->getType());
+				if(!isset($entity['status'])){
+					$galleryMedia->setStatus('a');
+				}
 				$this->em->persist($galleryMedia);
 				$count++;
 				$fogCollection[] = $galleryMedia;
@@ -862,7 +865,7 @@ class GalleryModel extends CoreModel {
 	 * @name 		    isFileAssociatedWithGallery()
 	 *
 	 * @since		    1.0.7
-	 * @version         1.1.9
+	 * @version         1.2.0
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->createException()
@@ -875,7 +878,7 @@ class GalleryModel extends CoreModel {
 	 */
 	public function isFileAssociatedWithGallery($file, $gallery, $bypass = false) {
 		$timeStamp = time();
-		$fModel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
+		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 		$response = $fModel->getFile($file);
 		if($response->error->exist){
 			return $response;
@@ -2356,7 +2359,7 @@ class GalleryModel extends CoreModel {
 	 *  @name 		    removeFilesFromProduct()
 	 *
 	 * @since		    1.0.0
-	 * @version         1.1.4
+	 * @version         1.2.0
 	 *
 	 * @author          Can Berkol
 	 * @author          Said İmamoğlu
@@ -2375,7 +2378,7 @@ class GalleryModel extends CoreModel {
 		$gallery = $response->result->set;
 		unset($response);
 		$idsToRemove = array();
-		$fModel = new FMMService\FileManagementModel($this->kernel, $this->db_connection, $this->orm);
+		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 		foreach ($files as $file) {
 			$response = $fModel->getFile($file);
 			if($response->error->exist){
@@ -3713,6 +3716,8 @@ class GalleryModel extends CoreModel {
  * Can Berkol
  * **************************************
  * BF :: gallery and gallery category active localization methods have been fixed.
+ * BF :: db_connection is replaced with dbConnection.
+ * BF :: addMediaGallery now can handle recently added status field.
  *
  * **************************************
  * v1.1.9                      16.08.2015
