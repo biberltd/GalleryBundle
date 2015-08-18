@@ -2568,6 +2568,42 @@ class GalleryModel extends CoreModel {
 		return $this->updateGalleries(array($gallery));
 	}
 	/**
+	 * @name            updateGalleryMedia()
+	 *
+	 * @since           1.2.0
+	 * @version         1.2.0
+	 *
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed   $collection
+	 *
+	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 *
+	 */
+	public function updateGalleryMedia($collection) {
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countUpdates = 0;
+		$updatedItems = array();
+		foreach($collection as $entity){
+			if(!$entity instanceof BundleEntity\GalleryMedia){
+				continue;
+			}
+			$this->em->persist($entity);
+			$updatedItems[] = $entity;
+			$countUpdates++;
+		}
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
+	/**
 	 * @name            updateGalleryLocalizations()
 	 *
 	 * @since           1.1.7
@@ -3767,6 +3803,7 @@ class GalleryModel extends CoreModel {
  * BF :: db_connection is replaced with dbConnection.
  * BF :: addMediaGallery now can handle recently added status field.
  * FR :: listGalleryMedia() method added. This method returns GalleryMedia entities.
+ * FR :: updateGalleryMedia() method added.
  *
  * **************************************
  * v1.1.9                      16.08.2015
