@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.2.0
- * @date        18.08.2015
+ * @version     1.2.1
+ * @date        19.08.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -3380,7 +3380,7 @@ class GalleryModel extends CoreModel {
 		$gallery = $response->result->set;
 		unset($response);
 		foreach ($set as $item) {
-			$response = $this->getGalleryCategory($item['category']);
+			$response = $this->getGalleryCategory($item);
 			if($response->error->exist){
 				continue;
 			}
@@ -3795,6 +3795,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.2.1                      19.08.2015
+ * Can Berkol
+ * **************************************
+ * BF :: addCategoriesToGallery() fixed.
+ *
  * **************************************
  * v1.2.0                      18.08.2015
  * Can Berkol
