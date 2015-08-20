@@ -4,8 +4,8 @@
  * @package		BiberLtd\Bundle\CoreBundle\GalleryBundle
  *
  * @author		Murat Ünal
- * @version     1.0.1
- * @date        09.09.2013
+ * @version     1.0.2
+ * @date        20.08.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -42,6 +42,11 @@ class GalleryLocalization extends CoreEntity
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $description;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $keywords;
 
     /** 
      * @ORM\Id
@@ -251,13 +256,50 @@ class GalleryLocalization extends CoreEntity
     public function getUrlKey() {
         return $this->url_key;
     }
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
 
+    /**
+     * @name        getKeywords ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.0.0
+     * @version     1.0.0
+     *
+     * @return      mixed
+     */
+    public function getKeywords(){
+        return $this->keywords;
+    }
+
+    /**
+     * @name        setKeywords ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.0.0
+     * @version     1.0.0
+     *
+     * @param       mixed $keywords
+     *
+     * @return      $this
+     */
+    public function setKeywords($keywords){
+        if(!$this->setModified('keywords', $keywords)->isModified()){
+            return $this;
+        }
+        $this->keywords = $keywords;
+
+        return $this;
+    }
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.2                      20.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: keywords property and get&set methods added.
+ *
  * **************************************
  * v1.0.1                      Murat Ünal
  * 09.09.2013
