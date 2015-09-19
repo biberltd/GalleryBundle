@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.2.1
- * @date        19.08.2015
+ * @version     1.2.2
+ * @date        19.09.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -96,7 +96,7 @@ class GalleryModel extends CoreModel {
 	 * @name            addFilesToGallery()
 	 *
 	 * @since           1.0.0
-	 * @version         1.2.0
+	 * @version         1.2.2
 	 *
 	 * @author          Can Berkol
 	 * @author          Said İmamoğlu
@@ -138,7 +138,7 @@ class GalleryModel extends CoreModel {
 				}
 				$galleryMedia->setCountView(0)->setType($entity['file']->getType());
 				if(!isset($entity['status'])){
-					$galleryMedia->setStatus('a');
+					$galleryMedia->setStatus('p');
 				}
 				$this->em->persist($galleryMedia);
 				$count++;
@@ -3795,6 +3795,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.2.2                      19.09.2015
+ * Can Berkol
+ * **************************************
+ * BF :: 3949800 :: addFilesToCategory() was setting default status to 'a'. It is fixed to 's'.
+ *
  * **************************************
  * v1.2.1                      19.08.2015
  * Can Berkol
