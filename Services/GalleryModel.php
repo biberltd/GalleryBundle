@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.2.2
- * @date        19.09.2015
+ * @version     1.2.3
+ * @date        20.11.2015
  */
 
 namespace BiberLtd\Bundle\GalleryBundle\Services;
@@ -2205,7 +2205,17 @@ class GalleryModel extends CoreModel {
 		);
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
-		return $fModel->listFiles($filter, $sortOrder, $limit);
+		$response = $fModel->listFiles($filter, $sortOrder, $limit);
+		$collection = array();
+		foreach($fileIds as $id){
+			foreach($response->result->set as $entity){
+				if($id == $entity->getId()){
+					$collection[] = $entity;
+				}
+			}
+		}
+		$response->result->set = $collection;
+		return $response;
 	}
 	/**
 	 * @name            listMediaOfGalleryWithStatus()
@@ -2239,8 +2249,8 @@ class GalleryModel extends CoreModel {
 		}
 		$gallery = $response->result->set;
 		$qStr = 'SELECT '.$this->entity['gm']['alias']
-			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
-			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
+				.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+				.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
 		unset($response, $gallery);
 		$whereStr = '';
 		if($mediaType != 'all'){
@@ -2249,7 +2259,21 @@ class GalleryModel extends CoreModel {
 		$whereStr = ' AND '.$this->entity['gm']['alias'].".status = '".$status."'";
 
 		$qStr .= $whereStr;
-
+		$oStr = '';
+		if ($sortOrder != null) {
+			foreach ($sortOrder as $column => $direction) {
+				switch ($column) {
+					case 'sort_order':
+						$column = $this->entity['gm']['alias'] . '.' . $column;
+						unset($sortOrder['sort_order']);
+						break;
+				}
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
+		}
+		$qStr .= $oStr;
 		$q = $this->em->createQuery($qStr);
 
 		$result = $q->getResult();
@@ -2264,16 +2288,26 @@ class GalleryModel extends CoreModel {
 		}
 
 		$filter[] = array('glue' => 'and',
-						  'condition' => array(
-							  array(
-								  'glue' => 'and',
-								  'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
-							  )
-						  )
+		                  'condition' => array(
+				                  array(
+						                  'glue' => 'and',
+						                  'condition' => array('column' => 'f.id', 'comparison' => 'in', 'value' => $fileIds),
+				                  )
+		                  )
 		);
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
-		return $fModel->listFiles($filter, $sortOrder, $limit);
+		$response = $fModel->listFiles($filter, $sortOrder, $limit);
+		$collection = array();
+		foreach($fileIds as $id){
+			foreach($response->result->set as $entity){
+				if($id == $entity->getId()){
+					$collection[] = $entity;
+				}
+			}
+		}
+		$response->result->set = $collection;
+		return $response;
 	}
 	/**
 	 * @name 			listImagesOfGallery()
@@ -3795,6 +3829,12 @@ class GalleryModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.2.3                      20.11.2015
+ * Can Berkol
+ * **************************************
+ * BF :: 4069378 :: listMediaOfGallery() and listMediaOfGalleryWithStatus() fixed to support gallery_media sort_order field.
+ *
  * **************************************
  * v1.2.2                      19.09.2015
  * Can Berkol
