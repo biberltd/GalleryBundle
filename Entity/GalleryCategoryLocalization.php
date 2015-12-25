@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author		Can Berkol
+ *
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
+ *
+ * @date        23.12.2015
+ */
 namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
 use Doctrine\ORM\Mapping AS ORM;
@@ -15,11 +23,13 @@ class GalleryCategoryLocalization extends CoreEntity
 {
     /**
      * @ORM\Column(type="string", length=155, nullable=false)
+     * @var string
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
+     * @var string
      */
     private $url_key;
 
@@ -27,6 +37,7 @@ class GalleryCategoryLocalization extends CoreEntity
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
+     * @var \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     private $language;
 
@@ -34,26 +45,16 @@ class GalleryCategoryLocalization extends CoreEntity
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory", inversedBy="localizations")
      * @ORM\JoinColumn(name="category", referencedColumnName="id")
      * @ORM\Id
+     * @var \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
      */
     private $category;
 
-    /**
-     * @name                  setCategory ()
-     *                                    Sets the category property.
-     *                                    Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $category
-     *
-     * @return          object                $this
-     */
-    public function setCategory($category) {
+	/**
+	 * @param \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory $category
+	 *
+	 * @return $this
+	 */
+    public function setCategory(\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory $category) {
         if($this->setModified('category', $category)->isModified()) {
             $this->category = $category;
         }
@@ -61,38 +62,19 @@ class GalleryCategoryLocalization extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getCategory ()
-     *                              Returns the value of category property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->category
-     */
+	/**
+	 * @return \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
+	 */
     public function getCategory() {
         return $this->category;
     }
 
-    /**
-     * @name                  setLanguage ()
-     *                                    Sets the language property.
-     *                                    Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $language
-     *
-     * @return          object                $this
-     */
-    public function setLanguage($language) {
+	/**
+	 * @param \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language
+	 *
+	 * @return $this
+	 */
+    public function setLanguage(\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language) {
         if($this->setModified('language', $language)->isModified()) {
             $this->language = $language;
         }
@@ -100,38 +82,19 @@ class GalleryCategoryLocalization extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getLanguage ()
-     *                              Returns the value of language property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->language
-     */
+	/**
+	 * @return \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
+	 */
     public function getLanguage() {
         return $this->language;
     }
 
-    /**
-     * @name                  setName ()
-     *                                Sets the name property.
-     *                                Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $name
-     *
-     * @return          object                $this
-     */
-    public function setName($name) {
+	/**
+	 * @param string $name
+	 *
+	 * @return $this
+	 */
+    public function setName(\string $name) {
         if($this->setModified('name', $name)->isModified()) {
             $this->name = $name;
         }
@@ -139,38 +102,19 @@ class GalleryCategoryLocalization extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getName ()
-     *                          Returns the value of name property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->name
-     */
+	/**
+	 * @return string
+	 */
     public function getName() {
         return $this->name;
     }
 
-    /**
-     * @name                  setUrlKey ()
-     *                                  Sets the url_key property.
-     *                                  Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $url_key
-     *
-     * @return          object                $this
-     */
-    public function setUrlKey($url_key) {
+	/**
+	 * @param string $url_key
+	 *
+	 * @return $this
+	 */
+    public function setUrlKey(\string $url_key) {
         if($this->setModified('url_key', $url_key)->isModified()) {
             $this->url_key = $url_key;
         }
@@ -178,20 +122,10 @@ class GalleryCategoryLocalization extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getUrlKey ()
-     *                            Returns the value of url_key property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->url_key
-     */
+	/**
+	 * @return string
+	 */
     public function getUrlKey() {
         return $this->url_key;
     }
-
-
 }

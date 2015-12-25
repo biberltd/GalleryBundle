@@ -1,19 +1,11 @@
 <?php
 /**
- * @name        Gallery
- * @package		BiberLtd\Bundle\CoreBundle\GalleryBundle
+ * @author		Can Berkol
  *
- * @author      Can Berkol
- * @author		Murat Ünal
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @version     1.0.4
- * @date        09.08.2015
- *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
- *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
@@ -39,61 +31,73 @@ class Gallery extends CoreLocalizableEntity
      * @ORM\Id
      * @ORM\Column(type="integer", length=10)
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
     private $id;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_added;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_updated;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     private $date_published;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     private $date_unpublished;
 
     /**
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
+     * @var int
      */
     private $count_media;
 
     /**
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
+     * @var int
      */
     private $count_image;
 
     /**
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
+     * @var int
      */
     private $count_video;
 
     /**
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
+     * @var int
      */
     private $count_audio;
 
     /**
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
+     * @var int
      */
     private $count_document;
 
     /**
      * @ORM\Column(type="integer", nullable=false, options={"default":1})
+     * @var int
      */
     private $sort_order;
 
     /**
      * @ORM\OneToMany(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization", mappedBy="gallery")
+     * @var array
      */
     protected $localizations;
 
@@ -101,56 +105,37 @@ class Gallery extends CoreLocalizableEntity
     /**
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
      */
     private $site;
 
     /**
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File")
      * @ORM\JoinColumn(name="preview_file", referencedColumnName="id")
+     * @var \BiberLtd\Bundle\FileManagementBundle\Entity\File
      */
     private $preview_file;
 
     /** 
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder")
      * @ORM\JoinColumn(name="folder", referencedColumnName="id")
+     * @var \BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder
      */
     private $folder;
 
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
-
-    /**
-     * @name            getId()
-     *                  Gets $id property.
-     * .
-     * @author          Murat Ünal
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->id
-     */
+	/**
+	 * @return mixed
+	 */
     public function getId(){
         return $this->id;
     }
 
-    /**
-     * @name                  setCountAudio ()
-     *                                      Sets the count_audio property.
-     *                                      Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_audio
-     *
-     * @return          object                $this
-     */
-    public function setCountAudio($count_audio) {
+	/**
+	 * @param int $count_audio
+	 *
+	 * @return $this
+	 */
+    public function setCountAudio(\integer $count_audio) {
         if(!$this->setModified('count_audio', $count_audio)->isModified()) {
             return $this;
         }
@@ -158,38 +143,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getCountAudio ()
-     *                                Returns the value of count_audio property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_audio
-     */
+	/**
+	 * @return int
+	 */
     public function getCountAudio() {
         return $this->count_audio;
     }
 
-    /**
-     * @name                  setCountDocument ()
-     *                                         Sets the count_document property.
-     *                                         Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_document
-     *
-     * @return          object                $this
-     */
-    public function setCountDocument($count_document) {
+	/**
+	 * @param int $count_document
+	 *
+	 * @return $this
+	 */
+    public function setCountDocument(\integer $count_document) {
         if(!$this->setModified('count_document', $count_document)->isModified()) {
             return $this;
         }
@@ -197,38 +163,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getCountDocument ()
-     *                                   Returns the value of count_document property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_document
-     */
+	/**
+	 * @return int
+	 */
     public function getCountDocument() {
         return $this->count_document;
     }
 
-    /**
-     * @name                  setCount İmage()
-     *                                 Sets the count_image property.
-     *                                 Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_image
-     *
-     * @return          object                $this
-     */
-    public function setCountImage($count_image) {
+	/**
+	 * @param int $count_image
+	 *
+	 * @return $this
+	 */
+    public function setCountImage(\integer $count_image) {
         if(!$this->setModified('count_image', $count_image)->isModified()) {
             return $this;
         }
@@ -236,38 +183,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getCount İmage()
-     *                           Returns the value of count_image property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_image
-     */
+	/**
+	 * @return int
+	 */
     public function getCountImage() {
         return $this->count_image;
     }
 
-    /**
-     * @name                  setCountMedia ()
-     *                                      Sets the count_media property.
-     *                                      Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_media
-     *
-     * @return          object                $this
-     */
-    public function setCountMedia($count_media) {
+	/**
+	 * @param int $count_media
+	 *
+	 * @return $this
+	 */
+    public function setCountMedia(\integer $count_media) {
         if(!$this->setModified('count_media', $count_media)->isModified()) {
             return $this;
         }
@@ -275,38 +203,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getCountMedia ()
-     *                                Returns the value of count_media property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_media
-     */
+	/**
+	 * @return int
+	 */
     public function getCountMedia() {
         return $this->count_media;
     }
 
-    /**
-     * @name                  setCountVideo ()
-     *                                      Sets the count_video property.
-     *                                      Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_video
-     *
-     * @return          object                $this
-     */
-    public function setCountVideo($count_video) {
+	/**
+	 * @param int $count_video
+	 *
+	 * @return $this
+	 */
+    public function setCountVideo(\integer $count_video) {
         if(!$this->setModified('count_video', $count_video)->isModified()) {
             return $this;
         }
@@ -314,38 +223,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getCountVideo ()
-     *                                Returns the value of count_video property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_video
-     */
+	/**
+	 * @return int
+	 */
     public function getCountVideo() {
         return $this->count_video;
     }
 
-    /**
-     * @name                  setDatePublished ()
-     *                                         Sets the date_published property.
-     *                                         Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $date_published
-     *
-     * @return          object                $this
-     */
-    public function setDatePublished($date_published) {
+	/**
+	 * @param \DateTime $date_published
+	 *
+	 * @return $this
+	 */
+    public function setDatePublished(\DateTime $date_published) {
         if(!$this->setModified('date_published', $date_published)->isModified()) {
             return $this;
         }
@@ -353,38 +243,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getDatePublished ()
-     *                                   Returns the value of date_published property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->date_published
-     */
+	/**
+	 * @return \DateTime
+	 */
     public function getDatePublished() {
         return $this->date_published;
     }
 
-    /**
-     * @name                  setDateUnpublished ()
-     *                                           Sets the date_unpublished property.
-     *                                           Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $date_unpublished
-     *
-     * @return          object                $this
-     */
-    public function setDateUnpublished($date_unpublished) {
+	/**
+	 * @param \DateTime $date_unpublished
+	 *
+	 * @return $this
+	 */
+    public function setDateUnpublished(\DateTime $date_unpublished) {
         if(!$this->setModified('date_unpublished', $date_unpublished)->isModified()) {
             return $this;
         }
@@ -392,38 +263,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getDateUnpublished ()
-     *                                     Returns the value of date_unpublished property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->date_unpublished
-     */
+	/**
+	 * @return \DateTime
+	 */
     public function getDateUnpublished() {
         return $this->date_unpublished;
     }
 
-    /**
-     * @name           setPreviewFile ()
-     *                 Sets the preview_file property.
-     *                 Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $preview_file
-     *
-     * @return          object                $this
-     */
-    public function setPreviewFile($preview_file) {
+	/**
+	 * @param \BiberLtd\Bundle\FileManagementBundle\Entity\File $preview_file
+	 *
+	 * @return $this
+	 */
+    public function setPreviewFile(\BiberLtd\Bundle\FileManagementBundle\Entity\File $preview_file) {
         if(!$this->setModified('preview_file', $preview_file)->isModified()) {
             return $this;
         }
@@ -431,38 +283,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getPreviewFile ()
-     *                                 Returns the value of preview_file property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->preview_file
-     */
+	/**
+	 * @return \BiberLtd\Bundle\FileManagementBundle\Entity\File
+	 */
     public function getPreviewFile() {
         return $this->preview_file;
     }
 
-    /**
-     * @name                  setSite ()
-     *                                Sets the site property.
-     *                                Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $site
-     *
-     * @return          object                $this
-     */
-    public function setSite($site) {
+	/**
+	 * @param \BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site
+	 *
+	 * @return $this
+	 */
+    public function setSite(\BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site) {
         if(!$this->setModified('site', $site)->isModified()) {
             return $this;
         }
@@ -470,38 +303,19 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
     }
 
-    /**
-     * @name            getSite ()
-     *                          Returns the value of site property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->site
-     */
+	/**
+	 * @return \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
+	 */
     public function getSite() {
         return $this->site;
     }
 
-    /**
-     * @name            setFolder ()
-     *                  Sets the folder property.
-     *                  Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $folder
-     *
-     * @return          object                $this
-     */
-    public function setFolder($folder) {
+	/**
+	 * @param \BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder $folder
+	 *
+	 * @return $this
+	 */
+    public function setFolder(\BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder $folder) {
         if($this->setModified('folder', $folder)->isModified()) {
             $this->folder = $folder;
         }
@@ -509,48 +323,26 @@ class Gallery extends CoreLocalizableEntity
         return $this;
     }
 
-    /**
-     * @name            getFolder ()
-     *                  Returns the value of folder property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->folder
-     */
+	/**
+	 * @return \BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder
+	 */
     public function getFolder() {
         return $this->folder;
     }
 
 	/**
-	 * @name        getSortOrder ()
-	 *
-	 * @author      Can Berkol
-	 *
-	 * @since       1.0.4
-	 * @version     1.0.4
-	 *
-	 * @return      mixed
+	 * @return int
 	 */
 	public function getSortOrder() {
 		return $this->sort_order;
 	}
 
 	/**
-	 * @name       setSortOrder ()
+	 * @param int $sort_order
 	 *
-	 * @author      Can Berkol
-	 *
-	 * @since       1.0.4
-	 * @version     1.0.4
-	 *
-	 * @param       mixed $sort_order
-	 *
-	 * @return      $this
+	 * @return $this
 	 */
-	public function setSortOrder($sort_order) {
+	public function setSortOrder(\integer $sort_order) {
 		if (!$this->setModified('sort_order', $sort_order)->isModified()) {
 			return $this;
 		}
@@ -559,51 +351,3 @@ class Gallery extends CoreLocalizableEntity
 		return $this;
 	}
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.4                      09.08.2015
- * Can Berkol
- * **************************************
- * FR :: added sort_order property.
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 28.11.2013
- * **************************************
- * A preview_file
- * A getPreviewFile()
- * A setPreviewFile()
- *
- * **************************************
- * v1.0.2                      Murat Ünal
- * 10.10.2013
- * **************************************
- * A getCountAudio()
- * A getCountDocument()
- * A getCountImage()
- * A getCountMedia()
- * A getCountVideo()
- * A getDateAdded()
- * A getDatePublished()
- * A getDateUnpublished()
- * A getDateUpdated()
- * A getGalleryMedia()
- * A getId()
- * A getLocalizations()
- * A getSite()
- *
- * A setCountAudio()
- * A setCountDocument()
- * A setCountImage()
- * A setCountMedia()
- * A setCountVideo()
- * A setDateAdded()
- * A setDatePublished()
- * A setDateUnpublished()
- * A setDateUpdated()
- * A setGalleryMedia()
- * A setLocalizations()
- * A setSite()
- *
- */

@@ -1,19 +1,11 @@
 <?php
 /**
- * @name        GalleryMedia
- * @package		BiberLtd\Bundle\CoreBundle\GalleryBundle
- *
  * @author		Can Berkol
- * @author		Murat Ünal
  *
- * @version     1.0.2
- * @date        06.08.2015
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
- *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
@@ -32,26 +24,31 @@ class GalleryMedia extends CoreEntity
 {
     /** 
      * @ORM\Column(type="string", length=1, nullable=false, options={"default":"i"})
+     * @var string
      */
     private $type;
 
     /** 
      * @ORM\Column(type="integer", length=10, nullable=false, options={"default":1})
+     * @var int
      */
     private $sort_order;
 
     /** 
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_added;
 
     /** 
      * @ORM\Column(type="integer", nullable=false, options={"default":0})
+     * @var int
      */
     private $count_view;
 
     /**
      * @ORM\Column(type="string", nullable=false, options={"default":"p"})
+     * @var string
      */
     private $status;
 
@@ -59,6 +56,7 @@ class GalleryMedia extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File")
      * @ORM\JoinColumn(name="file", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\FileManagementBundle\Entity\File
      */
     private $file;
 
@@ -66,24 +64,16 @@ class GalleryMedia extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", nullable=false)
+     * @var \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
      */
     private $gallery;
 
-    /**
-     * @name            setCountView ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $count_view
-     *
-     * @return          object                $this
-     */
-    public function setCountView($count_view) {
+	/**
+	 * @param int $count_view
+	 *
+	 * @return $this
+	 */
+    public function setCountView(\integer $count_view) {
         if(!$this->setModified('count_view', $count_view)->isModified()) {
             return $this;
         }
@@ -91,35 +81,19 @@ class GalleryMedia extends CoreEntity
 		return $this;
     }
 
-    /**
-     * @name            getCountView ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->count_view
-     */
+	/**
+	 * @return int
+	 */
     public function getCountView() {
         return $this->count_view;
     }
 
-    /**
-     * @name            setFile ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $file
-     *
-     * @return          object                $this
-     */
-    public function setFile($file) {
+	/**
+	 * @param \BiberLtd\Bundle\FileManagementBundle\Entity\File $file
+	 *
+	 * @return $this
+	 */
+    public function setFile(\BiberLtd\Bundle\FileManagementBundle\Entity\File $file) {
         if(!$this->setModified('file', $file)->isModified()) {
             return $this;
         }
@@ -127,38 +101,19 @@ class GalleryMedia extends CoreEntity
 		return $this;
     }
 
-    /**
-     * @name            getFile ()
-     *                          Returns the value of file property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->file
-     */
+	/**
+	 * @return \BiberLtd\Bundle\FileManagementBundle\Entity\File
+	 */
     public function getFile() {
         return $this->file;
     }
 
-    /**
-     * @name                  setGallery ()
-     *                                   Sets the gallery property.
-     *                                   Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $gallery
-     *
-     * @return          object                $this
-     */
-    public function setGallery($gallery) {
+	/**
+	 * @param \BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery
+	 *
+	 * @return $this
+	 */
+    public function setGallery(\BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery) {
         if(!$this->setModified('gallery', $gallery)->isModified()) {
             return $this;
         }
@@ -166,38 +121,19 @@ class GalleryMedia extends CoreEntity
 		return $this;
     }
 
-    /**
-     * @name            getGallery ()
-     *                             Returns the value of gallery property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->gallery
-     */
+	/**
+	 * @return \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
+	 */
     public function getGallery() {
         return $this->gallery;
     }
 
-    /**
-     * @name                  setSortOrder ()
-     *                                     Sets the sort_order property.
-     *                                     Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $sort_order
-     *
-     * @return          object                $this
-     */
-    public function setSortOrder($sort_order) {
+	/**
+	 * @param int $sort_order
+	 *
+	 * @return $this
+	 */
+    public function setSortOrder(\integer $sort_order) {
         if(!$this->setModified('sort_order', $sort_order)->isModified()) {
             return $this;
         }
@@ -205,35 +141,19 @@ class GalleryMedia extends CoreEntity
 		return $this;
     }
 
-    /**
-     * @name            getSortOrder ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->sort_order
-     */
+	/**
+	 * @return int
+	 */
     public function getSortOrder() {
         return $this->sort_order;
     }
 
-    /**
-     * @name                  setType ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $type
-     *
-     * @return          object                $this
-     */
-    public function setType($type) {
+	/**
+	 * @param string $type
+	 *
+	 * @return $this
+	 */
+    public function setType(\string $type) {
         if(!$this->setModified('type', $type)->isModified()) {
             return $this;
         }
@@ -241,48 +161,26 @@ class GalleryMedia extends CoreEntity
 		return $this;
     }
 
-    /**
-     * @name            getType ()
-     *                          Returns the value of type property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->type
-     */
+	/**
+	 * @return string
+	 */
     public function getType() {
         return $this->type;
     }
 
 	/**
-	 * @name        getStatus ()
-	 *
-	 * @author      Can Berkol
-	 *
-	 * @since       1.0.2
-	 * @version     1.0.2
-	 *
-	 * @return      mixed
+	 * @return string
 	 */
 	public function getStatus() {
 		return $this->status;
 	}
 
 	/**
-	 * @name        setStatus ()
+	 * @param string $status
 	 *
-	 * @author      Can Berkol
-	 *
-	 * @since       1.0.2
-	 * @version     1.0.2
-	 *
-	 * @param       mixed $status
-	 *
-	 * @return      $this
+	 * @return $this
 	 */
-	public function setStatus($status) {
+	public function setStatus(\string $status) {
 		if (!$this->setModified('status', $status)->isModified()) {
 			return $this;
 		}
@@ -290,31 +188,4 @@ class GalleryMedia extends CoreEntity
 
 		return $this;
 	}
-
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.2                      06.08.2015
- * 06.08.2015
- * **************************************
- * FR :: get/setStats methods added.
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 09.09.2013
- * **************************************
- * A getCountView()
- * A getDateAdded()
- * A getFile()
- * A getGallery()
- * A getSortOrder()
- * A getType()
- * A setCountView()
- * A setDateAdded()
- * A setFile()
- * A setGallery()
- * A setSortOrder()
- * A setType()
- *
- */

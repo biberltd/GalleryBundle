@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author		Can Berkol
+ *
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
+ *
+ * @date        23.12.2015
+ */
 namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
 use Doctrine\ORM\Mapping AS ORM;
@@ -19,16 +27,19 @@ class CategoriesOfGallery extends CoreEntity
 {
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_added;
 
     /**
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false
+     *     @var \DateTime )
      */
     public $date_updated;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @var \DateTime
      */
     public $date_removed;
 
@@ -36,6 +47,7 @@ class CategoriesOfGallery extends CoreEntity
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
+     * @var \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
      */
     private $gallery;
 
@@ -43,26 +55,16 @@ class CategoriesOfGallery extends CoreEntity
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory")
      * @ORM\JoinColumn(name="category", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\Id
+     * @var \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
      */
     private $category;
 
-    /**
-     * @name                  setCategory ()
-     *                                    Sets the category property.
-     *                                    Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $category
-     *
-     * @return          object                $this
-     */
-    public function setCategory($category) {
+	/**
+	 * @param \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory $category
+	 *
+	 * @return $this
+	 */
+    public function setCategory(\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory $category) {
         if($this->setModified('category', $category)->isModified()) {
             $this->category = $category;
         }
@@ -70,38 +72,19 @@ class CategoriesOfGallery extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getCategory ()
-     *                              Returns the value of category property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->category
-     */
+	/**
+	 * @return \BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory
+	 */
     public function getCategory() {
         return $this->category;
     }
 
-    /**
-     * @name                  setGallery ()
-     *                                   Sets the gallery property.
-     *                                   Updates the data only if stored value and value to be set are different.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed $gallery
-     *
-     * @return          object                $this
-     */
-    public function setGallery($gallery) {
+	/**
+	 * @param \BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery
+	 *
+	 * @return $this
+	 */
+    public function setGallery(\BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery) {
         if($this->setModified('gallery', $gallery)->isModified()) {
             $this->gallery = $gallery;
         }
@@ -109,17 +92,9 @@ class CategoriesOfGallery extends CoreEntity
         return $this;
     }
 
-    /**
-     * @name            getGallery ()
-     *                             Returns the value of gallery property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->gallery
-     */
+	/**
+	 * @return \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
+	 */
     public function getGallery() {
         return $this->gallery;
     }

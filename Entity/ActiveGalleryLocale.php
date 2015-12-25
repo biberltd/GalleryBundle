@@ -1,18 +1,11 @@
 <?php
 /**
- * @name        ActiveGalleryLocale
- * @package		BiberLtd\Core\GalleryBundle
+ * @author		Can Berkol
  *
- * @author      Can Berkol
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @version     1.0.0
- * @date        21.08.2014
- *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
- *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\GalleryBundle\Entity;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
@@ -32,6 +25,7 @@ class ActiveGalleryLocale extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\Gallery")
      * @ORM\JoinColumn(name="gallery", referencedColumnName="id", nullable=false)
+     * @var \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
      */
     private $gallery;
 
@@ -39,26 +33,16 @@ class ActiveGalleryLocale extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", nullable=false)
+     * @var \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     private $language;
 
     /**
-     * @name            setGallery()
-     *                  Sets the gallery property.
-     *                  Updates the data only if stored value and value to be set are different.
+     * @param \BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery
      *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed                   $gallery
-     *
-     * @return          object                  $this
+     * @return $this
      */
-    public function setGallery($gallery) {
+    public function setGallery(\BiberLtd\Bundle\GalleryBundle\Entity\Gallery $gallery) {
         if($this->setModified('gallery', $gallery)->isModified()) {
             $this->gallery = $gallery;
         }
@@ -67,37 +51,18 @@ class ActiveGalleryLocale extends CoreEntity
     }
 
     /**
-     * @name            getGallery()
-     *                  Returns the value of gallery property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->folder
+     * @return \BiberLtd\Bundle\GalleryBundle\Entity\Gallery
      */
     public function getGallery() {
         return $this->gallery;
     }
 
     /**
-     * @name            setLanguage()
-     *                  Sets the language property.
-     *                  Updates the data only if stored value and value to be set are different.
+     * @param \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language
      *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @use             $this->setModified()
-     *
-     * @param           mixed                   $language
-     *
-     * @return          object                  $this
+     * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage(\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language) {
         if($this->setModified('language', $language)->isModified()) {
             $this->language = $language;
         }
@@ -106,28 +71,9 @@ class ActiveGalleryLocale extends CoreEntity
     }
 
     /**
-     * @name            getLanguage()
-     *                  Returns the value of language property.
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
-     * @return          mixed           $this->folder
+     * @return \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     public function getLanguage() {
         return $this->language;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.0                      Can Berkol
- * 21.08.2014
- * **************************************
- * A getGallery()
- * A getLanguage()
- * A setGallery()
- * A setLanguage()
- */

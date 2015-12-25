@@ -1,48 +1,31 @@
 <?php
 /**
- * @vendor      BiberLtd
- * @package		GalleryBundle
- * @subpackage	Services
- * @name	    GalleryModel
- *
  * @author		Can Berkol
- * @author      Said Imamoglu
  *
- * @copyright   Biber Ltd. (www.biberltd.com)
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @version     1.2.3
- * @date        20.11.2015
+ * @date        23.12.2015
  */
-
 namespace BiberLtd\Bundle\GalleryBundle\Services;
 
-/** Extends CoreModel */
 use BiberLtd\Bundle\CoreBundle\CoreModel;
-/** Entities to be used */
 use BiberLtd\Bundle\CoreBundle\Responses\ModelResponse;
 use BiberLtd\Bundle\GalleryBundle\Entity as BundleEntity;
 use BiberLtd\Bundle\FileManagementBundle\Entity as FileBundleEntity;
 use BiberLtd\Bundle\MultiLanguageSupportBundle\Entity as MLSEntity;
-/** Helper Models */
 use BiberLtd\Bundle\GalleryBundle\Services as SMMService;
 use BiberLtd\Bundle\FileManagementBundle\Services as FMMService;
-/** Core Service */
 use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
 use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 
 class GalleryModel extends CoreModel {
 	/**
-	 * @name            __construct()
+	 * GalleryModel constructor.
 	 *
-	 * @author          Can Berkol
-	 * @author          Said Imamoglu
-	 *
-	 * @since           1.0.0
-	 * @version         1.1.4
-	 *
-	 * @param           object          $kernel
-	 * @param           string          $dbConnection
-	 * @param           string          $orm
+	 * @param object $kernel
+	 * @param string $dbConnection
+	 * @param string $orm
 	 */
 	public function __construct($kernel, $dbConnection = 'default', $orm = 'doctrine') {
 		parent::__construct($kernel, $dbConnection, $orm);
@@ -59,13 +42,8 @@ class GalleryModel extends CoreModel {
 			'gm' 		=> array('name' => 'GalleryBundle:GalleryMedia', 'alias' => 'gm'),
 		);
 	}
+
 	/**
-	 * @name            __destruct()
-	 *
-	 * @author          Said Imamoglu
-	 *
-	 * @since           1.0.0
-	 * @version         1.0.0
 	 *
 	 */
 	public function __destruct() {
@@ -73,40 +51,24 @@ class GalleryModel extends CoreModel {
 			$this->$property = null;
 		}
 	}
+
 	/**
-	 * @name 		    addFileToGallery()
+	 * @param mixed $file
+	 * @param mixed $gallery
 	 *
-	 * @since		    1.0.5
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->addFilesToGallery()
-	 *
-	 * @param           mixed			$file
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
 	public function addFileToGallery($file, $gallery) {
 		return $this->addFilesToGallery(array($file), $gallery);
 	}
 
 	/**
-	 * @name            addFilesToGallery()
+	 * @param array $files
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.0
-	 * @version         1.2.2
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array           $files
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function addFilesToGallery($files, $gallery) {
+	public function addFilesToGallery(array $files, $gallery) {
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
@@ -151,23 +113,14 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            addLocalesToGallery()
+	 * @param array $locales
+	 * @param mixed $gallery
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->isLocaleAssociatedWithGallery()
-	 * @use             $this->validateAndGetGallery()
-	 * @use             $this->validateAndGetLocale()
-	 *
-	 * @param           array       $locales
-	 * @param           mixed       $gallery
-	 *
-	 * @return          array       $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function addLocalesToGallery($locales, $gallery){
+	public function addLocalesToGallery(array $locales, $gallery){
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 
@@ -202,24 +155,14 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            addLocalesToGalleryCategory()
+	 * @param array $locales
+	 * @param mixed $category
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->validateAndGetLocale()
-	 * @use             $this->validateAndGetGalleryCategory()
-	 * @use             $this->isLocaleAssociatedWithGalleryCategory()
-	 *
-	 * @param           array           $locales        Language entities, ids or iso_codes
-	 * @param           mixed           $category       entity, id
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function addLocalesToGalleryCategory($locales, $category){
+	public function addLocalesToGalleryCategory(array $locales, $category){
 		$timeStamp = time();
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
@@ -254,16 +197,9 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 			countDistinctMediaTotal()
-	 *
-	 * @since			1.0.2
-	 * @version         1.1.9
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function countDistinctMediaTotal() {
 		$timeStamp = time();
@@ -276,73 +212,40 @@ class GalleryModel extends CoreModel {
 
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            countTotalAudioInGallery()
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->countTotalMediaInGallery()
-	 *
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
 	public function countTotalAudioInGallery($gallery){
 		return $this->countTotalMediaInGallery($gallery, 'a');
 	}
+
 	/**
-	 * @name            countTotalDocumentsInGallery()
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->countTotalMediaInGallery()
-	 *
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
 	public function countTotalDocumentsInGallery($gallery){
 		return $this->countTotalMediaInGallery($gallery, 'd');
 	}
+
 	/**
-	 * @name            countTotalImagesInGallery ()
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.6
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 *
-	 * @use             $this->countTotalMediaInGallery()
-	 *
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
 	public function countTotalImagesInGallery($gallery){
 		return $this->countTotalMediaInGallery($gallery, 'i');
 	}
 	/**
-	 * @name            countTotalMediaInGallery()
+	 * @param mixed $gallery
+	 * @param string $mediaType  all|i|a|v|f|d|p|s
 	 *
-	 * @since           1.0.6
-	 * @version         1.1.9
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed       	$gallery
-	 * @param           string      	$mediaType      all, i, a, v, f, d, p, s
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function countTotalMediaInGallery($gallery, $mediaType = 'all'){
+	public function countTotalMediaInGallery($gallery, \string $mediaType = 'all'){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -369,38 +272,22 @@ class GalleryModel extends CoreModel {
 		$result = $query->getSingleScalarResult();
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            countTotalImagesInGallery ()
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 *
-	 * @use             $this->countTotalMediaInGallery()
-	 *
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function countTotalVideoInGallery($gallery){
 		return $this->countTotalMediaInGallery($gallery, 'v');
 	}
+
 	/**
-	 * @name 			deleteGalleries()
+	 * @param array $collection
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           array           $collection
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function deleteGalleries($collection) {
+	public function deleteGalleries(array $collection) {
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -427,39 +314,21 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name 			deleteGallery()
+	 * @param mixed $gallery
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->geleteGalleries()
-	 *
-	 * @param           mixed           $gallery           Gallery entity, id or url key.
-	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function deleteGallery($gallery) {
 		return $this->deleteGalleries(array($gallery));
 	}
 
 	/**
-	 * @name 			doesGalleryExist()
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->getGallery()
-	 *
-	 * @param           mixed           $gallery
-	 * @param           bool            $bypass
-	 *
-	 * @return          mixed           $response
+	 * @return bool|mixed
 	 */
-	public function doesGalleryExist($gallery, $bypass = false) {
+	public function doesGalleryExist($gallery, \bool $bypass = false) {
 		$response = $this->getGallery($gallery);
 		$exist = true;
 		if($response->error->exist){
@@ -471,23 +340,14 @@ class GalleryModel extends CoreModel {
 		}
 		return $response;
 	}
+
 	/**
-	 * @name 		    doesGalleryMediaExist()
+	 * @param mixed $galleryMedia
+	 * @param bool $bypass
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->getGalleryMedia()
-	 *
-	 * @param           array           $galleryMedia
-	 * @param           bool            $bypass
-	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
 	 */
-	public function doesGalleryMediaExist($galleryMedia, $bypass = false) {
+	public function doesGalleryMediaExist($galleryMedia, \bool $bypass = false) {
 		$timeStamp = time();
 		$exist = false;
 
@@ -512,20 +372,11 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 			getGallery()
+	 * @param mixed $gallery
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berlpş
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->listProducts()
-	 *
-	 * @param           mixed           $gallery
-	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGallery($gallery) {
 		$timeStamp = time();
@@ -550,22 +401,14 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            getGalleryByUrlKey()
+	 * @param string $urlKey
+	 * @param mixed|null   $language
 	 *
-	 * @since           1.1.4
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->listProducts()
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed 			$urlKey
-	 * @param			mixed			$language
-	 *
-	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getGalleryByUrlKey($urlKey, $language = null){
+	public function getGalleryByUrlKey(\string $urlKey, $language = null){
 		$timeStamp = time();
 		if(!is_string($urlKey)){
 			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
@@ -602,17 +445,12 @@ class GalleryModel extends CoreModel {
 
 		return $response;
 	}
-	/**
-	 * @name 			getGalleryMedia()
-	 *
-	 * @since			1.0.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
 
-	 * @param           mixed           $file
-	 * @param           mixed           $gallery
+	/**
+	 * @param mixed $file
+	 * @param mixed $gallery
 	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGalleryMedia($file, $gallery) {
 		$timeStamp = time();
@@ -643,23 +481,14 @@ class GalleryModel extends CoreModel {
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 
 	}
+
 	/**
-	 * @name 		    getMaxSortOrderOfGalleryMedia()
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->getGallery()
-	 *
-	 * @param           mixed           $gallery
-	 * @param           bool            $bypass
-	 *
-	 * @return          mixed           bool | $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getMaxSortOrderOfGalleryMedia($gallery, $bypass = false) {
+	public function getMaxSortOrderOfGalleryMedia($gallery, \bool $bypass = false) {
 		$timeStamp = time();
 		if (!is_object($gallery) && !is_numeric($gallery) && !is_string($gallery)) {
 			return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
@@ -680,23 +509,13 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
-	/**
-	 * @name            insertGalleries()
-	 *
-	 * @since           1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Said İmamoğlu
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed           $collection
-	 *
-	 * @return          array           $response
-	 */
 
-	public function insertGalleries($collection) {
+	/**
+	 * @param array $collection
+	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertGalleries(array $collection) {
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -789,39 +608,22 @@ class GalleryModel extends CoreModel {
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 
 	}
+
 	/**
-	 * @name            insertGallery()
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Said İmamoğlu
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->insertGalleries()
-	 *
-	 * @param           mixed       $gallery
-	 *
-	 * @return          array       $response
-	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function insertGallery($gallery) {
 		return $this->insertGalleries(array($gallery));
 	}
+
 	/**
-	 * @name 			insertGalleryLocalizations()
+	 * @param array $collection
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           array           $collection        Collection of entities or post data.
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function insertGalleryLocalizations($collection){
+	public function insertGalleryLocalizations(array $collection){
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -861,22 +663,15 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 		    isFileAssociatedWithGallery()
+	 * @param mixed $file
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since		    1.0.7
-	 * @version         1.2.0
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed           $file
-	 * @param           mixed           $gallery
-	 * @param           bool            $bypass
-	 *
-	 * @return          mixed           bool or $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isFileAssociatedWithGallery($file, $gallery, $bypass = false) {
+	public function isFileAssociatedWithGallery($file, $gallery, \bool $bypass = false) {
 		$timeStamp = time();
 		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 		$response = $fModel->getFile($file);
@@ -908,23 +703,15 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            isLocaleAssociatedWithGallery()
+	 * @param mixed $locale
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since           1.1.3
-	 * @version         1.2.0
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @user            $this->createException
-	 *
-	 * @param           mixed 	$locale
-	 * @param           mixed 	$gallery
-	 * @param           bool 	$bypass
-	 *
-	 * @return          mixed
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isLocaleAssociatedWithGallery($locale, $gallery, $bypass = false){
+	public function isLocaleAssociatedWithGallery($locale, $gallery, \bool $bypass = false){
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
@@ -958,21 +745,13 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            isLocaleAssociatedWithGalleryCategory()
+	 * @param mixed $locale
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since           1.1.3
-	 * @version         1.2.0
-	 * @author          Can Berkol
-	 *
-	 * @user            $this->createException
-	 *
-	 * @param           mixed 		$locale
-	 * @param           mixed 		$category
-	 * @param           bool 		$bypass
-	 *
-	 * @return          mixed
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isLocaleAssociatedWithGalleryCategory($locale, $category, $bypass = false){
+	public function isLocaleAssociatedWithGalleryCategory($locale, $category, \bool $bypass = false){
 		$timeStamp = time();
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
@@ -1004,19 +783,11 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            listActiveLocalesOfGallery()
-	 *                  List active locales of a given gallery.
+	 * @param mixed $gallery
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed           $gallery entity, id, or sku
-	 *
-	 * @return          array           $gallery
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listActiveLocalesOfGallery($gallery){
 		$timeStamp = time();
@@ -1050,17 +821,9 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            listActiveLocalesOfGalleryCategory ()
+	 * @param mixed $category
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed           $category
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function listActiveLocalesOfGalleryCategory($category){
 		$timeStamp = time();
@@ -1091,89 +854,55 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 			listAllAudioOfGallery()
+	 * @param mixed $gallery
+	 * @param int|null $sortOrder
 	 *
-	 * @since			1.0.8
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listAllAudioOfGallery($gallery, $sortOrder = null) {
+	public function listAllAudioOfGallery($gallery, \integer $sortOrder = null) {
 		return $this->listMediaOfGallery($gallery, 'a', $sortOrder);
 	}
+
 	/**
-	 * @name 			listAllGalleries()
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleries()
-	 *
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listAllGalleries($sortOrder = null, $limit = null) {
+	public function listAllGalleries(array $sortOrder = null, array $limit = null) {
 		return $this->listGalleries(null, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listAllImagesOfGallery()
+	 * @param mixed $gallery
+	 * @param array|null $sortOrder
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listAllImagesOfGallery($gallery, $sortOrder = null) {
+	public function listAllImagesOfGallery($gallery, array $sortOrder = null) {
 		return $this->listMediaOfGallery($gallery, 'i', $sortOrder);
 	}
+
 	/**
-	 * @name 			listDocumentsOfGallery()
+	 * @param mixed $gallery
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.1.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listDocumentsOfGallery($gallery, $sortOrder = null, $limit = null) {
+	public function listDocumentsOfGallery($gallery, array $sortOrder = null, array $limit = null) {
 		return $this->listMediaOfGallery($gallery, 'd', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listAllIVideosOfGallery()
+	 * @param mixed $gallery
+	 * @param array|null $sortOrder
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listAllVideosOfGallery($gallery, $sortOrder = null) {
+	public function listAllVideosOfGallery($gallery, array $sortOrder = null) {
 		return $this->listMediaOfGallery($gallery, 'v', $sortOrder);
 	}
 	/**
@@ -1256,46 +985,28 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($galleries, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 			listGalleryAddedAfter()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesAdded()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleryAddedAfter($date, $sortOrder = null, $limit = null) {
+	public function listGalleryAddedAfter(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesAdded($date, 'after', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name            listGalleryMedia()
+	 * @param mixed $gallery
+	 * @param string     $mediaType i|a|v|f|d|p|s
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.2.0
-	 * @version         1.2.0
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 * @use             $fModel->listFiles()
-	 *
-	 * @param           mixed       $gallery
-	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleryMedia($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+	public function listGalleryMedia($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -1324,195 +1035,116 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 		    listGalleriesAddedBefore()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesAdded()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesAddedBefore($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesAddedBefore(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesAdded($date, 'before', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesAddedBetween()
+	 * @param array      $dates
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.7
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesAdded()
-	 *
-	 * @param           array           $dates
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesAddedBetween($dates, $sortOrder = null, $limit = null) {
+	public function listGalleriesAddedBetween(array $dates, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesAdded($dates, 'between', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listGalleriesUpdatedAfter()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUpdated()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUpdatedAfter($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesUpdatedAfter(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUpdated($date, 'after', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesUpdatedBefore()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUpdated()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUpdatedBefore($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesUpdatedBefore(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUpdated($date, 'before', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesUpdatedBetween()
+	 * @param array      $dates
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUpdated()
-	 *
-	 * @param           array           $dates
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUpdatedBetween($dates, $sortOrder = null, $limit = null) {
+	public function listGalleriesUpdatedBetween(array $dates, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUpdated($dates, 'between', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listGalleriesUnpublishedAfter()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUnpublished()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUnpublishedAfter($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesUnpublishedAfter(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUnpublished($date, 'after', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesUnpublishedBefore()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUnpublished()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUnpublishedBefore($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesUnpublishedBefore(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUnpublished($date, 'before', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesUnpublishedBetween()
+	 * @param array      $dates
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesUnpublished()
-	 *
-	 * @param           array           $dates
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesUnpublishedBetween($dates, $sortOrder = null, $limit = null) {
+	public function listGalleriesUnpublishedBetween(array $dates, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesUnpublished($dates, 'between', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name            listImagesOfAllGalleries()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.0.1
-	 * @version         1.1.4
-	 *
-	 * @author          Said İmamoğlu
-	 * @author          Can Berkol
-	 *
-	 * @param           integer     $count
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listImagesOfAllGalleries($count = 1, $sortOrder = null, $limit = null, $filter = null){
+	public function listImagesOfAllGalleries(\integer $count = 1, array $sortOrder = null, array $limit = null, array $filter = null){
 		return $this->listMediaOfAllGalleries($count, 'i', $sortOrder, $limit, $filter);
 	}
+
 	/**
-	 * @name            listGalleriesOfMedia()
+	 * @param            $file
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.0.8
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed       $file
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleriesOfMedia($file, $sortOrder = null, $limit = null, $filter = null){
+	public function listGalleriesOfMedia($file, array $sortOrder = null, array $limit = null, array $filter = null){
 		$timeStamp = time();
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 		$response = $fModel->getFile($file);
@@ -1542,7 +1174,7 @@ class GalleryModel extends CoreModel {
 		}
 
 
-		$galleryFilter[] = array('glue' => 'and',
+		$filter[] = array('glue' => 'and',
 			'condition' => array(
 				array(
 					'glue' => 'and',
@@ -1550,26 +1182,17 @@ class GalleryModel extends CoreModel {
 				)
 			)
 		);
-		return $this->listGalleries($galleryFilter, $sortOrder, $limit);
+		return $this->listGalleries($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 		    listGalleriesOfSite()
+	 * @param mixed $site
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleries()
-	 *
-	 * @param           array           $site
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesOfSite($site, $sortOrder = null, $limit = null) {
+	public function listGalleriesOfSite($site, array $sortOrder = null, array $limit = null) {
 		$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
 		$response = $sModel->getSite($site);
 		if($response->error->exist){
@@ -1588,519 +1211,279 @@ class GalleryModel extends CoreModel {
 		);
 		return $this->listGalleries($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 		    listGalleriesWithAudioCount()
+	 * @param int                                                $count
+	 * @param \BiberLtd\Bundle\GalleryBundle\Services\mixed|null $sortOrder
+	 * @param \BiberLtd\Bundle\GalleryBundle\Services\mixed|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           mixed           $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCount($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithAudioCount(\integer $count, mixed $sortOrder = null, mixed $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'eq', $count, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 		    listGalleriesWithAudioCountBetween()
+	 * @param int                                                $count
+	 * @param \BiberLtd\Bundle\GalleryBundle\Services\mixed|null $sortOrder
+	 * @param \BiberLtd\Bundle\GalleryBundle\Services\mixed|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountBetween($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithAudioCountBetween(\integer $count, mixed $sortOrder = null, mixed $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'between', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithAudioCountLessThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountLessThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithAudioCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'less', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithAudioCountMoreThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountMoreThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithAudioCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'more', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithDocumentCount()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCount($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithDocumentCount(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'eq', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithDocumentCountBetween()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCountBetween($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithDocumentCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'between', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithDocumentCountLessThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCountLessThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithDocumentCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'less', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithDocumentCountMoreThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithDocumenCounttMoreThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithDocumenCounttMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'more', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithImageCount()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithImageCount($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithImageCount(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'eq', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithImageCountBetween()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           intger          $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountBetween($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithImageCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'between', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithImageCountLessThan()
-	 *                  List image files with count less than given value.
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountLessThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithImageCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'less', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithImageCountMoreThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountMoreThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithImageCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'more', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithMediaCount()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCount($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithMediaCount(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'eq', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithMediaCountBetween()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountBetween($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithMediaCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'between', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithMediaCountLessThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountLessThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithMediaCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'less', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithMediaCountMoreThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountMoreThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithMediaCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'more', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithVideoCount()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCount($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithVideoCount(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'eq', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithVideoCountBetween()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountBetween($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithVideoCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'between', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithVideoCountLessThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountLessThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithVideoCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'less', $count, $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 		    listGalleriesWithVideoCountMoreThan()
+	 * @param int        $count
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleriesWithTypeCount()
-	 *
-	 * @param           integer         $count
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountMoreThan($count, $sortOrder = null, $limit = null) {
+	public function listGalleriesWithVideoCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'more', $count, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listGalleriesPublishedAfter()
+	 * @param \DateTime  $date
+	 * @param array|null $sortorder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesPublished()
-	 *
-	 * @param           array           $date                   The date to be checked.
-	 * @param           array           $sortorder              Array
-	 *                                      'column'            => 'asc|desc'
-	 * @param           array           $limit
-	 *                                      start
-	 *                                      count
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesPublishedAfter($date, $sortorder = null, $limit = null) {
+	public function listGalleriesPublishedAfter(\DateTime $date, array $sortorder = null, array $limit = null) {
 		return $this->listGalleriesPublished($date, 'after', $sortorder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesPublishedBefore()
+	 * @param \DateTime  $date
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesPublished()
-	 *
-	 * @param           array           $date
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesPublishedBefore($date, $sortOrder = null, $limit = null) {
+	public function listGalleriesPublishedBefore(\DateTime $date, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesPublished($date, 'before', $sortOrder, $limit);
 	}
 
 	/**
-	 * @name 			listGalleriesPublishedBetween()
+	 * @param array      $dates
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleriesPublished()
-	 *
-	 * @param           array           $dates
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listGalleriesPublishedBetween($dates, $sortOrder = null, $limit = null) {
+	public function listGalleriesPublishedBetween(array $dates, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesPublished($dates, 'between', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listLastImagesOfAllGalleries()
+	 * @param \intger    $limit
+	 * @param array|null $sortOrder
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->listImagesOfAllGalleries
-	 *
-	 * @param           integer         $limit
-	 * @param           array           $sortOrder
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listLastImagesOfAllGalleries($limit, $sortOrder = null) {
+	public function listLastImagesOfAllGalleries(\intger $limit, array $sortOrder = null) {
 		return $this->listImagesOfAllGalleries($sortOrder, array('start' => 0, 'count' => $limit));
 	}
+
 	/**
-	 * @name            listMediaOfAllGalleries()
+	 * @param string     $mediaType
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 * @use             $fModel->listFiles()
-	 *
-	 * @param           string      $mediaType
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfAllGalleries($mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+	public function listMediaOfAllGalleries(\string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -2142,26 +1525,17 @@ class GalleryModel extends CoreModel {
 
 		return $fModel->listFiles($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name            listMediaOfGallery()
+	 * @param mixed $gallery
+	 * @param string     $mediaType
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 * @use             $fModel->listFiles()
-	 *
-	 * @param           mixed       $gallery
-	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfGallery($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+	public function listMediaOfGallery($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -2217,27 +1591,18 @@ class GalleryModel extends CoreModel {
 		$response->result->set = $collection;
 		return $response;
 	}
+
 	/**
-	 * @name            listMediaOfGalleryWithStatus()
+	 * @param mixed $gallery
+	 * @param string     $status
+	 * @param string     $mediaType
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.1.6
-	 * @version         1.1.6
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 * @use             $fModel->listFiles()
-	 *
-	 * @param           mixed       $gallery
-	 * @param           string      $status
-	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfGalleryWithStatus($gallery, $status, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+	public function listMediaOfGalleryWithStatus($gallery, \string $status, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -2309,77 +1674,49 @@ class GalleryModel extends CoreModel {
 		$response->result->set = $collection;
 		return $response;
 	}
+
 	/**
-	 * @name 			listImagesOfGallery()
+	 * @param mixed $gallery
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listImagesOfGallery($gallery, $sortOrder = null, $limit = null) {
+	public function listImagesOfGallery($gallery, array $sortOrder = null, array $limit = null) {
 		return $this->listMediaOfGallery($gallery, 'i', $sortOrder, $limit);
 	}
+
 	/**
-	 * @name            listPublishedMediaOfGallery()
+	 * @param string $gallery
+	 * @param string     $mediaType
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
+	 * @param array|null $filter
 	 *
-	 * @since           1.1.6
-	 * @version         1.1.6
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 * @use             $fModel->listFiles()
-	 *
-	 * @param           mixed       $gallery
-	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
-	 * @param           array       $sortOrder
-	 * @param           array       $limit
-	 * @param           array       $filter
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listPublishedMediaOfGallery($gallery, $mediaType = 'all', $sortOrder = null, $limit = null, $filter = null){
+	public function listPublishedMediaOfGallery($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		return $this->listMediaOfGalleryWithStatus($gallery, 'p', $mediaType, $sortOrder, $limit, $filter);
 	}
+
 	/**
-	 * @name            listRandomImagesFromGallery()
+	 * @param mixed $gallery
+	 * @param int $count
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed       $gallery
-	 * @param           integer     $count
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	public function listRandomImagesFromGallery($gallery, $count = 1){
+	public function listRandomImagesFromGallery($gallery, \integer $count = 1){
 		return $this->listRandomMediaFromGallery($gallery, $count, 'i');
 	}
+
 	/**
-	 * @name            listRandomMediaFromGallery()
+	 * @param mixed  $gallery
+	 * @param int    $count
+	 * @param string $mediaType
 	 *
-	 * @since           1.0.7
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @param           mixed       $gallery
-	 * @param           integer     $count          Limit the number of items to be returned
-	 * @param           string      $mediaType      all, i, a, v, f, d, p, s
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listRandomMediaFromGallery($gallery, $count = 1, $mediaType = 'all'){
+	public function listRandomMediaFromGallery($gallery, \integer $count = 1, \string $mediaType = 'all'){
 		$timeStamp = time();
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
@@ -2419,39 +1756,25 @@ class GalleryModel extends CoreModel {
 
 		return new ModelResponse($files, $counter, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name 			listVideosOfGallery()
+	 * @param mixed $gallery
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.1.1
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed           $gallery
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listVideosOfGallery($gallery, $sortOrder = null, $limit = null) {
+	public function listVideosOfGallery($gallery, array $sortOrder = null, array $limit = null) {
 		return $this->listMediaOfGallery($gallery, 'v', $sortOrder, $limit);
 	}
+
 	/**
-	 *  @name 		    removeFilesFromProduct()
+	 * @param array $files
+	 * @param mixed $gallery
 	 *
-	 * @since		    1.0.0
-	 * @version         1.2.0
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array           $files
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function removeFilesFromGallery($files, $gallery) {
+	public function removeFilesFromGallery(array  $files, $gallery) {
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
@@ -2485,22 +1808,14 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            removeLocalesFromGallery()
+	 * @param array $locales
+	 * @param mixed $gallery
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->doesGalleryExist()
-	 * @use             $this->isLocaleAssociatedWithGallery()
-	 *
-	 * @param           array 		$locales
-	 * @param           mixed 		$gallery
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function removeLocalesFromGallery($locales, $gallery){
+	public function removeLocalesFromGallery(array $locales, $gallery){
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
@@ -2535,20 +1850,12 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            removeLocalesFromGalleryCategory()
+	 * @param array $locales
+	 * @param mixed $category
 	 *
-	 * @since           1.1.3
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->doesGalleryExist()
-	 *
-	 * @param           array 		$locales
-	 * @param           mixed 		$category
-	 *
-	 * @return          array       $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function removeLocalesFromGalleryCategory($locales, $category){
+	public function removeLocalesFromGalleryCategory(array $locales, $category){
 		$timeStamp = time();
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
@@ -2581,42 +1888,22 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            updateGallery()
-	 *                  Updates single gallery from database
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->updateGalleries()
-	 *
-	 * @param           mixed   $gallery
-	 *
-	 * @return          array   $response
-	 *
+	 * @return array
 	 */
 	public function updateGallery($gallery) {
 		return $this->updateGalleries(array($gallery));
 	}
+
 	/**
-	 * @name            updateGalleryMedia()
+	 * @param array $collection
 	 *
-	 * @since           1.2.0
-	 * @version         1.2.0
-	 *
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           mixed   $collection
-	 *
-	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function updateGalleryMedia($collection) {
+	public function updateGalleryMedia(array $collection) {
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -2637,20 +1924,13 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            updateGalleryLocalizations()
+	 * @param array $collection
 	 *
-	 * @since           1.1.7
-	 * @version         1.1.7
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           array 			$collection
-	 *
-	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function updateGalleryLocalizations($collection) {
+	public function updateGalleryLocalizations(array $collection) {
 		$timeStamp = time();
 		/** Parameter must be an array */
 		if (!is_array($collection)) {
@@ -2672,25 +1952,13 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            updateGalleries()
+	 * @param array $collection
 	 *
-	 * @since           1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @throw           InvalidParameterException
-	 *
-	 * @param           mixed   $collection
-	 *
-	 * @return          array   $response
-	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function updateGalleries($collection) {
+	public function updateGalleries(array $collection) {
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -2791,24 +2059,14 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name 		    listGalleriesAdded()
+	 * @param \DateTime  $date
+	 * @param string     $eq
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since		    1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @uses            $this->listGalleries()
-	 *
-	 * @param           mixed           $date
-	 * @param           string          $eq
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	private function listGalleriesAdded($date, $eq, $sortOrder = null, $limit = null) {
+	private function listGalleriesAdded(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
 		$timeStamp = time();
 
 		$column = $this->entity['g']['alias'] . '.date_added';
@@ -2855,22 +2113,14 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name 			listGalleriesUpdated()
+	 * @param \DateTime  $date
+	 * @param string     $eq
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listGalleries()
-	 *
-	 * @param           mixed           $date
-	 * @param           string          $eq
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	private function listGalleriesUpdated($date, $eq, $sortOrder = null, $limit = null) {
+	private function listGalleriesUpdated(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
 		$timeStamp = time();
 		$column = $this->entity['g']['alias'] . '.date_added';
 
@@ -2914,23 +2164,16 @@ class GalleryModel extends CoreModel {
 		}
 		return $this->listGalleries($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name 			listGalleriesPublished()
+	 * @param \DateTime  $date
+	 * @param string     $eq
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listProducts()
-	 *
-	 * @param           mixed           $date
-	 * @param           string          $eq
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	private function listGalleriesPublished($date, $eq, $sortOrder = null, $limit = null) {
+	private function listGalleriesPublished(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
 		$this->resetResponse();
 
 		$column = $this->entity['g']['alias'] . '.date_published';
@@ -2977,22 +2220,14 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name 			listGalleriesUnpublished()
+	 * @param \DateTime  $date
+	 * @param string     $eq
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 * @author          Can Berkol
-	 *
-	 * @uses            $this->listProducts()
-	 *
-	 * @param           mixed           $date
-	 * @param           string          $eq
-	 * @param           array           $sortOrder
-	 * @param           array           $limit
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
-	private function listGalleriesUnpublished($date, $eq, $sortOrder = null, $limit = null) {
+	private function listGalleriesUnpublished(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
 		$timeStamp = time();
 
 		$column = $this->entity['g']['alias'] . '.date_unpublished';
@@ -3039,38 +2274,20 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            insertGalleryCategory()
+	 * @param mixed $category
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->insertGalleryCategories()
-	 *
-	 * @param           mixed 			$category
-	 *
-	 * @return          array           $response
+	 * @return array
 	 */
 	public function insertGalleryCategory($category) {
 		return $this->insertGalleryCategories(array($category));
 	}
 
 	/**
-	 * @name            insertGalleryCategories()
+	 * @param array $collection
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array			$collection
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function insertGalleryCategories($collection){
+	public function insertGalleryCategories(array $collection){
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -3128,23 +2345,13 @@ class GalleryModel extends CoreModel {
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 
 	}
+
 	/**
-	 * @name            insertGalleryCategoryLocalizations()
+	 * @param array $collection
 	 *
-	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           array $collection Collection of entities or post data.
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function insertGalleryCategoryLocalizations($collection){
+	public function insertGalleryCategoryLocalizations(array $collection){
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -3192,37 +2399,20 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            updateGalleryCategory()
+	 * @param mixed $category
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->updateGalleryCategories()
-	 *
-	 * @param           mixed 			$category
-	 *
-	 * @return          mixed           $response
+	 * @return array
 	 */
 	public function updateGalleryCategory($category){
 		return $this->updateGalleryCategories(array($category));
 	}
+
 	/**
-	 * @name            updateGalleryCategoryLocalizations()
+	 * @param array $collection
 	 *
-	 * @since           1.1.7
-	 * @version         1.1.7
-	 * @author          Can Berkol
-	 *
-	 * @use             $this->createException()
-	 *
-	 * @param           array 			$collection
-	 *
-	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function updateGalleryCategoryLocalizations($collection) {
+	public function updateGalleryCategoryLocalizations(array $collection) {
 		$timeStamp = time();
 		/** Parameter must be an array */
 		if (!is_array($collection)) {
@@ -3244,20 +2434,13 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            updateGalleryCategories()
+	 * @param array $collection
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array			$collection
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function updateGalleryCategories($collection){
+	public function updateGalleryCategories(array $collection){
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -3335,37 +2518,20 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            deleteGalleryCategory ()
+	 * @param mixed $category
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->deleteGalleryCategories()
-	 *
-	 * @param           mixed           $category
-	 *
-	 * @return          mixed           $response
+	 * @return array
 	 */
 	public function deleteGalleryCategory($category){
 		return $this->deleteGalleryCategories(array($category));
 	}
+
 	/**
-	 * @name            deleteGalleryCategories()
-	 *                  Deletes provided gallery categories from database.
+	 * @param array $collection
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array           $collection
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function deleteGalleryCategories($collection){
+	public function deleteGalleryCategories(array $collection){
 		$timeStamp = time();
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
@@ -3392,20 +2558,12 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            addCategoriesToProduct()
+	 * @param array $set
+	 * @param mixed $gallery
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           array           $set
-	 * @param           mixed           $gallery
-	 *
-	 * @return          array           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function addCategoriesToGallery($set, $gallery){
+	public function addCategoriesToGallery(array $set, $gallery){
 		$timeStamp = time();
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
@@ -3440,24 +2598,13 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            listGalleryCategories()
+	 * @param array|null $filter
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->resetResponse()
-	 * @use             $this->createException()
-	 *
-	 * @param           array 	$filter
-	 * @param           array 	$sortOrder
-	 * @param           array 	$limit
-	 *
-	 * @return          array   $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleryCategories($filter = null, $sortOrder = null, $limit = null){
+	public function listGalleryCategories(array $filter = null, array $sortOrder = null, array $limit = null){
 		$timeStamp = time();
 		if(!is_array($sortOrder) && !is_null($sortOrder)){
 			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
@@ -3515,19 +2662,9 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name 			getGalleryCategory()
+	 * @param $category
 	 *
-	 * @since			1.0.0
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->listProducts()
-	 *
-	 * @param           mixed           $category
-	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGalleryCategory($category) {
 		$timeStamp = time();
@@ -3555,20 +2692,14 @@ class GalleryModel extends CoreModel {
 		}
 		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
 	}
+
 	/**
-	 * @name            getGalleryCategoryByUrlKey()
+	 * @param string $urlKey
+	 * @param mixed|null   $language
 	 *
-	 * @since           1.1.4
-	 * @version         1.1.5
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed 			$urlKey
-	 * @param			mixed			$language
-	 *
-	 * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getGalleryCategoryByUrlKey($urlKey, $language = null){
+	public function getGalleryCategoryByUrlKey(\string $urlKey, $language = null){
 		$timeStamp = time();
 		if(!is_string($urlKey)){
 			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
@@ -3607,22 +2738,12 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            doesGalleryCategoryExist()
-	 *                  Checks if entry exists in database.
+	 * @param mixed $category
+	 * @param bool $bypass
 	 *
-	 * @since           1.0.9
-	 * @version         1.0.9
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->resetResponse()
-	 * @use             $this->getGalleryCategory()
-	 *
-	 * @param           mixed           $category
-	 * @param           bool            $bypass
-	 *
-	 * @return          mixed           $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function doesGalleryCategoryExist($category, $bypass = false) {
+	public function doesGalleryCategoryExist($category, \bool $bypass = false) {
 		$response = $this->getGalleryCategory($category);
 		$exist = true;
 		if ($response->error->exist) {
@@ -3635,22 +2756,15 @@ class GalleryModel extends CoreModel {
 
 		return $response;
 	}
+
 	/**
-	 * @name            isCategoryAssociatedWithGallery()
+	 * @param mixed $category
+	 * @param mixed $gallery
+	 * @param bool $bypass
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.9
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @param           mixed 		$category
-	 * @param           mixed 		$gallery
-	 * @param           bool 		$bypass
-	 *
-	 * @return          mixed       bool or $response
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isCategoryAssociatedWithGallery($category, $gallery, $bypass = false){
+	public function isCategoryAssociatedWithGallery($category, $gallery, \bool $bypass = false){
 		$timeStamp = time();
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
@@ -3684,25 +2798,14 @@ class GalleryModel extends CoreModel {
 	}
 
 	/**
-	 * @name            listGalleriesOfCategory()
+	 * @param mixed $category
+	 * @param array|null $filter
+	 * @param array|null $sortOrder
+	 * @param array|null $limit
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->listGalleryCategories()
-	 *
-	 * @param           mixed   $category
-	 * @param           array 	$filter
-	 * @param           array 	$sortOrder
-	 * @param           array 	$limit
-	 *
-	 * @return          array
-	 *
+	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleriesOfCategory($category, $filter = null, $sortOrder = null, $limit = null){
+	public function listGalleriesOfCategory($category, array $filter = null, array $sortOrder = null, array $limit = null){
 		$timeStamp = time();
 		$response  = $this->getGalleryCategory($category);
 		if($response->error->exist){
@@ -3737,26 +2840,16 @@ class GalleryModel extends CoreModel {
 		);
 		return $this->listGalleries($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name            listGalleriesOfCategory()
+	 * @param \BiberLtd\Bundle\GalleryBundle\Services\mixed $gallery
+	 * @param array|null                                    $filter
+	 * @param array|null                                    $sortOrder
+	 * @param array|null                                    $limit
 	 *
-	 * @since           1.0.9
-	 * @version         1.1.4
-	 *
-	 * @author          Can Berkol
-	 * @author          Said İmamoğlu
-	 *
-	 * @use             $this->listGalleryCategories()
-	 *
-	 * @param           mixed   $gallery
-	 * @param           array   $filter
-	 * @param           array   $sortOrder
-	 * @param           array   $limit
-	 *
-	 * @return          array
-	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listCategoriesOfGallery($gallery, $filter = null, $sortOrder = null, $limit = null){
+	public function listCategoriesOfGallery(mixed $gallery, array $filter = null, array $sortOrder = null, array $limit = null){
 		$timeStamp = time();
 		$response  = $this->getGallerY($gallery);
 		if($response->error->exist){
@@ -3791,23 +2884,16 @@ class GalleryModel extends CoreModel {
 		);
 		return $this->listGalleryCategories($filter, $sortOrder, $limit);
 	}
+
 	/**
-	 * @name        listGalleryCategoriesInLocale()
+	 * @param mixed $locale
+	 * @param array|null $filter
+	 * @param null       $sortOrder
+	 * @param null       $limit
 	 *
-	 * @since       1.1.2
-	 * @version     1.1.4
-	 *
-	 * @author      Said İmamoglu
-	 *
-	 * @param       mixed   $locale
-	 * @param       array   $filter
-	 * @param       array   $sortOrder
-	 * @param       array   $limit
-	 *
-	 * @return      array
-	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleryCategoriesInLocales($locale,$filter=array(),$sortOrder = array(),$limit = array()){
+	public function listGalleryCategoriesInLocales($locale, array $filter = null, $sortOrder = null, $limit = null){
 		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
 		$response = $mlsModel->getLanguage($locale,'iso_code');
 		if($response->error->exist){
@@ -3827,195 +2913,3 @@ class GalleryModel extends CoreModel {
 		return $this->listGalleryCategories($filter, $sortOrder, $limit);
 	}
 }
-/**
- * Change Log
- * **************************************
- * v1.2.3                      20.11.2015
- * Can Berkol
- * **************************************
- * BF :: 4069378 :: listMediaOfGallery() and listMediaOfGalleryWithStatus() fixed to support gallery_media sort_order field.
- *
- * **************************************
- * v1.2.2                      19.09.2015
- * Can Berkol
- * **************************************
- * BF :: 3949800 :: addFilesToCategory() was setting default status to 'a'. It is fixed to 's'.
- *
- * **************************************
- * v1.2.1                      19.08.2015
- * Can Berkol
- * **************************************
- * BF :: addCategoriesToGallery() fixed.
- *
- * **************************************
- * v1.2.0                      18.08.2015
- * Can Berkol
- * **************************************
- * BF :: gallery and gallery category active localization methods have been fixed.
- * BF :: db_connection is replaced with dbConnection.
- * BF :: addMediaGallery now can handle recently added status field.
- * FR :: listGalleryMedia() method added. This method returns GalleryMedia entities.
- * FR :: updateGalleryMedia() method added.
- *
- * **************************************
- * v1.1.9                      16.08.2015
- * Can Berkol
- * **************************************
- * BF :: Fix for "Error: Invalid PathExpression. Must be a StateFieldPathExpression." applied.
- *
- * **************************************
- * v1.1.8                      12.08.2015
- * Can Berkol
- * **************************************
- * FR :: listGalleries() can now handle 'sort_order' field as an order column.
- *
- * **************************************
- * v1.1.7                      09.08.2015
- * Can Berkol
- * **************************************
- * FR :: updateGalleryLocalizations() added.
- * FR :: updateGalleryCategoryLocalizations() added.
- *
- * **************************************
- * v1.1.6                      06.08.2015
- * Can Berkol
- * **************************************
- * FR :: listMediaOfGalleryWithStatus()
- * FR :: listPublishedMediaOfGallery()
- *
- * **************************************
- * v1.1.5                      14.07.2015
- * Said İmamoğlu
- * **************************************
- * BF :: Entity namespaces were wrong in getGalleryCategoryByUrlKey() method. Fixed
- *
- * **************************************
- * v1.1.4                      23.06.2015
- * Can Berkol
- * **************************************
- * FR :: Made compatible with Core 3.3.
- *
- * **************************************
- * v1.1.3                      Can Berkol
- * 21.08.2014
- * **************************************
- * A addLocalesToGallery()
- * A addLocalesToGalleryCategory()
- * A isGalleryAssociatedWithLocale()
- * A isGalleryCategoryAssociatedWithLocale()
- * A listActiveLocalesOfGallery()
- * A listActiveLocalesOfGalleryCategory()
- * A removeLocalesFromGallery()
- * A removeLocalesFromGalleryCategory()
- * A validateAndGetLocale()
- * U __construct()
- *
- * **************************************
- * v1.1.2                      Can Berkol
- * 25.07.2014
- * **************************************
- * B listGalleryCategories()
- *
- * **************************************
- * v1.1.1                      Said İmamoğlu
- * 18.07.2014
- * **************************************
- * A listGalleryCategoriesInLocales()
- * **************************************
- * v1.1.1                      Can Berkol
- * 16.07.2014
- * **************************************
- * A listDocumentsOfGallery()
- * A listVideosOfGallery()
- *
- * **************************************
- * v1.0.9                   Said İmamoğlu
- * 14.07.2014
- * **************************************
- * A addCategoriesToGallery()
- * A doesGalleryCategoryExist()
- * A insertGalleryCategory()
- * A insertGalleryCategories()
- * A insertGalleryCategoryLocalizations()
- * A deleteGalleryCategory()
- * A deleteGalleryCategories()
- * A getGalleryCategory()
- * A isCategoryAssociatedWithGallery()
- * A listGalleryCategories()
- * A listGalleriesOfCategory()
- * A listCategoriesOfGallery()
- * A validateAndGetGallery()
- * A validateAndGetGalleryCategory()
- * A updateGalleryCategory()
- * A updateGalleryCategories()
- *
- * **************************************
- * v1.0.8                      Can Berkol
- * 09.06.2014
- * **************************************
- * A listAllAudioOfGallery()
- * B listMediaOfGallery()
- *
- * **************************************
- * v1.0.7                      Can Berkol
- * 30.05.2014
- * **************************************
- * A countTotalAudioInGallery()
- * A countTotalDocumentsInGallery()
- * A countTotalMediaInGallery()
- * A getRandomImageFromGallery()
- * A getRandomMediaFromGallery()
- * A isGalleryAssociatedWithFile()
- * A listMediaOfAllGalleries()
- * D getNext... and similar methods (were all terribly codded + no more immediate need)
- * D isFileAssociatedWithGallery()
- * D listAll... methods
- * D listGalleryMedias()
- * D listFilesWithType()
- * U countTotalImagesInGallery()
- * U doesGalleryExist()
- * U getGalleryLocalization()
- * U listMediaOfGallery()
- * U listImagesOfAllGalleries()
- * U listImagesOfGallery()
- * U listGalleriesOfSite()
- * U listGalleriesAdded... methods
- * U listGalleriesUnpublished... methods
- * U listGalleriesWith... methods
- *
- * **************************************
- * v1.0.6                   Said İmamoğlu
- * 08.04.2014
- * **************************************
- * A countTotalImagesInGallery()
- * A listImagesInGalleryBy()
- * A getPrevImageInGallery()
- * A getNextImageInGallery()
- *
- * **************************************
- * v1.0.5                      Can Berkol
- * 20.02.2014
- * **************************************
- * A addFileToGallery()
- * U removeFilesFormGallery()
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 11.02.2014
- * **************************************
- * A getGalleryMedia()
- * A updateGalleryMedia()
- *
- * **************************************
- * v1.0.2                      Can Berkol
- * 30.01.2014
- * **************************************
- * A deleteGalleries()
- * A deleteGallery()
- * A insertGallery()
- * A insertGalleryLocalizations()
- * A insertyGalleries()
- * A updateGallery()
- * A updateGalleries()
- *
- */
