@@ -462,7 +462,7 @@ class GalleryModel extends CoreModel {
 		$file = $response->result->set;
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
-			return $response->result->set;
+			return $response;
 		}
 		$gallery = $response->result->set;
 		unset($response);
