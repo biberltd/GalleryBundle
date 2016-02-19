@@ -1,4 +1,4 @@
 services:
     gallery.model:
         class:        BiberLtd\Bundle\GalleryBundle\Services\GalleryModel
-        arguments:    [@kernel, "default", "doctrine"]
+        arguments:    ["@kernel", "default", "doctrine"]

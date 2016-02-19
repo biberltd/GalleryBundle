@@ -135,7 +135,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountAudio(\integer $count_audio) {
+    public function setCountAudio(int $count_audio) {
         if(!$this->setModified('count_audio', $count_audio)->isModified()) {
             return $this;
         }
@@ -155,7 +155,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountDocument(\integer $count_document) {
+    public function setCountDocument(int $count_document) {
         if(!$this->setModified('count_document', $count_document)->isModified()) {
             return $this;
         }
@@ -175,7 +175,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountImage(\integer $count_image) {
+    public function setCountImage(int $count_image) {
         if(!$this->setModified('count_image', $count_image)->isModified()) {
             return $this;
         }
@@ -195,7 +195,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountMedia(\integer $count_media) {
+    public function setCountMedia(int $count_media) {
         if(!$this->setModified('count_media', $count_media)->isModified()) {
             return $this;
         }
@@ -215,7 +215,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountVideo(\integer $count_video) {
+    public function setCountVideo(int $count_video) {
         if(!$this->setModified('count_video', $count_video)->isModified()) {
             return $this;
         }
@@ -342,7 +342,7 @@ class Gallery extends CoreLocalizableEntity
 	 *
 	 * @return $this
 	 */
-	public function setSortOrder(\integer $sort_order) {
+	public function setSortOrder(int $sort_order) {
 		if (!$this->setModified('sort_order', $sort_order)->isModified()) {
 			return $this;
 		}

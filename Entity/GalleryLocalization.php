@@ -67,7 +67,7 @@ class GalleryLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setDescription(\string $description) {
+    public function setDescription(string $description) {
         if(!$this->setModified('description', $description)->isModified()) {
             return $this;
         }
@@ -127,7 +127,7 @@ class GalleryLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setTitle(\string $title) {
+    public function setTitle(string $title) {
         if(!$this->setModified('title', $title)->isModified()) {
             return $this;
         }
@@ -147,7 +147,7 @@ class GalleryLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setUrlKey(\string $url_key) {
+    public function setUrlKey(string $url_key) {
         if(!$this->setModified('url_key', $url_key)->isModified()) {
             return $this;
         }
@@ -172,7 +172,7 @@ class GalleryLocalization extends CoreEntity
 	/**
 	 * @param string
 	 */
-    public function setKeywords(\string $keywords){
+    public function setKeywords(string $keywords){
         if(!$this->setModified('keywords', $keywords)->isModified()){
             return $this;
         }

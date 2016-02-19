@@ -69,7 +69,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function addFilesToGallery(array $files, $gallery) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
@@ -77,7 +77,7 @@ class GalleryModel extends CoreModel {
 		$gallery = $response->result->set;
 		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 
-		$fogCollection = array();
+		$fogCollection = [];
 		$count = 0;
 		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
 		foreach ($files as $entity){
@@ -109,9 +109,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($count > 0){
 			$this->em->flush();
-			return new ModelResponse($fogCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($fogCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -121,7 +121,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function addLocalesToGallery(array $locales, $gallery){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 
 		if($response->error->exist){
@@ -129,7 +129,7 @@ class GalleryModel extends CoreModel {
 		}
 		$gallery = $response->result->set;
 		unset($response);
-		$aglCollection = array();
+		$aglCollection = [];
 		$count = 0;
 		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
 		foreach ($locales as $locale) {
@@ -151,9 +151,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($count > 0){
 			$this->em->flush();
-			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -163,14 +163,14 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function addLocalesToGalleryCategory(array $locales, $category){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
 		}
 		$category = $response->result->set;
 		unset($response);
-		$aglCollection = array();
+		$aglCollection = [];
 		$count = 0;
 		/** Start persisting locales */
 		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
@@ -193,16 +193,16 @@ class GalleryModel extends CoreModel {
 		}
 		if($count > 0){
 			$this->em->flush();
-			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($aglCollection, $count, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function countDistinctMediaTotal() {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$qStr = 'SELECT COUNT( DISTINCT '. $this->entity['gm']['alias'].'.file)'
 			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias'];
 
@@ -210,7 +210,7 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getSingleScalarResult();
 
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -245,8 +245,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
-	public function countTotalMediaInGallery($gallery, \string $mediaType = 'all'){
-		$timeStamp = time();
+	public function countTotalMediaInGallery($gallery, string $mediaType = 'all'){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -270,7 +270,7 @@ class GalleryModel extends CoreModel {
 		$query = $this->em->createQuery($qStr);
 
 		$result = $query->getSingleScalarResult();
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -288,7 +288,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function deleteGalleries(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
@@ -307,10 +307,10 @@ class GalleryModel extends CoreModel {
 			}
 		}
 		if($countDeleted < 0){
-			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
 		}
 		$this->em->flush();
-		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -328,7 +328,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return bool|mixed
 	 */
-	public function doesGalleryExist($gallery, \bool $bypass = false) {
+	public function doesGalleryExist($gallery, bool $bypass = false) {
 		$response = $this->getGallery($gallery);
 		$exist = true;
 		if($response->error->exist){
@@ -347,8 +347,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
 	 */
-	public function doesGalleryMediaExist($galleryMedia, \bool $bypass = false) {
-		$timeStamp = time();
+	public function doesGalleryMediaExist($galleryMedia, bool $bypass = false) {
+		$timeStamp = microtime(true);
 		$exist = false;
 
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
@@ -370,7 +370,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $exist;
 		}
-		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -379,9 +379,9 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGallery($gallery) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if($gallery instanceof BundleEntity\Gallery){
-			return new ModelResponse($gallery, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+			return new ModelResponse($gallery, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 		}
 		$result = null;
 		switch($gallery){
@@ -397,9 +397,9 @@ class GalleryModel extends CoreModel {
 				break;
 		}
 		if(is_null($result)){
-			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -408,8 +408,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getGalleryByUrlKey(\string $urlKey, $language = null){
-		$timeStamp = time();
+	public function getGalleryByUrlKey(string $urlKey, $language = null){
+		$timeStamp = microtime(true);
 		if(!is_string($urlKey)){
 			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
 		}
@@ -441,7 +441,7 @@ class GalleryModel extends CoreModel {
 
 		$response->result->set = $response->result->set[0];
 		$response->stats->execution->start = $timeStamp;
-		$response->stats->execution->end = time();
+		$response->stats->execution->end = microtime(true);
 
 		return $response;
 	}
@@ -453,7 +453,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGalleryMedia($file, $gallery) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 		$response = $fModel->getFile($file);
 		if($response->error->exist){
@@ -476,9 +476,9 @@ class GalleryModel extends CoreModel {
 		$result = $q->getSingleResult();
 
 		if(is_null($result)){
-			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 
 	}
 
@@ -488,8 +488,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getMaxSortOrderOfGalleryMedia($gallery, \bool $bypass = false) {
-		$timeStamp = time();
+	public function getMaxSortOrderOfGalleryMedia($gallery, bool $bypass = false) {
+		$timeStamp = microtime(true);
 		if (!is_object($gallery) && !is_numeric($gallery) && !is_string($gallery)) {
 			return $this->createException('InvalidParameterException', 'Gallery', 'err.invalid.parameter.product');
 		}
@@ -507,7 +507,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $result;
 		}
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -516,13 +516,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function insertGalleries(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countInserts = 0;
 		$countLocalizations = 0;
-		$insertedItems = array();
+		$insertedItems = [];
 		foreach($collection as $data){
 			if($data instanceof BundleEntity\Gallery){
 				$entity = $data;
@@ -531,7 +531,7 @@ class GalleryModel extends CoreModel {
 				$countInserts++;
 			}
 			else if(is_object($data)){
-				$localizations = array();
+				$localizations = [];
 				$entity = new BundleEntity\Gallery;
 				if(!property_exists($data, 'date_added')){
 					$data->date_added = $data->date_updated = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
@@ -603,9 +603,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countInserts > 0){
 			$this->em->flush();
-			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 
 	}
 
@@ -624,12 +624,12 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function insertGalleryLocalizations(array $collection){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countInserts = 0;
-		$insertedItems = array();
+		$insertedItems = [];
 		foreach($collection as $item){
 			if($item instanceof BundleEntity\GalleryLocalization){
 				$entity = $item;
@@ -659,9 +659,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countInserts > 0){
 			$this->em->flush();
-			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -671,8 +671,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isFileAssociatedWithGallery($file, $gallery, \bool $bypass = false) {
-		$timeStamp = time();
+	public function isFileAssociatedWithGallery($file, $gallery, bool $bypass = false) {
+		$timeStamp = microtime(true);
 		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 		$response = $fModel->getFile($file);
 		if($response->error->exist){
@@ -701,7 +701,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $found;
 		}
-		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -711,8 +711,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isLocaleAssociatedWithGallery($locale, $gallery, \bool $bypass = false){
-		$timeStamp = time();
+	public function isLocaleAssociatedWithGallery($locale, $gallery, bool $bypass = false){
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
@@ -741,7 +741,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $found;
 		}
-		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -751,8 +751,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isLocaleAssociatedWithGalleryCategory($locale, $category, \bool $bypass = false){
-		$timeStamp = time();
+	public function isLocaleAssociatedWithGalleryCategory($locale, $category, bool $bypass = false){
+		$timeStamp = microtime(true);
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
@@ -781,7 +781,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $found;
 		}
-		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -790,7 +790,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listActiveLocalesOfGallery($gallery){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
@@ -803,8 +803,8 @@ class GalleryModel extends CoreModel {
 		$query = $this->em->createQuery($qStr);
 
 		$result = $query->getResult();
-		$locales = array();
-		$unique = array();
+		$locales = [];
+		$unique = [];
 		foreach ($result as $entry) {
 			$id = $entry->getLanguage()->getId();
 			if (!isset($unique[$id])) {
@@ -815,9 +815,9 @@ class GalleryModel extends CoreModel {
 		unset($unique);
 		$totalRows = count($locales);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -826,7 +826,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function listActiveLocalesOfGalleryCategory($category){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
@@ -838,8 +838,8 @@ class GalleryModel extends CoreModel {
 			. ' WHERE ' . $this->entity['agcl']['alias'] . '.category = ' . $category->getId();
 		$query = $this->em->createQuery($qStr);
 		$result = $query->getResult();
-		$locales = array();
-		$unique = array();
+		$locales = [];
+		$unique = [];
 		foreach ($result as $entry) {
 			$id = $entry->getLanguage()->getId();
 			if (!isset($unique[$id])) {
@@ -850,9 +850,9 @@ class GalleryModel extends CoreModel {
 		unset($unique);
 		$totalRows = count($locales);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($locales, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -861,7 +861,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	public function listAllAudioOfGallery($gallery, \integer $sortOrder = null) {
+	public function listAllAudioOfGallery($gallery, int $sortOrder = null) {
 		return $this->listMediaOfGallery($gallery, 'a', $sortOrder);
 	}
 
@@ -921,7 +921,7 @@ class GalleryModel extends CoreModel {
 	 * @return          array           $response
 	 */
 	public function listGalleries($filter = null, $sortOrder = null, $limit = null) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if(!is_array($sortOrder) && !is_null($sortOrder)){
 			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
 		}
@@ -969,8 +969,8 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getResult();
 
-		$galleries = array();
-		$unique = array();
+		$galleries = [];
+		$unique = [];
 		foreach ($result as $entry) {
 			$id = $entry->getGallery()->getId();
 			if (!isset($unique[$id])) {
@@ -981,9 +981,9 @@ class GalleryModel extends CoreModel {
 		unset($unique);
 		$totalRows = count($galleries);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($galleries, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($galleries, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1006,8 +1006,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listGalleryMedia($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
-		$timeStamp = time();
+	public function listGalleryMedia($gallery, string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -1031,9 +1031,9 @@ class GalleryModel extends CoreModel {
 		$result = $q->getResult();
 		$totalRows = count($result);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1132,7 +1132,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	public function listImagesOfAllGalleries(\integer $count = 1, array $sortOrder = null, array $limit = null, array $filter = null){
+	public function listImagesOfAllGalleries(int $count = 1, array $sortOrder = null, array $limit = null, array $filter = null){
 		return $this->listMediaOfAllGalleries($count, 'i', $sortOrder, $limit, $filter);
 	}
 
@@ -1145,7 +1145,7 @@ class GalleryModel extends CoreModel {
 	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listGalleriesOfMedia($file, array $sortOrder = null, array $limit = null, array $filter = null){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 		$response = $fModel->getFile($file);
 		if($response->error->exist){
@@ -1161,11 +1161,11 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getResult();
 
-		$galleryIds = array();
+		$galleryIds = [];
 		$totalRows = count($result);
 
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 
 		foreach($result as $gm){
@@ -1219,7 +1219,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCount(\integer $count, mixed $sortOrder = null, mixed $limit = null) {
+	public function listGalleriesWithAudioCount(int $count, mixed $sortOrder = null, mixed $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'eq', $count, $sortOrder, $limit);
 	}
 
@@ -1230,7 +1230,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountBetween(\integer $count, mixed $sortOrder = null, mixed $limit = null) {
+	public function listGalleriesWithAudioCountBetween(int $count, mixed $sortOrder = null, mixed $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'between', $count, $sortOrder, $limit);
 	}
 
@@ -1241,7 +1241,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithAudioCountLessThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'less', $count, $sortOrder, $limit);
 	}
 
@@ -1252,7 +1252,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithAudioCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithAudioCountMoreThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('a', 'more', $count, $sortOrder, $limit);
 	}
 
@@ -1263,7 +1263,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCount(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithDocumentCount(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'eq', $count, $sortOrder, $limit);
 	}
 
@@ -1274,7 +1274,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithDocumentCountBetween(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'between', $count, $sortOrder, $limit);
 	}
 
@@ -1285,7 +1285,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithDocumentCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithDocumentCountLessThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'less', $count, $sortOrder, $limit);
 	}
 
@@ -1296,7 +1296,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithDocumenCounttMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithDocumenCounttMoreThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('d', 'more', $count, $sortOrder, $limit);
 	}
 
@@ -1307,7 +1307,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithImageCount(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithImageCount(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'eq', $count, $sortOrder, $limit);
 	}
 
@@ -1318,7 +1318,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithImageCountBetween(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'between', $count, $sortOrder, $limit);
 	}
 
@@ -1329,7 +1329,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithImageCountLessThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'less', $count, $sortOrder, $limit);
 	}
 
@@ -1340,7 +1340,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithImageCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithImageCountMoreThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('i', 'more', $count, $sortOrder, $limit);
 	}
 
@@ -1351,7 +1351,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCount(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithMediaCount(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'eq', $count, $sortOrder, $limit);
 	}
 
@@ -1362,7 +1362,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithMediaCountBetween(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'between', $count, $sortOrder, $limit);
 	}
 
@@ -1373,7 +1373,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithMediaCountLessThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'less', $count, $sortOrder, $limit);
 	}
 
@@ -1384,7 +1384,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithMediaCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithMediaCountMoreThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('m', 'more', $count, $sortOrder, $limit);
 	}
 
@@ -1395,7 +1395,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCount(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithVideoCount(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'eq', $count, $sortOrder, $limit);
 	}
 
@@ -1406,7 +1406,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountBetween(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithVideoCountBetween(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'between', $count, $sortOrder, $limit);
 	}
 
@@ -1417,7 +1417,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountLessThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithVideoCountLessThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'less', $count, $sortOrder, $limit);
 	}
 
@@ -1428,7 +1428,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return mixed
 	 */
-	public function listGalleriesWithVideoCountMoreThan(\integer $count, array $sortOrder = null, array $limit = null) {
+	public function listGalleriesWithVideoCountMoreThan(int $count, array $sortOrder = null, array $limit = null) {
 		return $this->listGalleriesWithTypeCount('v', 'more', $count, $sortOrder, $limit);
 	}
 
@@ -1483,8 +1483,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfAllGalleries(\string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
-		$timeStamp = time();
+	public function listMediaOfAllGalleries(string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -1501,11 +1501,11 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getResult();
 
-		$fileIds = array();
+		$fileIds = [];
 		$totalRows = count($result);
 
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 
 		foreach($result as $gm){
@@ -1535,8 +1535,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfGallery($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
-		$timeStamp = time();
+	public function listMediaOfGallery($gallery, string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -1561,7 +1561,7 @@ class GalleryModel extends CoreModel {
 		$result = $q->getResult();
 		$totalRows = count($result);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 
 		foreach($result as $gm){
@@ -1580,7 +1580,7 @@ class GalleryModel extends CoreModel {
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
 		$response = $fModel->listFiles($filter, $sortOrder, $limit);
-		$collection = array();
+		$collection = [];
 		foreach($fileIds as $id){
 			foreach($response->result->set as $entity){
 				if($id == $entity->getId()){
@@ -1602,8 +1602,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listMediaOfGalleryWithStatus($gallery, \string $status, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
-		$timeStamp = time();
+	public function listMediaOfGalleryWithStatus($gallery, string $status, string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -1644,7 +1644,7 @@ class GalleryModel extends CoreModel {
 		$result = $q->getResult();
 		$totalRows = count($result);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 
 		foreach($result as $gm){
@@ -1663,7 +1663,7 @@ class GalleryModel extends CoreModel {
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
 		$response = $fModel->listFiles($filter, $sortOrder, $limit);
-		$collection = array();
+		$collection = [];
 		foreach($fileIds as $id){
 			foreach($response->result->set as $entity){
 				if($id == $entity->getId()){
@@ -1695,7 +1695,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listPublishedMediaOfGallery($gallery, \string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
+	public function listPublishedMediaOfGallery($gallery, string $mediaType = 'all', array $sortOrder = null, array $limit = null, array $filter = null){
 		return $this->listMediaOfGalleryWithStatus($gallery, 'p', $mediaType, $sortOrder, $limit, $filter);
 	}
 
@@ -1705,7 +1705,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	public function listRandomImagesFromGallery($gallery, \integer $count = 1){
+	public function listRandomImagesFromGallery($gallery, int $count = 1){
 		return $this->listRandomMediaFromGallery($gallery, $count, 'i');
 	}
 
@@ -1716,8 +1716,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function listRandomMediaFromGallery($gallery, \integer $count = 1, \string $mediaType = 'all'){
-		$timeStamp = time();
+	public function listRandomMediaFromGallery($gallery, int $count = 1, string $mediaType = 'all'){
+		$timeStamp = microtime(true);
 		$allowedTypes = array('i', 'a', 'v', 'f', 'd', 'p', 's');
 		if($mediaType != 'all' && !in_array($mediaType, $allowedTypes)){
 			return $this->createException('InvalidParameter', '$mediaType parameter can only have one of the following values: '.implode(', ',$allowedTypes), 'err.invalid.parameter.collection');
@@ -1740,12 +1740,12 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getResult();
 
-		$files = array();
+		$files = [];
 		$totalRows = count($result);
 		$lastIndex = $totalRows - 1;
 
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 
 		for($counter = 0; $counter >= $count; $counter++){
@@ -1754,7 +1754,7 @@ class GalleryModel extends CoreModel {
 			$counter++;
 		}
 
-		return new ModelResponse($files, $counter, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($files, $counter, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1775,14 +1775,14 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function removeFilesFromGallery(array  $files, $gallery) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
 		}
 		$gallery = $response->result->set;
 		unset($response);
-		$idsToRemove = array();
+		$idsToRemove = [];
 		$fModel = new FMMService\FileManagementModel($this->kernel, $this->dbConnection, $this->orm);
 		foreach ($files as $file) {
 			$response = $fModel->getFile($file);
@@ -1804,9 +1804,9 @@ class GalleryModel extends CoreModel {
 			$deleted = false;
 		}
 		if ($deleted) {
-			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1816,13 +1816,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function removeLocalesFromGallery(array $locales, $gallery){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
 		}
 		$gallery = $response->result->set;
-		$idsToRemove = array();
+		$idsToRemove = [];
 		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
 		foreach ($locales as $locale) {
 			$response = $mlsModel->getLanguage($locale);
@@ -1844,9 +1844,9 @@ class GalleryModel extends CoreModel {
 			$deleted = false;
 		}
 		if ($deleted) {
-			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1856,13 +1856,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function removeLocalesFromGalleryCategory(array $locales, $category){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
 		}
 		$category = $response->result->set;
-		$idsToRemove = array();
+		$idsToRemove = [];
 		$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
 		foreach ($locales as $locale) {
 			$response = $mlsModel->getLanguage($locale);
@@ -1884,9 +1884,9 @@ class GalleryModel extends CoreModel {
 			$deleted = false;
 		}
 		if ($deleted) {
-			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1904,12 +1904,12 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function updateGalleryMedia(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$updatedItems = array();
+		$updatedItems = [];
 		foreach($collection as $entity){
 			if(!$entity instanceof BundleEntity\GalleryMedia){
 				continue;
@@ -1920,9 +1920,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countUpdates > 0){
 			$this->em->flush();
-			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1931,13 +1931,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function updateGalleryLocalizations(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		/** Parameter must be an array */
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$updatedItems = array();
+		$updatedItems = [];
 		foreach ($collection as $data) {
 			if ($data instanceof BundleEntity\GalleryLocalization) {
 				$entity = $data;
@@ -1948,9 +1948,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countUpdates > 0){
 			$this->em->flush();
-			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -1959,12 +1959,12 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function updateGalleries(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$updatedItems = array();
+		$updatedItems = [];
 		foreach($collection as $data){
 			if($data instanceof BundleEntity\Gallery){
 				$entity = $data;
@@ -1994,7 +1994,7 @@ class GalleryModel extends CoreModel {
 					$set = 'set'.$this->translateColumnName($column);
 					switch($column){
 						case 'local':
-							$localizations = array();
+							$localizations = [];
 							foreach($value as $langCode => $translation){
 								$localization = $oldEntity->getLocalization($langCode, true);
 								$newLocalization = false;
@@ -2053,9 +2053,9 @@ class GalleryModel extends CoreModel {
 			}
 		}if($countUpdates > 0){
 			$this->em->flush();
-			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2066,8 +2066,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	private function listGalleriesAdded(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
-		$timeStamp = time();
+	private function listGalleriesAdded(\DateTime $date, string $eq, array $sortOrder = null, array $limit = null) {
+		$timeStamp = microtime(true);
 
 		$column = $this->entity['g']['alias'] . '.date_added';
 		if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
@@ -2120,8 +2120,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	private function listGalleriesUpdated(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
-		$timeStamp = time();
+	private function listGalleriesUpdated(\DateTime $date, string $eq, array $sortOrder = null, array $limit = null) {
+		$timeStamp = microtime(true);
 		$column = $this->entity['g']['alias'] . '.date_added';
 
 		if ($eq == 'after' || $eq == 'before' || $eq == 'on') {
@@ -2173,7 +2173,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	private function listGalleriesPublished(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
+	private function listGalleriesPublished(\DateTime $date, string $eq, array $sortOrder = null, array $limit = null) {
 		$this->resetResponse();
 
 		$column = $this->entity['g']['alias'] . '.date_published';
@@ -2227,8 +2227,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return array
 	 */
-	private function listGalleriesUnpublished(\DateTime $date, \string $eq, array $sortOrder = null, array $limit = null) {
-		$timeStamp = time();
+	private function listGalleriesUnpublished(\DateTime $date, string $eq, array $sortOrder = null, array $limit = null) {
+		$timeStamp = microtime(true);
 
 		$column = $this->entity['g']['alias'] . '.date_unpublished';
 
@@ -2288,14 +2288,14 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function insertGalleryCategories(array $collection){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countInserts = 0;
 		$countLocalizations = 0;
-		$insertedItems = array();
-		$localizations = array();
+		$insertedItems = [];
+		$localizations = [];
 		$now = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
 		foreach ($collection as $data) {
 			if ($data instanceof BundleEntity\GalleryCategory) {
@@ -2340,9 +2340,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countInserts > 0){
 			$this->em->flush();
-			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 
 	}
 
@@ -2352,12 +2352,12 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function insertGalleryCategoryLocalizations(array $collection){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countInserts = 0;
-		$insertedItems = array();
+		$insertedItems = [];
 		foreach($collection as $data){
 			if($data instanceof BundleEntity\GalleryCategoryLocalization){
 				$entity = $data;
@@ -2393,9 +2393,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countInserts > 0){
 			$this->em->flush();
-			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2413,13 +2413,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function updateGalleryCategoryLocalizations(array $collection) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		/** Parameter must be an array */
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$updatedItems = array();
+		$updatedItems = [];
 		foreach ($collection as $data) {
 			if ($data instanceof BundleEntity\GalleryCategoryLocalization) {
 				$entity = $data;
@@ -2430,9 +2430,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countUpdates > 0){
 			$this->em->flush();
-			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2441,13 +2441,13 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function updateGalleryCategories(array $collection){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
 		$countUpdates = 0;
-		$localizations = array();
-		$updatedItems = array();
+		$localizations = [];
+		$updatedItems = [];
 		foreach ($collection as $data) {
 			if ($data instanceof BundleEntity\GalleryCategory) {
 				$entity = $data;
@@ -2473,7 +2473,7 @@ class GalleryModel extends CoreModel {
 					$set = 'set' . $this->translateColumnName($column);
 					switch ($column) {
 						case 'local':
-							$localizations = array();
+							$localizations = [];
 							foreach ($value as $langCode => $translation) {
 								$localization = $oldEntity->getLocalization($langCode, true);
 								$newLocalization = false;
@@ -2512,9 +2512,9 @@ class GalleryModel extends CoreModel {
 		}
 		if($countUpdates > 0){
 			$this->em->flush();
-			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2532,7 +2532,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function deleteGalleryCategories(array $collection){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if (!is_array($collection)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
 		}
@@ -2551,10 +2551,10 @@ class GalleryModel extends CoreModel {
 			}
 		}
 		if($countDeleted < 0){
-			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
 		}
 		$this->em->flush();
-		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2564,7 +2564,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
 	 */
 	public function addCategoriesToGallery(array $set, $gallery){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response = $this->getGallery($gallery);
 		if($response->error->exist){
 			return $response;
@@ -2577,7 +2577,7 @@ class GalleryModel extends CoreModel {
 				continue;
 			}
 			$category = $response->result->set;
-			$aopCollection = array();
+			$aopCollection = [];
 			/** Check if association exists */
 			if (!$this->isCategoryAssociatedWithGallery($category, $gallery, true)) {
 				$aop = new BundleEntity\CategoriesOfGallery();
@@ -2592,9 +2592,9 @@ class GalleryModel extends CoreModel {
 
 		if(count($aopCollection) > 0){
 			$this->em->flush();
-			return new ModelResponse($aopCollection, count($aopCollection), 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+			return new ModelResponse($aopCollection, count($aopCollection), 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2605,7 +2605,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listGalleryCategories(array $filter = null, array $sortOrder = null, array $limit = null){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if(!is_array($sortOrder) && !is_null($sortOrder)){
 			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
 		}
@@ -2644,8 +2644,8 @@ class GalleryModel extends CoreModel {
 
 		$result = $q->getResult();
 
-		$categories = array();
-		$unique = array();
+		$categories = [];
+		$unique = [];
 		foreach($result as $gcl){
 			$id = $gcl->getCategory()->getId();
 			if (!isset($unique[$id])) {
@@ -2656,9 +2656,9 @@ class GalleryModel extends CoreModel {
 		}
 		$totalRows = count($categories);
 		if ($totalRows < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($categories, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($categories, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2667,9 +2667,9 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function getGalleryCategory($category) {
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		if($category instanceof BundleEntity\GalleryCategory){
-			return new ModelResponse($category, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+			return new ModelResponse($category, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 		}
 		$result = null;
 		switch($category){
@@ -2688,9 +2688,9 @@ class GalleryModel extends CoreModel {
 				break;
 		}
 		if(is_null($result)){
-			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
 		}
-		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2699,8 +2699,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
-	public function getGalleryCategoryByUrlKey(\string $urlKey, $language = null){
-		$timeStamp = time();
+	public function getGalleryCategoryByUrlKey(string $urlKey, $language = null){
+		$timeStamp = microtime(true);
 		if(!is_string($urlKey)){
 			return $this->createException('InvalidParameterValueException', '$urlKey must be a string.', 'E:S:007');
 		}
@@ -2732,7 +2732,7 @@ class GalleryModel extends CoreModel {
 
 		$response->result->set = $response->result->set[0];
 		$response->stats->execution->start = $timeStamp;
-		$response->stats->execution->end = time();
+		$response->stats->execution->end = microtime(true);
 
 		return $response;
 	}
@@ -2743,7 +2743,7 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function doesGalleryCategoryExist($category, \bool $bypass = false) {
+	public function doesGalleryCategoryExist($category, bool $bypass = false) {
 		$response = $this->getGalleryCategory($category);
 		$exist = true;
 		if ($response->error->exist) {
@@ -2764,8 +2764,8 @@ class GalleryModel extends CoreModel {
 	 *
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
 	 */
-	public function isCategoryAssociatedWithGallery($category, $gallery, \bool $bypass = false){
-		$timeStamp = time();
+	public function isCategoryAssociatedWithGallery($category, $gallery, bool $bypass = false){
+		$timeStamp = microtime(true);
 		$response = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
@@ -2794,7 +2794,7 @@ class GalleryModel extends CoreModel {
 		if ($bypass) {
 			return $found;
 		}
-		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		return new ModelResponse($found, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
 	}
 
 	/**
@@ -2806,7 +2806,7 @@ class GalleryModel extends CoreModel {
 	 * @return array|\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listGalleriesOfCategory($category, array $filter = null, array $sortOrder = null, array $limit = null){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response  = $this->getGalleryCategory($category);
 		if($response->error->exist){
 			return $response;
@@ -2818,14 +2818,14 @@ class GalleryModel extends CoreModel {
 		$q = $this->em->createQuery($qStr);
 		$result = $q->getResult();
 
-		$collection= array();
+		$collection= [];
 		if (count($result) > 0) {
 			foreach ($result as $cog) {
 				$collection[] = $cog->getGallery()->getId();
 			}
 		}
 		if (count($collection) < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 		$columnI = $this->entity['g']['alias'] . '.id';
 		$conditionI = array('column' => $columnI, 'comparison' => 'in', 'value' => $collection);
@@ -2850,7 +2850,7 @@ class GalleryModel extends CoreModel {
 	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
 	 */
 	public function listCategoriesOfGallery(mixed $gallery, array $filter = null, array $sortOrder = null, array $limit = null){
-		$timeStamp = time();
+		$timeStamp = microtime(true);
 		$response  = $this->getGallerY($gallery);
 		if($response->error->exist){
 			return $response;
@@ -2862,14 +2862,14 @@ class GalleryModel extends CoreModel {
 		$q = $this->em->createQuery($qStr);
 		$result = $q->getResult();
 
-		$collection= array();
+		$collection= [];
 		if (count($result) > 0) {
 			foreach ($result as $cog) {
 				$collection[] = $cog->getCategory()->getId();
 			}
 		}
 		if (count($collection) < 1) {
-			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
 		}
 		$columnI = $this->entity['gc']['alias'] . '.id';
 		$conditionI = array('column' => $columnI, 'comparison' => 'in', 'value' => $collection);
