@@ -1550,11 +1550,36 @@ class GalleryModel extends CoreModel {
 			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
 			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
 		unset($response, $gallery);
+		$oStr = '';
+		if(!is_null($sortOrder)){
+			foreach($sortOrder as $column => $direction){
+				switch($column){
+					case 'gallery':
+					case 'file':
+					case 'type':
+					case 'sort_order':
+						$column = $this->entity['gm']['alias'].'.'.$column;
+						break;
+					case 'date_added':
+						$column = $this->entity['gm']['alias'].'.'.$column;
+						break;
+					case 'count_view':
+					case 'status':
+				}
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			if(!empty($oStr)){
+				$oStr = rtrim($oStr, ', ');
+				$oStr = ' ORDER BY '.$oStr.' ';
+			}
+		}
+
 		$whereStr = '';
 		if($mediaType != 'all'){
 			$whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
 		}
 		$qStr .= $whereStr;
+		$qStr .= $oStr;
 
 		$q = $this->em->createQuery($qStr);
 
@@ -1580,7 +1605,7 @@ class GalleryModel extends CoreModel {
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
 		$response = $fModel->listFiles($filter, $sortOrder, $limit);
-		$collection = [];
+		$collection = array();
 		foreach($fileIds as $id){
 			foreach($response->result->set as $entity){
 				if($id == $entity->getId()){
