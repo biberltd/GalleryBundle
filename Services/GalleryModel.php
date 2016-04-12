@@ -628,10 +628,10 @@ class GalleryModel extends CoreModel {
 		}
 		$gallery = $response->result->set;
 		unset($response);
-		$qStr = 'SELECT '.$this->entity['gallery_media']['alias']
-			.' FROM '.$this->entity['gallery_media']['name'].' '.$this->entity['gallery_media']['alias']
-			.' WHERE '.$this->entity['gallery_media']['alias'].'.gallery = '.$gallery->getId()
-			.' AND '.$this->entity['gallery_media']['alias'].'.file = '.$file->getId();
+		$qStr = 'SELECT '.$this->entity['gm']['alias']
+			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
+			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId()
+			.' AND '.$this->entity['gm']['alias'].'.file = '.$file->getId();
 
 		$q = $this->em->createQuery($qStr);
 
@@ -2176,11 +2176,36 @@ class GalleryModel extends CoreModel {
 			.' FROM '.$this->entity['gm']['name'].' '.$this->entity['gm']['alias']
 			.' WHERE '.$this->entity['gm']['alias'].'.gallery = '.$gallery->getId();
 		unset($response, $gallery);
+		$oStr = '';
+		if(!is_null($sortOrder)){
+			foreach($sortOrder as $column => $direction){
+				switch($column){
+					case 'gallery':
+					case 'file':
+					case 'type':
+					case 'sort_order':
+						$column = $this->entity['gm']['alias'].'.'.$column;
+						break;
+					case 'date_added':
+						$column = $this->entity['gm']['alias'].'.'.$column;
+						break;
+					case 'count_view':
+					case 'status':
+				}
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			if(!empty($oStr)){
+				$oStr = rtrim($oStr, ', ');
+				$oStr = ' ORDER BY '.$oStr.' ';
+			}
+		}
+
 		$whereStr = '';
 		if($mediaType != 'all'){
 			$whereStr = ' AND '.$this->entity['gm']['alias'].".type = '".$mediaType."'";
 		}
 		$qStr .= $whereStr;
+		$qStr .= $oStr;
 
 		$q = $this->em->createQuery($qStr);
 
