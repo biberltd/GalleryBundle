@@ -27,17 +27,17 @@ CREATE TABLE `gallery` (
   `preview_file` int(10) unsigned DEFAULT NULL COMMENT 'Preview image.',
   `folder` int(10) unsigned DEFAULT NULL COMMENT 'Upload folder of gallery.',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_u_gallery_id` (`id`) USING BTREE,
-  KEY `idx_n_gallery_date_published` (`date_published`) USING BTREE,
-  KEY `idx_n_gallery_date_added` (`date_added`) USING BTREE,
-  KEY `idx_n_gallery_date_updated` (`date_updated`) USING BTREE,
-  KEY `idx_n_gallery_date_unpublished` (`date_unpublished`) USING BTREE,
-  KEY `idx_f_gallery_site` (`site`) USING BTREE,
-  KEY `idx_f_preview_file` (`preview_file`) USING BTREE,
-  KEY `idx_f_gallery_folder` (`folder`),
-  CONSTRAINT `idx_f_gallery_folder` FOREIGN KEY (`folder`) REFERENCES `file_upload_folder` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `idx_f_gallery_site` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idx_f_preview_file` FOREIGN KEY (`preview_file`) REFERENCES `file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  UNIQUE KEY `idxUGalleryId` (`id`) USING BTREE,
+  KEY `idxNGalleryDatePublished` (`date_published`) USING BTREE,
+  KEY `idxNGalleryDateAdded` (`date_added`) USING BTREE,
+  KEY `idxNGalleryDateUpdated` (`date_updated`) USING BTREE,
+  KEY `idxNGalleryDateUnpublished` (`date_unpublished`) USING BTREE,
+  KEY `idxFGallerySite` (`site`) USING BTREE,
+  KEY `idxFPreviewFile` (`preview_file`) USING BTREE,
+  KEY `idxFGalleryFolder` (`folder`),
+  CONSTRAINT `idxFGalleryFolder` FOREIGN KEY (`folder`) REFERENCES `file_upload_folder` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `idxFGallerySite` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFPreviewFile` FOREIGN KEY (`preview_file`) REFERENCES `file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -51,11 +51,11 @@ CREATE TABLE `gallery_category` (
   `date_removed` datetime DEFAULT NULL COMMENT 'Date when the gallery is removed.',
   `parent` int(5) unsigned DEFAULT NULL COMMENT 'Parent category.',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_u_gallery_Category_id` (`id`),
-  KEY `idx_n_gallery_category_date_added` (`date_added`),
-  KEY `idx_n_gallery_category_date_updated` (`date_updated`),
-  KEY `idx_n_gallery_category_date_removed` (`date_removed`),
-  KEY `idx_f_gallery_category_parent` (`parent`),
+  UNIQUE KEY `idxUGalleryCategoryId` (`id`),
+  KEY `idxNGalleryCategoryDateAdded` (`date_added`),
+  KEY `idxNGalleryCategoryDateUpdated` (`date_updated`),
+  KEY `idxNGalleryCategoryDateRemoved` (`date_removed`),
+  KEY `idxFGalleryCategoryParent` (`parent`),
   CONSTRAINT `idx_f_gallery_category_parent` FOREIGN KEY (`parent`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;
 
@@ -69,11 +69,11 @@ CREATE TABLE `gallery_category_localization` (
   `name` varchar(155) COLLATE utf8_turkish_ci DEFAULT NULL COMMENT 'Name of category.',
   `url_key` varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL COMMENT 'Auto generated from name.',
   PRIMARY KEY (`category`,`language`),
-  UNIQUE KEY `idx_u_gallery_category_localization` (`category`,`language`),
-  UNIQUE KEY `idx_u_gallery_category_localization_url_key` (`category`,`language`,`url_key`),
-  KEY `idx_f_gallery_category_localization_language` (`language`),
-  CONSTRAINT `idx_f_gallery_category_localization_category` FOREIGN KEY (`category`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idx_f_gallery_category_localization_language` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `idxUGalleryCategoryLocalization` (`category`,`language`),
+  UNIQUE KEY `idxUGalleryCategoryLocalizationUrlKey` (`category`,`language`,`url_key`),
+  KEY `idxFGalleryCategoryLocalizationLanguage` (`language`),
+  CONSTRAINT `idxFGalleryCategoryLocalizationCategory` FOREIGN KEY (`category`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFGalleryCategoryLocalizationLanguage` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;
 
 -- ----------------------------
@@ -87,10 +87,10 @@ CREATE TABLE `gallery_localization` (
   `url_key` varchar(155) COLLATE utf8_turkish_ci NOT NULL COMMENT 'Localized url key of the gallery.',
   `description` varchar(255) COLLATE utf8_turkish_ci NOT NULL COMMENT 'Localized description of the gallery.',
   PRIMARY KEY (`gallery`,`language`),
-  UNIQUE KEY `idx_u_gallery_localization` (`language`,`gallery`) USING BTREE,
-  UNIQUE KEY `idx_u_gallery_localization_url_key` (`language`,`url_key`) USING BTREE,
-  CONSTRAINT `idx_f_gallery_localization_gallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`),
-  CONSTRAINT `idx_f_gallery_localization_language` FOREIGN KEY (`language`) REFERENCES `language` (`id`)
+  UNIQUE KEY `idxUGalleryLocalization` (`language`,`gallery`) USING BTREE,
+  UNIQUE KEY `idxUGalleryLocalizationUrlKey` (`language`,`url_key`) USING BTREE,
+  CONSTRAINT `idxFGalleryLocalizationGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`),
+  CONSTRAINT `idxFGalleryLocalizationLanguage` FOREIGN KEY (`language`) REFERENCES `language` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -105,9 +105,28 @@ CREATE TABLE `gallery_media` (
   `date_added` datetime NOT NULL COMMENT 'Date when the file is added to gallery.',
   `count_view` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'View count of the file within the gallery.',
   `status` char(1) COLLATE utf8_turkish_ci NOT NULL DEFAULT 'p' COMMENT 'p:published,u:unpublished,d:deleted',
-  UNIQUE KEY `idx_u_gallery_media` (`gallery`,`file`) USING BTREE,
-  KEY `idx_f_gallery_media_file` (`file`) USING BTREE,
-  KEY `idx_n_gallery_media_date_added` (`date_added`) USING BTREE,
-  CONSTRAINT `idx_f_gallery_media_file` FOREIGN KEY (`file`) REFERENCES `file` (`id`),
-  CONSTRAINT `idx_f_gallery_media_gallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`)
+  UNIQUE KEY `idxUGalleryMedia` (`gallery`,`file`) USING BTREE,
+  KEY `idxFGalleryMediaFile` (`file`) USING BTREE,
+  KEY `idxNGalleryMediaDateAdded` (`date_added`) USING BTREE,
+  CONSTRAINT `idxFGalleryMediaFile` FOREIGN KEY (`file`) REFERENCES `file` (`id`),
+  CONSTRAINT `idxFGalleryMediaGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
+
+
+-- ----------------------------
+--  Table structure for `categories_of_gallery`
+-- ----------------------------
+DROP TABLE IF EXISTS `categories_of_gallery`;
+CREATE TABLE `categories_of_gallery` (
+  `date_added` datetime NOT NULL,
+  `date_updated` datetime NOT NULL,
+  `date_removed` datetime DEFAULT NULL,
+  `gallery` int(10) unsigned DEFAULT NULL,
+  `category` int(5) unsigned DEFAULT NULL,
+  KEY `gallery` (`gallery`),
+  KEY `category` (`category`),
+  CONSTRAINT `idxFCategoriesOfGalleryGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `idxFCategoriesOfGalleryCategory` FOREIGN KEY (`category`) REFERENCES `gallery` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+SET FOREIGN_KEY_CHECKS = 1;

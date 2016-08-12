@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<skipper version="3.2.3.1247" mvc="Symfony2" orm="Doctrine2">
+<skipper version="3.2.6.1309" mvc="Symfony2" orm="Doctrine2">
   <module name="\GalleryBundle" local-name="GalleryBundle" namespace="\BiberLtd\Bundle\GalleryBundle\Entity" local-namespace="BiberLtd\Bundle\GalleryBundle\Entity" export-format="Doctrine2Php" export-path="../Entity" uuid="f986ba73-0f06-4a31-887c-578a5ee61a6f">
     <entity name="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" local-name="Gallery" namespace="\BiberLtd\Bundle\GalleryBundle\Entity" description="Holds a list of media gallery definitions." uuid="7a351195-bb3f-4d25-bb4a-f44510b546ff">
       <field name="id" description="System given id." type="integer" size="10" required="true" unique="true" primary="true" auto-increment="true" uuid="a72f417b-47fe-4862-876d-97198fcb85b3"/>
@@ -16,19 +16,19 @@
       <field name="preview_file" description="Preview image of gallery." type="integer" size="15" uuid="be126785-b0f5-4c5b-8965-8425206d47da"/>
       <field name="folder" description="File upload folder where files of gallery to be uploaded." type="integer" size="10" uuid="96e60569-fb85-4093-a6a5-6646aea593e7"/>
       <field name="sort_order" description="Custom sort order." type="integer" default="1" required="true" uuid="0d98c93b-3ac2-469e-8d1b-3910b3f87232"/>
-      <index name="idx_u_gallery_id" unique="true">
+      <index name="idxUGalleryId" unique="true">
         <index-field name="id"/>
       </index>
-      <index name="idx_n_gallery_date_published">
+      <index name="idxNGalleryDatePublished">
         <index-field name="date_published"/>
       </index>
-      <index name="idx_n_gallery_date_added">
+      <index name="idxNGalleryDateAdded">
         <index-field name="date_added"/>
       </index>
-      <index name="idx_n_gallery_date_updated">
+      <index name="idxNGalleryDateUpdated">
         <index-field name="date_updated"/>
       </index>
-      <index name="idx_n_gallery_date_unpublished">
+      <index name="idxNGalleryDateUnpublished">
         <index-field name="date_unpublished"/>
       </index>
       <orm-attributes>
@@ -41,16 +41,16 @@
         <attribute name="export-file-name">Gallery.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\SiteManagementBundle\Entity\Site" caption="id_f_site_gallery" inverse-alias="site" many-owner="true" many-inverse="false" uuid="457c327e-fd6a-42a2-b9c6-a2e652f7e3bd">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\SiteManagementBundle\Entity\Site" caption="idxFSiteGallery" inverse-alias="site" many-owner="true" many-inverse="false" uuid="457c327e-fd6a-42a2-b9c6-a2e652f7e3bd">
       <association-field from="site" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\FileManagementBundle\Entity\File" caption="idx_f_gallery_preview_file" inverse-alias="preview_file" many-owner="true" many-inverse="false" uuid="950c249b-f49a-4e2c-8cfb-dde43d48523d">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\FileManagementBundle\Entity\File" caption="idxFGalleryPreviewFile" inverse-alias="preview_file" description="" many-owner="true" many-inverse="false" uuid="950c249b-f49a-4e2c-8cfb-dde43d48523d">
       <association-field from="preview_file" to="id"/>
     </association>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder" caption="idx_f_gallery_folder" inverse-alias="folder" many-owner="true" many-inverse="false" uuid="d19b665d-e0ea-4939-a7b0-86527a7dc1d1">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" to="\BiberLtd\Bundle\FileManagementBundle\Entity\FileUploadFolder" caption="idxFGalleryFolder" inverse-alias="folder" description="" many-owner="true" many-inverse="false" uuid="d19b665d-e0ea-4939-a7b0-86527a7dc1d1">
       <association-field from="folder" to="id"/>
     </association>
     <entity name="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization" local-name="GalleryLocalization" namespace="\BiberLtd\Bundle\GalleryBundle\Entity" description="Holds localized values for gallery entries." uuid="88b2aed7-f7c1-4160-9880-2b811da0b422">
@@ -60,11 +60,11 @@
       <field name="url_key" description="Localized url key of gallery." type="string" size="155" required="true" uuid="d2552562-2440-49b4-917c-403ca9228c48"/>
       <field name="description" description="Localized description of gallery." type="string" size="255" uuid="16b1acfa-b51a-494a-9dd9-83717e6cb9da"/>
       <field name="keywords" description="Meta keywords." type="text" uuid="35e93c50-4693-4330-9a4e-3b21fb07d503"/>
-      <index name="idx_u_gallery_localization" unique="true">
+      <index name="idxUGalleryLocalization" unique="true">
         <index-field name="gallery"/>
         <index-field name="language"/>
       </index>
-      <index name="idx_u_gallery_localization_url_key">
+      <index name="idxUGalleryLocalizationUrlKey">
         <index-field name="gallery"/>
         <index-field name="language"/>
         <index-field name="url_key"/>
@@ -79,13 +79,13 @@
         <attribute name="export-file-name">GalleryLocalization.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization" to="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" caption="idx_f_gallery_localization_gallery" owner-alias="localizations" inverse-alias="gallery" many-owner="true" many-inverse="false" parent-required="true" uuid="b83033bc-e5cf-44cf-b13c-c64a00587564">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization" to="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" caption="idxFGalleryLocalizationGallery" owner-alias="localizations" inverse-alias="gallery" many-owner="true" many-inverse="false" parent-required="true" uuid="b83033bc-e5cf-44cf-b13c-c64a00587564">
       <association-field from="gallery" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization" to="\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language" caption="idx_f_gallery_localization_language" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="a393d6cb-6dfa-4f98-abff-05f62c4ac62a">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization" to="\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language" caption="idxFGalleryLocalizationLanguage" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="a393d6cb-6dfa-4f98-abff-05f62c4ac62a">
       <association-field from="language" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -131,16 +131,16 @@
       <field name="date_updated" description="Date when the category is last updated." type="datetime" required="true" uuid="9d369543-60bf-49f9-a22c-2dc028eb9dfa"/>
       <field name="date_removed" description="Date when the category removed." type="datetime" uuid="8139afe4-6a20-4f29-a8fd-e685a650341d"/>
       <field name="parent" description="Parent category if exists." type="integer" size="5" uuid="67fae10d-faba-4869-bde1-45f01005f588"/>
-      <index name="idx_u_gallery_category_id" unique="true">
+      <index name="idxNGalleryCategoryId" unique="true">
         <index-field name="id"/>
       </index>
-      <index name="idx_n_gallery_category_date_added">
+      <index name="idxNGalleryCategoryDateAdded">
         <index-field name="date_added"/>
       </index>
-      <index name="idx_n_gallery_category_date_updated">
+      <index name="idxNGalleryCategoryDateUpdated">
         <index-field name="date_updated"/>
       </index>
-      <index name="idx_n_gallery_category_date_removed">
+      <index name="idxNGalleryCategoryDateRemoved">
         <index-field name="date_removed"/>
       </index>
       <orm-attributes>
@@ -153,7 +153,7 @@
         <attribute name="table">gallery_category</attribute>
       </orm-attributes>
     </entity>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idx_f_gallery_category_parent" owner-alias="children" inverse-alias="parent" many-owner="true" many-inverse="false" uuid="6bdd4756-e0bc-45bb-af07-5c1334df1954">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idxFGalleryCategoryParent" owner-alias="children" inverse-alias="parent" many-owner="true" many-inverse="false" uuid="6bdd4756-e0bc-45bb-af07-5c1334df1954">
       <association-field from="parent" to="id"/>
     </association>
     <entity name="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization" local-name="GalleryCategoryLocalization" namespace="\BiberLtd\Bundle\GalleryBundle\Entity" description="Holds localized values of gallery categories." uuid="b2c6f983-6e9e-4557-94f9-609968c97a02">
@@ -161,7 +161,7 @@
       <field name="language" description="Localization language." type="integer" size="5" primary="true" uuid="d19bf67f-8a4f-4196-8d17-84f42592a803"/>
       <field name="name" description="Localized category name." type="string" size="155" required="true" uuid="45264509-6298-42bf-9246-25de4c86dded"/>
       <field name="url_key" description="Auto generated from name." type="string" size="255" required="true" uuid="ab6dcade-1ef5-455d-8597-ef81b531a547"/>
-      <index name="idx_u_gallery_category_url_key">
+      <index name="idxNGalleryCategoryUrlKey">
         <index-field name="url_key"/>
       </index>
       <orm-attributes>
@@ -174,13 +174,13 @@
         </attribute>
       </orm-attributes>
     </entity>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization" to="\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language" caption="idx_f_gallery_category_localization_language" inverse-alias="language" many-owner="true" many-inverse="false" uuid="97ef5905-ac76-4575-a7bf-bb7cd1384aaf">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization" to="\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language" caption="idxFGalleryCategoryLocalizationLanguage" inverse-alias="language" description="" many-owner="true" many-inverse="false" uuid="97ef5905-ac76-4575-a7bf-bb7cd1384aaf">
       <association-field from="language" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idx_f_gallery_category_localization_category" owner-alias="localizations" inverse-alias="category" many-owner="true" many-inverse="false" uuid="e30e81e3-1353-4266-a88e-5f4a6b20352d">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategoryLocalization" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idxFGalleryCategoryLocalizationCategory" owner-alias="localizations" inverse-alias="category" many-owner="true" many-inverse="false" uuid="e30e81e3-1353-4266-a88e-5f4a6b20352d">
       <association-field from="category" to="id"/>
     </association>
     <entity name="\BiberLtd\Bundle\GalleryBundle\Entity\CategoriesOfGallery" local-name="CategoriesOfGallery" namespace="\BiberLtd\Bundle\GalleryBundle\Entity" description="Associates categories with galleries." uuid="55fea55d-014a-4af4-8cde-6bb9332d7e39">
@@ -189,13 +189,13 @@
       <field name="date_removed" description="Date when the association is removed." type="datetime" uuid="88de4e75-1abf-49a6-9167-8c35776a5d64"/>
       <field name="gallery" type="integer" size="10" primary="true" uuid="0734176d-f187-4d51-a465-ac97d3e503ae"/>
       <field name="category" type="integer" size="5" primary="true" uuid="5bcfc23e-6951-49b1-a7c8-89c6e68e8186"/>
-      <index name="idx_n_categories_of_gallery_date_added">
+      <index name="idxNCategoriesOfGalleryDateAdded">
         <index-field name="date_added"/>
       </index>
-      <index name="idx_n_categories_of_gallery_date_updated">
+      <index name="idxNCategoriesOfGalleryDateUpdated">
         <index-field name="date_updated"/>
       </index>
-      <index name="idx_n_categories_of_gallery_date_removed">
+      <index name="idxNCategoriesOfGalleryDateRemoved">
         <index-field name="date_removed"/>
       </index>
       <orm-attributes>
@@ -209,13 +209,13 @@
         <attribute name="export-file-name">CategoriesOfGallery.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\CategoriesOfGallery" to="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" caption="idx_f_categories_of_gallery_gallery" inverse-alias="gallery" many-owner="true" many-inverse="false" uuid="4264b639-d965-4c07-90bb-322dd765d46d">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\CategoriesOfGallery" to="\BiberLtd\Bundle\GalleryBundle\Entity\Gallery" caption="idxFCategoriesOfGalleryGallery" inverse-alias="gallery" many-owner="true" many-inverse="false" uuid="4264b639-d965-4c07-90bb-322dd765d46d">
       <association-field from="gallery" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\CategoriesOfGallery" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idx_f_categories_of_gallery_category" inverse-alias="category" many-owner="true" many-inverse="false" uuid="2620717a-8122-4e98-b00d-82e9336f208a">
+    <association from="\BiberLtd\Bundle\GalleryBundle\Entity\CategoriesOfGallery" to="\BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory" caption="idxFCategoriesOfGalleryCategory" inverse-alias="category" many-owner="true" many-inverse="false" uuid="2620717a-8122-4e98-b00d-82e9336f208a">
       <association-field from="category" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -228,12 +228,12 @@
     </orm-attributes>
   </module>
   <visual-data>
-    <entity uuid="480db364-97c4-4e1e-8457-6a62248c33dd" bg-color="4294967295" hdr-color="4292006610" position-x="57" position-y="22" size-x="0" size-x2="135" size-y="0" size-y2="87"/>
-    <entity uuid="55fea55d-014a-4af4-8cde-6bb9332d7e39" bg-color="4294967295" hdr-color="4292006610" position-x="149" position-y="286" size-x="0" size-x2="130" size-y="0" size-y2="87"/>
-    <entity uuid="7a351195-bb3f-4d25-bb4a-f44510b546ff" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="363" position-y="12" size-x="0" size-x2="147" size-y="0" size-y2="199"/>
-    <entity uuid="88b2aed7-f7c1-4160-9880-2b811da0b422" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="561" position-y="14" size-x="0" size-x2="123" size-y="0" size-y2="87"/>
-    <entity uuid="b2c6f983-6e9e-4557-94f9-609968c97a02" bg-color="4294967295" hdr-color="4292006610" position-x="55" position-y="192" size-x="0" size-x2="137" size-y="0" size-y2="73"/>
+    <entity uuid="480db364-97c4-4e1e-8457-6a62248c33dd" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="98" position-y="43" size-x="0" size-x2="124" size-y="0" size-y2="87"/>
+    <entity uuid="55fea55d-014a-4af4-8cde-6bb9332d7e39" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="149" position-y="317" size-x="0" size-x2="124" size-y="0" size-y2="87"/>
+    <entity uuid="7a351195-bb3f-4d25-bb4a-f44510b546ff" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="356" position-y="-16" size-x="0" size-x2="142" size-y="0" size-y2="213"/>
+    <entity uuid="88b2aed7-f7c1-4160-9880-2b811da0b422" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="666" position-y="104" size-x="0" size-x2="119" size-y="0" size-y2="101"/>
+    <entity uuid="b2c6f983-6e9e-4557-94f9-609968c97a02" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="-22" position-y="235" size-x="0" size-x2="129" size-y="0" size-y2="73"/>
     <entity uuid="c021f1ee-4d6d-45e9-b8e4-0e36fe3a64f6" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="366" position-y="255" size-x="0" size-x2="120" size-y="0" size-y2="101"/>
-    <module uuid="f986ba73-0f06-4a31-887c-578a5ee61a6f" bg-color="#D3F2A9" size-x="0" size-x2="804" size-y="0" size-y2="493"/>
+    <module uuid="f986ba73-0f06-4a31-887c-578a5ee61a6f" bg-color="#D3F2A9" size-x="42" size-x2="804" size-y="36" size-y2="493"/>
   </visual-data>
 </skipper>
