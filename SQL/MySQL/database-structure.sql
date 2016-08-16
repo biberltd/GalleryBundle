@@ -35,9 +35,9 @@ CREATE TABLE `gallery` (
   KEY `idxFGallerySite` (`site`) USING BTREE,
   KEY `idxFPreviewFile` (`preview_file`) USING BTREE,
   KEY `idxFGalleryFolder` (`folder`),
-  CONSTRAINT `idxFGalleryFolder` FOREIGN KEY (`folder`) REFERENCES `file_upload_folder` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `idxFGallerySite` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFPreviewFile` FOREIGN KEY (`preview_file`) REFERENCES `file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `idxFFolderOfGallery` FOREIGN KEY (`folder`) REFERENCES `file_upload_folder` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `idxFSiteOfGallery` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFPreviewFileOfGallery` FOREIGN KEY (`preview_file`) REFERENCES `file` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -56,7 +56,7 @@ CREATE TABLE `gallery_category` (
   KEY `idxNGalleryCategoryDateUpdated` (`date_updated`),
   KEY `idxNGalleryCategoryDateRemoved` (`date_removed`),
   KEY `idxFGalleryCategoryParent` (`parent`),
-  CONSTRAINT `idx_f_gallery_category_parent` FOREIGN KEY (`parent`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFParentOfGalleryCategory` FOREIGN KEY (`parent`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;
 
 -- ----------------------------
@@ -72,8 +72,8 @@ CREATE TABLE `gallery_category_localization` (
   UNIQUE KEY `idxUGalleryCategoryLocalization` (`category`,`language`),
   UNIQUE KEY `idxUGalleryCategoryLocalizationUrlKey` (`category`,`language`,`url_key`),
   KEY `idxFGalleryCategoryLocalizationLanguage` (`language`),
-  CONSTRAINT `idxFGalleryCategoryLocalizationCategory` FOREIGN KEY (`category`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFGalleryCategoryLocalizationLanguage` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFGalleryOfGalleryCategoryLocalization` FOREIGN KEY (`category`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFLanguageOfGalleryCategoryLocalization` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;
 
 -- ----------------------------
@@ -89,8 +89,8 @@ CREATE TABLE `gallery_localization` (
   PRIMARY KEY (`gallery`,`language`),
   UNIQUE KEY `idxUGalleryLocalization` (`language`,`gallery`) USING BTREE,
   UNIQUE KEY `idxUGalleryLocalizationUrlKey` (`language`,`url_key`) USING BTREE,
-  CONSTRAINT `idxFGalleryLocalizationGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`),
-  CONSTRAINT `idxFGalleryLocalizationLanguage` FOREIGN KEY (`language`) REFERENCES `language` (`id`)
+  CONSTRAINT `idxFGalleryOfGalleryLocalization` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`),
+  CONSTRAINT `idxFLanguageOfGalleryLocalization` FOREIGN KEY (`language`) REFERENCES `language` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -108,8 +108,8 @@ CREATE TABLE `gallery_media` (
   UNIQUE KEY `idxUGalleryMedia` (`gallery`,`file`) USING BTREE,
   KEY `idxFGalleryMediaFile` (`file`) USING BTREE,
   KEY `idxNGalleryMediaDateAdded` (`date_added`) USING BTREE,
-  CONSTRAINT `idxFGalleryMediaFile` FOREIGN KEY (`file`) REFERENCES `file` (`id`),
-  CONSTRAINT `idxFGalleryMediaGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`)
+  CONSTRAINT `idxFFileOfGalleryMedia` FOREIGN KEY (`file`) REFERENCES `file` (`id`),
+  CONSTRAINT `idxFGalleryOfGalleryMedia` FOREIGN KEY (`gallery`) REFERENCES `gallery` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 
@@ -125,8 +125,8 @@ CREATE TABLE `categories_of_gallery` (
   `category` int(5) unsigned DEFAULT NULL,
   KEY `gallery` (`gallery`),
   KEY `category` (`category`),
-  CONSTRAINT `idxFCategoriesOfGalleryGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `idxFCategoriesOfGalleryCategory` FOREIGN KEY (`category`) REFERENCES `gallery` (`id`) ON DELETE CASCADE
+  CONSTRAINT `idxFGalleryOfCategoriesOfGallery` FOREIGN KEY (`gallery`) REFERENCES `gallery_category` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `idxFCategoryOfCategoriesOfGallery` FOREIGN KEY (`category`) REFERENCES `gallery` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
