@@ -32,8 +32,8 @@ class CategoriesOfGallery extends CoreEntity
     public $date_added;
 
     /**
-     * @ORM\Column(type="datetime", nullable=false
-     *     @var \DateTime )
+     * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_updated;
 
