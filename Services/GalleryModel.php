@@ -2231,6 +2231,9 @@ class GalleryModel extends CoreModel {
 		$fModel = $this->kernel->getContainer()->get('filemanagement.model');
 
 		$response = $fModel->listFiles($filter, $sortOrder, $limit);
+        if ($response->error->exist) {
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+        }
 		$collection = array();
 		foreach($fileIds as $id){
 			foreach($response->result->set as $entity){
