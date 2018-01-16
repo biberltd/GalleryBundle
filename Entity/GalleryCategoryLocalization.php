@@ -31,10 +31,7 @@ class GalleryCategoryLocalization extends CoreEntity
     private $language;
 
     /**
-     * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory",
-     *     inversedBy="localizations"
-     * )
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryCategory", inversedBy="localizations")
      * @ORM\JoinColumn(name="category", referencedColumnName="id")
      * @ORM\Id
      */

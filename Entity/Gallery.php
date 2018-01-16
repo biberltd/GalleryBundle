@@ -6,8 +6,8 @@
  * @author      Can Berkol
  * @author		Murat Ünal
  *
- * @version     1.0.3
- * @date        28.11.2013
+ * @version     1.0.4
+ * @date        09.08.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -63,35 +63,37 @@ class Gallery extends CoreLocalizableEntity
     private $date_unpublished;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_media;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_image;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_video;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_audio;
 
     /**
-     * @ORM\Column(type="integer", length=10, nullable=false)
+     * @ORM\Column(type="integer", length=10, nullable=false, options={"default":0})
      */
     private $count_document;
 
     /**
-     * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization",
-     *     mappedBy="gallery"
-     * )
+     * @ORM\Column(type="integer", nullable=false, options={"default":1})
+     */
+    private $sort_order;
+
+    /**
+     * @ORM\OneToMany(targetEntity="BiberLtd\Bundle\GalleryBundle\Entity\GalleryLocalization", mappedBy="gallery")
      */
     protected $localizations;
 
@@ -522,9 +524,49 @@ class Gallery extends CoreLocalizableEntity
         return $this->folder;
     }
 
+	/**
+	 * @name        getSortOrder ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.4
+	 * @version     1.0.4
+	 *
+	 * @return      mixed
+	 */
+	public function getSortOrder() {
+		return $this->sort_order;
+	}
+
+	/**
+	 * @name       setSortOrder ()
+	 *
+	 * @author      Can Berkol
+	 *
+	 * @since       1.0.4
+	 * @version     1.0.4
+	 *
+	 * @param       mixed $sort_order
+	 *
+	 * @return      $this
+	 */
+	public function setSortOrder($sort_order) {
+		if (!$this->setModified('sort_order', $sort_order)->isModified()) {
+			return $this;
+		}
+		$this->sort_order = $sort_order;
+
+		return $this;
+	}
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.4                      09.08.2015
+ * Can Berkol
+ * **************************************
+ * FR :: added sort_order property.
+ *
  * **************************************
  * v1.0.3                      Can Berkol
  * 28.11.2013
